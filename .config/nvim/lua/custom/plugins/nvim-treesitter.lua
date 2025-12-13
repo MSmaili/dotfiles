@@ -73,43 +73,11 @@ return {
 		require("nvim-treesitter").install(opts.ensure_installed)
 
 		vim.api.nvim_create_autocmd("FileType", {
-			pattern = {
-				"javascript",
-				"typescript",
-				"typescriptreact",
-				"lua",
-				"json",
-				"prisma",
-				"sql",
-				"regex",
-				"html",
-				"css",
-				"scss",
-				"astro",
-				"go",
-				"gomod",
-				"sh",
-				"markdown",
-				"markdown_inline",
-				"http",
-				"query",
-				"vim",
-				"vimdoc",
-				"gitignore",
-				"gitcommit",
-				"gitconfig",
-				"diff",
-				"gitrebase",
-				"toml",
-				"yaml",
-				"python",
-			},
 			callback = function()
-				local ok = pcall(vim.treesitter.start)
-				if not ok then
-					print("Treesitter not enabling")
+				if vim.api.nvim_buf_line_count(0) > 10000 then
 					return
 				end
+				pcall(vim.treesitter.start)
 			end,
 		})
 	end,
