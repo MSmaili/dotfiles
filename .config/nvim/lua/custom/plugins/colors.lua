@@ -49,14 +49,6 @@ return {
 					highlight.undercurl = false
 				end
 			end,
-			highlight_groups = {
-				Visual = {
-					bg = "#9ccfd8",
-					fg = "none",
-					blend = 0,
-					inherit = false,
-				},
-			},
 		},
 	},
 	{
