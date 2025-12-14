@@ -71,6 +71,29 @@ extract() {
     fi
 }
 
+# Compress a file/folder to a desired archive
+compress() {
+    if (( $# < 2 )); then
+        echo "Usage: compress file_or_dir... archive"
+        return 1
+    fi
+
+    archive="${argv[-1]}"
+    inputs=("${(@)argv[1,-2]}")
+
+    case "$archive" in
+        *.tar.bz2|*.tbz2) tar cjf "$archive" -- "${inputs[@]}" ;;
+        *.tar.gz|*.tgz)   tar czf "$archive" -- "${inputs[@]}" ;;
+        *.tar.xz)        tar cJf "$archive" -- "${inputs[@]}" ;;
+        *.tar)           tar cf  "$archive" -- "${inputs[@]}" ;;
+        *.zip)           zip -r  "$archive" -- "${inputs[@]}" ;;
+        *)
+            echo "'$archive' has an unsupported format"
+            return 1
+            ;;
+    esac
+}
+
 # Fuzzy find and kill process
 fkill() {
     command -v fzf >/dev/null 2>&1 || { echo "Install fzf first!"; exit 1; }
