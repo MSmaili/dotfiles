@@ -1,7 +1,7 @@
 theme = Catppuccin Mocha
 background-opacity = 0.90
 background-blur = 30
-# background-blur-radius = 30
+background-blur-radius = 30
 macos-titlebar-style = hidden
 macos-option-as-alt = true
 # show the border around
@@ -9,11 +9,16 @@ macos-window-shadow = true
 #minimum-contrast = 2
 #bold-is-bright = true
 
+# Fonts
 font-family = "MonoLisa Variable"
 font-size = 17
-font-variation = wght=400
-font-variation-bold = wght=500
-#font-thicken = true
+font-variation-bold = wght=400
+font-variation-bold = opsz=17
+font-variation-italic = wght=400
+font-variation-italic = opsz=17
+font-variation-bold-italic = wght=400
+font-variation-bold-italic = opsz=17
+freetype-load-flags = no-hinting
 font-feature = calt, liga, zero, dlig, ss01, ss02, ss05, ss06, ss07, ss10, ss11, ss13, ss15, ss16, ss17, ss18
 
 cursor-style = block
@@ -23,19 +28,9 @@ copy-on-select = true
 cursor-invert-fg-bg = false
 cursor-color = "#a6adc8"
 cursor-text = "#1e1e2e"
-#animation-duration = 0
 
 window-padding-x = 5
 window-padding-y = 5,1
-
-# cursor-color = "#f5e0dc"
-# cursor-text = "#1e1e2e"
-#
-#
-# cursor-color = "#89b4fa"
-# cursor-text = "#1e1e2e"
-# cursor-color = "#a6e3a1"
-# cursor-text = "#1e1e2e"
 
 #cilpboard
 clipboard-write = allow
