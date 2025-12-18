@@ -7,5 +7,6 @@
 .idea/
 .vscode/
 .agent/
+.kiro/
 */.agent/
 **/.agent/
