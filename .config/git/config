@@ -17,6 +17,7 @@
 
 [merge]
 	conflictstyle = diff3
+	tool = codediff
 
 [diff]
 	colorMoved = default
@@ -30,3 +31,5 @@
 	sort = -committerdate
 [include]
   path = ./config.local
+[mergetool "codediff"]
+	cmd = nvim \"$MERGED\" -c \"CodeDiff merge \\\"$MERGED\\\"\"
