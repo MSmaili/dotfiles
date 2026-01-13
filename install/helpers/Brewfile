@@ -12,7 +12,6 @@ brew "neovim"
 brew "stow"
 brew "eza"
 brew "btop"
-brew "tree-sitter"
 
 # GUI applications
 cask "ghostty"
