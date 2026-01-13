@@ -9,6 +9,7 @@ ensure_brew_installed
 brew_bundle_install "$BASE_DIR/Brewfile"
 
 bash "$BASE_DIR/../common.sh"
+bash "$BASE_DIR/../cargo.sh"
 
 if  ask_yes_no "Set macos_settings?"; then
     bash "$BASE_DIR/macos_settings.sh"
