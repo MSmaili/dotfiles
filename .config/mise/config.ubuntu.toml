@@ -1,0 +1,11 @@
+[tools]
+bat = "latest"
+delta = "latest"
+fd = "latest"
+fzf = "latest"
+jq = "latest"
+k9s = "latest"
+lazydocker = "latest"
+lazygit = "latest"
+ripgrep = "latest"
+tmux = "latest"

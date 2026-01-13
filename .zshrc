@@ -13,6 +13,15 @@ path=(
 )
 export PATH
 
+# ------------------------------------------------------------
+# mise
+# ------------------------------------------------------------
+[[ -f /etc/os-release ]] && grep -q 'ubuntu' /etc/os-release && export MISE_ENV=ubuntu
+
+if command -v mise >/dev/null 2>&1; then
+    eval "$(mise activate zsh)"
+fi
+
 # System-specific configs
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
@@ -116,13 +125,6 @@ fi
 bindkey -e
 bindkey '^p' history-search-backward
 bindkey '^n' history-search-forward
-
-# ------------------------------------------------------------
-# mise
-# ------------------------------------------------------------
-if command -v mise >/dev/null 2>&1; then
-    eval "$(mise activate zsh)"
-fi
 
 # ------------------------------------------------------------
 # Aliases

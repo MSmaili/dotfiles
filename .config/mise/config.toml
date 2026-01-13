@@ -1,5 +1,5 @@
 [tools]
 go = "latest"
 java = "21"
-node = "latest"
+node = "22"
 rust = "nightly"
