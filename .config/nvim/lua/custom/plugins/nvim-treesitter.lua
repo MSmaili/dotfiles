@@ -39,7 +39,6 @@ return {
 			"jsdoc",
 			"json",
 			"json5",
-			"jsonc",
 			"prisma",
 			"sql",
 			"regex",
