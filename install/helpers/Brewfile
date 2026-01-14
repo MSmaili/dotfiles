@@ -10,7 +10,6 @@ brew "lazydocker"
 brew "tmux"
 brew "neovim"
 brew "stow"
-brew "eza"
 brew "btop"
 
 # GUI applications
