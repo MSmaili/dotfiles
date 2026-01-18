@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-session="$1"
+session="${1#❯ }"
 
 # If session does not exist → exit silently
 tmux has-session -t "$session" 2>/dev/null || exit 0

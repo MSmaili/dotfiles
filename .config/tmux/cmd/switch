@@ -3,43 +3,30 @@
 DIR="$(cd "$(dirname "$0")" && pwd)"
 PREVIEW="$DIR/switch-preview.sh"
 
-clean_sessions() {
-    CURRENT=$(tmux display-message -p "#{session_name}")
-    tmux list-sessions -F "#{session_name}" |
-    sed "s/^$CURRENT$/➤ &/"
-}
-
 main() {
-    result=$(clean_sessions |
+    result=$(muxie list sessions --windows --format=flat --marker '❯' | \
         fzf --height=100% --ansi --layout=reverse \
-            --prompt="Session › " \
+            --prompt="Session:Window › " \
             --border=sharp \
             --padding=0 \
             --margin=0 \
             --preview="$PREVIEW {1}" \
             --preview-window=right:70%:hidden \
-            --print-query \
             --exit-0 \
-            --bind "alt-c:execute(tmux new-session -d -s {q})+accept" \
-            --bind 'ctrl-x:execute-silent(tmux kill-session -t {1})+reload(tmux list-sessions -F "#{session_name}")'
+            --bind 'ctrl-x:execute-silent(tmux kill-session -t {1})+reload(muxie list sessions --windows --format=flat --marker "❯ ")'
     )
 
-    # Exit if cancelled
     [[ -z "$result" ]] && exit 0
 
-    query=$(echo "$result" | sed -n '1p')
-    selection=$(echo "$result" | sed -n '2p')
+    IFS=':' read -r session window <<< "$result"
 
-    # After Alt-C: selection == query
-    # → Just attach to the created session
-    if [[ "$selection" == "$query" ]]; then
-        tmux switch-client -t "$query"
-        exit 0
+    if [[ -n "$window" ]]; then
+        # Switch to session first, then select window
+        tmux switch-client -t "$session"
+        tmux select-window -t "$session:$window"
+    else
+        tmux switch-client -t "$session"
     fi
-
-    # Normal existing session switching
-    normalized_selection=$(echo "$selection" | sed 's/^➤ //')
-    tmux switch-client -t "$normalized_selection"
 }
 
 main
