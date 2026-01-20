@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
 set -e
 
-echo "🎩 Macos setup..."
-BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$BASE_DIR/helpers/brew.sh"
+echo "🍎 macOS setup..."
 
 ensure_brew_installed
-brew_bundle_install "$BASE_DIR/Brewfile"
+brew_bundle_install
 
-bash "$BASE_DIR/../common.sh"
-bash "$BASE_DIR/../cargo.sh"
+bash "$INSTALL_DIR/common.sh"
 
-if  ask_yes_no "Set macos_settings?"; then
-    bash "$BASE_DIR/macos_settings.sh"
+if ask_yes_no "Set macOS settings?"; then
+    bash "$HELPERS_DIR/macos_settings.sh"
 else
-    skip_with_message "Skipping default macos_settings."
+    skip_with_message "Skipping macOS settings."
 fi

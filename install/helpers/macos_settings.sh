@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$BASE_DIR/prompt.sh"
+source "$HELPERS_DIR/utils.sh"
 
 echo "🧩 Applying macOS system settings..."
 
