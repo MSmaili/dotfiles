@@ -7,4 +7,4 @@ rust = "nightly"
 # Tools
 "cargo:eza" = "latest"
 "cargo:tree-sitter-cli" = "latest"
-"go:github.com/MSmaili/muxie" = "latest"
+"go:github.com/MSmaili/hetki" = "latest"

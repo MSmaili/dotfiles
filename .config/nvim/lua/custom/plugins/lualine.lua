@@ -97,6 +97,10 @@ return {
 						},
 					},
 					{
+						require("wiremux").statusline.component(),
+						padding = { left = 1, right = 1 },
+					},
+					{
 						"diagnostics",
 						symbols = { error = "◦", warn = "◦", info = "◦", hint = "◦" },
 						padding = { left = 0, right = 1 },

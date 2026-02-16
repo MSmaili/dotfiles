@@ -4,7 +4,7 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 PREVIEW="$DIR/switch-preview.sh"
 
 main() {
-    result=$(muxie list sessions --windows --format=flat --marker '❯' | \
+  hetki list sessions --windows --format=flat --marker '❯' | \
         fzf --height=100% --ansi --layout=reverse \
             --prompt="Session:Window › " \
             --border=sharp \
@@ -13,20 +13,21 @@ main() {
             --preview="$PREVIEW {1}" \
             --preview-window=right:70%:hidden \
             --exit-0 \
-            --bind 'ctrl-x:execute-silent(tmux kill-session -t {1})+reload(muxie list sessions --windows --format=flat --marker "❯ ")'
-    )
+            --bind 'ctrl-x:execute-silent(tmux kill-session -t {1})+reload(muxie list sessions --windows --format=flat --marker "❯ ")' | \
+        hetki switch
 
-    [[ -z "$result" ]] && exit 0
 
-    IFS=':' read -r session window <<< "$result"
+    # [[ -z "$result" ]] && exit 0
 
-    if [[ -n "$window" ]]; then
-        # Switch to session first, then select window
-        tmux switch-client -t "$session"
-        tmux select-window -t "$session:$window"
-    else
-        tmux switch-client -t "$session"
-    fi
+    # IFS=':' read -r session window <<< "$result"
+
+    # if [[ -n "$window" ]]; then
+    #     # Switch to session first, then select window
+    #     tmux switch-client -t "$session"
+    #     tmux select-window -t "$session:$window"
+    # else
+    #     tmux switch-client -t "$session"
+    # fi
 }
 
 main
