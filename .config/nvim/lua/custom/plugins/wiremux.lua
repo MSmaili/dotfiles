@@ -6,8 +6,8 @@ return {
 		log_level = "debug",
 		targets = {
 			definitions = {
-				opencode = { cmd = "opencode", kind = { "pane", "window" }, split = "vertical", shell = false },
-				claudecode = { cmd = "claudecode", kind = { "pane", "window" }, split = "horizontal", shell = false },
+				opencode = { cmd = "opencode", kind = { "pane", "window" }, split = "horizontal", shell = false },
+				claudecode = { cmd = "claude", kind = { "pane", "window" }, split = "horizontal", shell = false },
 				kiro = { kind = { "pane", "window" }, split = "horizontal", cmd = "kiro-cli", shell = false },
 				shell = { kind = { "pane", "window" }, split = "horizontal" },
 				quick = { kind = { "pane", "window" }, split = "horizontal", shell = false },
@@ -24,13 +24,6 @@ return {
 				require("wiremux").toggle()
 			end,
 			desc = "Toggle Zoom",
-		},
-		{
-			"<leader>ad",
-			function()
-				require("wiremux").close()
-			end,
-			desc = "Close CLI",
 		},
 		{
 			"<leader>at",
@@ -63,11 +56,43 @@ return {
 			desc = "Create",
 		},
 		{
+			"<leader>ax",
+			function()
+				require("wiremux").close()
+			end,
+			desc = "Create",
+		},
+		{
 			"<leader>ao",
 			function()
 				require("wiremux").focus({ behavior = "pick" })
 			end,
 			desc = "Focus target",
+		},
+		{
+			"<leader>ad",
+			function()
+				require("wiremux").send("{diagnostics}", { focus = true, behavior = "pick" })
+			end,
+			desc = "Wiremux send diagonstic current line",
+			mode = { "n", "x" },
+		},
+		{
+			"<leader>aD",
+			function()
+				require("wiremux").send("{diagnostics_all}", { focus = true, behavior = "pick" })
+			end,
+			desc = "Wiremux send all diagonstics",
+			mode = { "x", "n" },
+		},
+		{
+			"ga",
+			function()
+				return require("wiremux").send_motion()
+			end,
+			desc = "Wiremux send motion",
+			mode = { "x", "n" },
+			expr = true,
 		},
 		{
 			"<leader>ap",
