@@ -1,5 +1,10 @@
 # SSH private hosts
 .ssh/hosts
+.ssh/config.work
+.ssh/config.local
+.ssh/id_*
+.ssh/*.pem
+.ssh/known_hosts*
 .config/git/config.local
 .config/tmux/plugins
 .zshrc.local

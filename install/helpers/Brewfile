@@ -11,8 +11,10 @@ brew "tmux"
 brew "neovim"
 brew "stow"
 brew "btop"
+brew "gh"
 
 # GUI applications
 cask "ghostty"
 cask "nikitabobko/tap/aerospace"
 cask "leader-key"
+cask "1password-cli"

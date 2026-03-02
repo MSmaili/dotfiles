@@ -131,7 +131,7 @@ bindkey '^n' history-search-forward
 # ------------------------------------------------------------
 alias vi="nvim"
 alias vim="nvim"
-alias grep='grep --color=auto'
+alias grep='rg'
 alias t="tmux attach || tmux"
 
 #open btop if exists
