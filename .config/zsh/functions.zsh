@@ -115,3 +115,29 @@ ovi() {
     file=$(fzf --preview="bat --style=numbers --color=always {}" --height=40% --reverse)
     [[ -n "$file" ]] && nvim "$file"
 }
+
+scp_push() {
+    local host="${1:-dev_env}"
+    local remote_path="${2:-"~/inbox"}"
+
+    echo "Select file(s) to send to $host:$remote_path"
+    echo "TAB to mark multiple • ENTER to confirm • CTRL-C to cancel"
+    echo
+
+    local files
+    files=$(find . -type f -print0 | fzf -m --read0 --print0)
+
+    [[ -z "$files" ]] && {
+        echo "No files selected."
+        return 0
+    }
+
+    echo
+    echo "Sending selected file(s)..."
+    printf "%s" "$files" | xargs -0 -I {} scp {} "$host:$remote_path" || {
+        echo "Error: scp failed"
+        return 1
+    }
+
+    echo "Done."
+}
