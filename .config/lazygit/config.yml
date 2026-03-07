@@ -2,5 +2,6 @@ git:
   pagers:
     - pager: delta --dark --paging=never
       colorArg: always
+  overrideGpg: true
 gui:
   showCommandLog: false

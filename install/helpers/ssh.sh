@@ -13,7 +13,7 @@ setup_ssh() {
         if has op; then
             if op account list &> /dev/null 2>&1; then
                 echo "Fetching SSH work config from 1Password..."
-                if op document get "SSH Work Config" > ~/.ssh/config.work 2>/dev/null; then
+                if op document get "SSH_WORK_CONFIG" > ~/.ssh/config.work 2>/dev/null; then
                     run_cmd chmod 600 ~/.ssh/config.work
                     echo "✓ SSH work config imported from 1Password"
                 else
