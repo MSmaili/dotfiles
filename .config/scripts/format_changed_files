@@ -36,8 +36,11 @@ fmt() {
 }
 
 if has npx; then
-    fmt '\.(json|ya?ml|md)$' npx prettier --write --cache
-    $FORMAT_JS && fmt '\.(js|jsx|ts|tsx|css|scss)$' npx prettier --write --cache
+    if $FORMAT_JS; then
+        fmt '\.(json|ya?ml|md|js|jsx|ts|tsx|css|scss)$' npx prettier --write --cache
+    elif [[ $# -eq 0 ]] || [[ "$*" == *"--all"* ]]; then
+        fmt '\.(json|ya?ml|md)$' npx prettier --write --cache
+    fi
 fi
 
 $FORMAT_GO && has gofmt && fmt '\.go$' gofmt -w

@@ -9,9 +9,9 @@
     "grep",
     "glob",
     "code",
-    "subagent"
+    "use_subagent"
   ],
-  "allowedTools": ["fs_read", "grep", "glob", "code", "subagent"],
+  "allowedTools": ["fs_read", "grep", "glob", "code", "use_subagent"],
   "toolsSettings": {
     "fs_read": {
       "deniedPaths": ["**/*.env", "**/*.env.*", "**/*.envrc", "**/secrets/**"]
@@ -82,7 +82,9 @@
       "autoAllowReadonly": true
     },
     "subagent": {
+      "availableAgents": ["research", "reviewer", "planner", "go", "node"],
       "trustedAgents": ["research"]
     }
-  }
+  },
+  "welcomeMessage": "What are we building?"
 }

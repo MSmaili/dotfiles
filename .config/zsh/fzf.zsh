@@ -18,7 +18,6 @@ export FZF_DEFAULT_OPTS='
 --bind "ctrl-u:preview-up"
 --bind "ctrl-f:preview-page-down"
 --bind "ctrl-b:preview-page-up"
---bind "ctrl-y:accept"
 --bind "alt-p:toggle-preview"
 --ansi
 --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8,\

@@ -110,7 +110,7 @@ fkill() {
 }
 
 ovi() {
-    command -v fzf >/dev/null 2>&1 || { echo "Install fzf first!"; exit 1; }
+    command -v fzf >/dev/null 2>&1 || { echo "Install fzf first!"; return 1; }
     local file
     file=$(fzf --preview="bat --style=numbers --color=always {}" --height=40% --reverse)
     [[ -n "$file" ]] && nvim "$file"

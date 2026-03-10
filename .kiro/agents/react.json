@@ -21,7 +21,7 @@
     "shell": {
       "denyByDefault": true
     },
-    "agent": {
+    "subagent": {
       "availableAgents": ["research"],
       "trustedAgents": ["research"]
     }

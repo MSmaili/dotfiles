@@ -10,20 +10,17 @@
     "skill://.kiro/skills/*doc*/**",
     "skill://.kiro/skills/*pptx*/**"
   ],
-  "tools": ["*"],
+  "tools": ["fs_read", "fs_write", "grep", "glob", "code", "use_subagent"],
+  "allowedTools": ["fs_read", "grep", "glob", "code", "use_subagent"],
   "toolsSettings": {
-    "read": {
-      "allowedPaths": ["*"]
+    "fs_write": {
+      "allowedPaths": [".agent/**"]
     },
-    "write": {
-      "denyByDefault": true
-    },
-    "shell": {
-      "denyByDefault": true
-    },
-    "agent": {
+    "subagent": {
       "availableAgents": ["research"],
       "trustedAgents": ["research"]
     }
-  }
+  },
+  "keyboardShortcut": "ctrl+shift+p",
+  "welcomeMessage": "What do you want to plan? I'll ask for context before creating anything."
 }

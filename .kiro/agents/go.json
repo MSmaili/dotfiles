@@ -1,0 +1,55 @@
+{
+  "$schema": "https://raw.githubusercontent.com/aws/amazon-q-developer-cli/refs/heads/main/schemas/agent-v1.json",
+  "name": "go",
+  "description": "Go specialist — idiomatic Go, API design, concurrency, and Kubernetes",
+  "prompt": "You are a Go specialist. Write idiomatic Go following stdlib conventions. Prioritize simplicity, proper error handling, concurrency patterns, and clean package structure. You also handle API design (REST/gRPC) and Kubernetes manifests when working on Go services.",
+  "resources": [
+    "file://go.mod",
+    "file://go.sum",
+    "file://Dockerfile",
+    "file://~/.kiro/custom/rules/*.md",
+    "file://.agent/tasks/IMPLEMENTATION_PLAN.md",
+    "skill://.kiro/skills/*golang*/**",
+    "skill://.kiro/skills/*api-design*/**",
+    "skill://.kiro/skills/*kubernetes*/**"
+  ],
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "code",
+    "use_subagent"
+  ],
+  "allowedTools": ["fs_read", "grep", "glob", "code", "use_subagent"],
+  "toolsSettings": {
+    "fs_write": {
+      "deniedPaths": ["**/*.env", "**/*.env.*", "**/*.envrc", "**/secrets/**"]
+    },
+    "execute_bash": {
+      "allowedCommands": [
+        "go .*",
+        "gofmt.*",
+        "golangci-lint.*",
+        "make.*",
+        "docker.*",
+        "kubectl.*"
+      ],
+      "autoAllowReadonly": true
+    },
+    "subagent": {
+      "availableAgents": ["research"],
+      "trustedAgents": ["research"]
+    }
+  },
+  "hooks": {
+    "postToolUse": [
+      {
+        "matcher": "write",
+        "command": "format_changed_files --go",
+        "timeout_ms": 3000
+      }
+    ]
+  }
+}

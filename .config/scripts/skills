@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-# Skill groups
 GLOBAL_SKILLS=(
     "https://github.com/anthropics/skills --skill skill-creator"
     "https://github.com/anthropics/skills --skill docx"
@@ -18,18 +17,42 @@ DB_SKILLS=(
     "https://github.com/planetscale/database-skills --skill mysql"
 )
 
+GO_SKILLS=(
+    "https://github.com/affaan-m/everything-claude-code --skill golang-patterns"
+    "https://github.com/affaan-m/everything-claude-code --skill api-design"
+    "https://github.com/Jeffallan/claude-skills --skill golang-pro"
+)
+
+NODE_SKILLS=(
+    "https://github.com/Jeffallan/claude-skills --skill nestjs-expert"
+)
+
+K8S_SKILLS=(
+    "https://github.com/Jeffallan/claude-skills --skill kubernetes-specialist"
+)
+
 DOCS_SKILLS=(
     "https://github.com/anthropics/skills --skill docx"
     "https://github.com/anthropics/skills --skill pptx"
 )
 
-# Targets to install for (default: all)
 TARGETS=()
+
+clean_skills() {
+    echo "🧹 Cleaning skills..."
+    for target in "${TARGETS[@]}"; do
+        case "$target" in
+            kiro)     echo "  → kiro";     npx skills remove --all --agent kiro-cli -y 2>/dev/null || true ;;
+            claude)   echo "  → claude";   npx skills remove --all --agent claude-code -y 2>/dev/null || true ;;
+            opencode) echo "  → opencode"; npx skills remove --all --agent opencode -y 2>/dev/null || true ;;
+        esac
+    done
+    echo "✓ Clean"
+}
 
 install_skill() {
     local desc="$1"; shift
     echo "  → $desc"
-    # shellcheck disable=SC2068
     npx skills add $@ 2>/dev/null || echo "  ⚠ Failed: $desc"
 }
 
@@ -45,8 +68,9 @@ install_group() {
 
         for target in "${TARGETS[@]}"; do
             case "$target" in
-                kiro)    install_skill "$name (kiro)" $entry $g -a kiro-cli -y ;;
-                claude)  install_skill "$name (claude+opencode)" $entry $g -y ;;
+                kiro)     install_skill "$name (kiro)" $entry $g -a kiro-cli --copy -y ;;
+                claude)   install_skill "$name (claude)" $entry $g -a claude-code --copy -y ;;
+                opencode) install_skill "$name (opencode)" $entry $g -a opencode --copy -y ;;
             esac
         done
     done
@@ -54,27 +78,34 @@ install_group() {
 
 usage() {
     cat <<EOF
-Usage: skills [--target kiro|claude|all] [group...]
+Usage: skills [--target kiro|claude|opencode|all] [group...]
 
 Targets:
-  --target kiro      Kiro CLI only
-  --target claude    Claude Code + OpenCode only
+  --target kiro      Kiro CLI only (.kiro/skills)
+  --target claude    Claude Code only (.claude/skills)
+  --target opencode  OpenCode only (~/.config/opencode/skills)
   --target all       All targets (default)
 
 Groups:
   global    General-purpose skills (installed globally)
   react     React + TypeScript skills (installed locally)
+  go        Go + API design skills (installed locally)
+  node      Node/Bun backend skills (installed locally)
+  k8s       Kubernetes specialist skills (installed locally)
   db        Database skills (installed locally)
   docs      Document generation skills (installed locally)
-  all       All local groups (react + db + docs)
+  all       All groups
+  clean     Remove all installed skills for target(s)
 
 No group = global only.
 
 Examples:
-  skills                          # global, all targets
-  skills react                    # react local, all targets
-  skills --target kiro react      # react local, kiro only
-  skills --target claude react db # react+db local, claude+opencode only
+  skills global                       # global, all targets
+  skills react                        # react local, all targets
+  skills --target kiro go k8s         # go+k8s, kiro only
+  skills --target claude react db     # react+db local, claude only
+  skills clean                        # clean all targets
+  skills --target kiro clean          # clean kiro only
 EOF
 }
 
@@ -91,9 +122,10 @@ main() {
             --target)
                 shift
                 case "${1:-}" in
-                    kiro)   TARGETS+=(kiro) ;;
-                    claude) TARGETS+=(claude) ;;
-                    all)    TARGETS=(kiro claude) ;;
+                    kiro)     TARGETS+=(kiro) ;;
+                    claude)   TARGETS+=(claude) ;;
+                    opencode) TARGETS+=(opencode) ;;
+                    all)      TARGETS=(kiro claude opencode) ;;
                     *)      error "Unknown target: ${1:-}"; usage; return 1 ;;
                 esac
                 ;;
@@ -103,16 +135,20 @@ main() {
         shift
     done
 
-    [[ ${#TARGETS[@]} -eq 0 ]] && TARGETS=(kiro claude)
-    [[ ${#groups[@]} -eq 0 ]] && groups=(global)
+    [[ ${#TARGETS[@]} -eq 0 ]] && TARGETS=(kiro claude opencode)
+    [[ ${#groups[@]} -eq 0 ]] && { usage; return; }
 
     for group in "${groups[@]}"; do
         case "$group" in
-            global) echo "🧠 Installing global skills...";      install_group GLOBAL_SKILLS global ;;
-            react)  echo "⚛️  Installing React skills (local)..."; install_group REACT_SKILLS local ;;
-            db)     echo "🗄️  Installing DB skills (local)...";    install_group DB_SKILLS local ;;
-            docs)   echo "📄 Installing Docs skills (local)...";  install_group DOCS_SKILLS local ;;
-            all)    main "${TARGETS[@]/#/--target }" react db docs; return ;;
+            global)  echo "🧠 Installing global skills...";        install_group GLOBAL_SKILLS global ;;
+            react)   echo "⚛️  Installing React skills (local)...";   install_group REACT_SKILLS local ;;
+            go)      echo "🐹 Installing Go skills (local)...";     install_group GO_SKILLS local ;;
+            node)    echo "🟢 Installing Node skills (local)...";   install_group NODE_SKILLS local ;;
+            k8s)     echo "☸️  Installing K8s skills (local)...";     install_group K8S_SKILLS local ;;
+            db)      echo "🗄️  Installing DB skills (local)...";      install_group DB_SKILLS local ;;
+            docs)    echo "📄 Installing Docs skills (local)...";    install_group DOCS_SKILLS local ;;
+            clean)   clean_skills; return ;;
+            all)     main "${TARGETS[@]/#/--target }" global react go node k8s db docs; return ;;
             *)      echo "Unknown group: $group"; usage; return 1 ;;
         esac
     done

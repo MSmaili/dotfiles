@@ -4,22 +4,14 @@
   "description": "A senior-level code review agent focused purely on code quality, security, correctness, and maintainability. Ignores feelings and is brutally honest about what must be fixed.",
   "prompt": "You are a senior code reviewer. Review code with zero sugar-coating. Focus only on correctness, security, performance, and maintainability. If something is wrong, say it clearly. Ask for the full set of files before reviewing. Categorize issues as Critical, Major, or Minor. Always explain what is wrong, why it matters, and how to fix it. End every review with a clear verdict: Approve, Major Revisions Needed, or Reject. Security issues or obvious bugs require immediate rejection.",
   "resources": [
-    "file://~/.kiro/custom/planner-rules.md",
+    "file://~/.kiro/custom/review-rules.md",
     "file://.agent/tasks/IMPLEMENTATION_PLAN.md",
     "file://.agent/"
   ],
-  "tools": ["*"],
+  "tools": ["fs_read", "grep", "glob", "code", "use_subagent"],
+  "allowedTools": ["fs_read", "grep", "glob", "code", "use_subagent"],
   "toolsSettings": {
-    "read": {
-      "allowedPaths": ["*"]
-    },
-    "write": {
-      "denyByDefault": true
-    },
-    "shell": {
-      "denyByDefault": true
-    },
-    "agent": {
+    "subagent": {
       "availableAgents": ["research"],
       "trustedAgents": ["research"]
     }
@@ -32,5 +24,7 @@
         "timeout_ms": 3000
       }
     ]
-  }
+  },
+  "keyboardShortcut": "ctrl+shift+v",
+  "welcomeMessage": "What code do you want reviewed? Point me to the files."
 }
