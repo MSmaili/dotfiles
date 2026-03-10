@@ -96,7 +96,7 @@ compress() {
 
 # Fuzzy find and kill process
 fkill() {
-    command -v fzf >/dev/null 2>&1 || { echo "Install fzf first!"; exit 1; }
+    command -v fzf >/dev/null 2>&1 || { echo "Install fzf first!"; return 1; }
     local pid
     pid=$(ps -ef | sed 1d | fzf -m --height=60% --layout=reverse \
             --header='Select process to kill' \

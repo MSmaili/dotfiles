@@ -62,7 +62,7 @@ ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 # Download Zinit, if it's not there yet
 if [ ! -d "$ZINIT_HOME" ]; then
     mkdir -p "$(dirname $ZINIT_HOME)"
-    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME" || { rm -rf "$ZINIT_HOME"; echo "Failed to clone zinit"; return 1; }
 fi
 source "${ZINIT_HOME}/zinit.zsh"
 
@@ -80,7 +80,7 @@ zinit light zsh-users/zsh-autosuggestions
 zinit ice wait lucid
 zinit light Aloxaf/fzf-tab               # FZF tab completion
 
-zinit ice wait lucid atinit'zpcompinit; zpcdreplay'
+zinit ice wait lucid
 zinit snippet OMZ::plugins/git/git.plugin.zsh
 
 # Load syntax highlighting
@@ -90,7 +90,7 @@ zinit light zsh-users/zsh-syntax-highlighting
 zinit ice compile'(pure|async).zsh' pick'async.zsh' src'pure.zsh'
 zinit light sindresorhus/pure            # Prompt
 
-# Create cache dir if it doesn't exist
+# Completion init (single compinit call)
 [[ ! -d "$HOME/.zsh/cache" ]] && mkdir -p "$HOME/.zsh/cache"
 autoload -Uz compinit
 compinit -C -d "$HOME/.zsh/cache/zcompdump-${ZSH_VERSION}"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+set -euo pipefail
 
 install_sonarlint() {
     if [[ -x "$HOME/.local/bin/sonarlint-language-server" ]]; then
@@ -11,6 +11,7 @@ install_sonarlint() {
     local bin="$HOME/.local/bin"
     local tmp
     tmp="$(mktemp -d)"
+    trap 'rm -rf "$tmp"' EXIT
 
     echo "📦 Fetching latest SonarLint version..."
     

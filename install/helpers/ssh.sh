@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 # Set HELPERS_DIR if not already set (for standalone execution)
 HELPERS_DIR="${HELPERS_DIR:-$(cd "$(dirname "$0")" && pwd)}"

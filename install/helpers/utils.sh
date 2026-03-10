@@ -114,8 +114,8 @@ install_mise() {
         export PATH="$HOME/.local/bin:$PATH"
     fi
 
-    # Activate mise
-    eval "$(mise activate bash)"
+    # Just ensure mise is on PATH (no need for full shell activation in scripts)
+    export PATH="$HOME/.local/share/mise/shims:$PATH"
 
     # Trust config if exists
     if [[ -f "$HOME/.config/mise/config.toml" ]]; then
