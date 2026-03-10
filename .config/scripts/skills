@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+set -e
+
+# Skill groups
+GLOBAL_SKILLS=(
+    "https://github.com/anthropics/skills --skill skill-creator"
+    "https://github.com/anthropics/skills --skill docx"
+    "https://github.com/anthropics/skills --skill frontend-design"
+)
+
+REACT_SKILLS=(
+    "softaworks/agent-toolkit@react-useeffect"
+    "https://github.com/vercel-labs/agent-skills --skill vercel-react-best-practices"
+)
+
+DB_SKILLS=(
+    "https://github.com/supabase/agent-skills --skill supabase-postgres-best-practices"
+    "https://github.com/planetscale/database-skills --skill mysql"
+)
+
+DOCS_SKILLS=(
+    "https://github.com/anthropics/skills --skill docx"
+    "https://github.com/anthropics/skills --skill pptx"
+)
+
+# Targets to install for (default: all)
+TARGETS=()
+
+install_skill() {
+    local desc="$1"; shift
+    echo "  → $desc"
+    # shellcheck disable=SC2068
+    npx skills add $@ 2>/dev/null || echo "  ⚠ Failed: $desc"
+}
+
+install_group() {
+    local -n skills_ref=$1
+    local scope="$2"
+
+    local g=""; [[ "$scope" == "global" ]] && g="-g"
+
+    for entry in "${skills_ref[@]}"; do
+        local name="${entry##*--skill }"
+        [[ "$name" == "$entry" ]] && name="${entry##*/}"
+
+        for target in "${TARGETS[@]}"; do
+            case "$target" in
+                kiro)    install_skill "$name (kiro)" $entry $g -a kiro-cli -y ;;
+                claude)  install_skill "$name (claude+opencode)" $entry $g -y ;;
+            esac
+        done
+    done
+}
+
+usage() {
+    cat <<EOF
+Usage: skills [--target kiro|claude|all] [group...]
+
+Targets:
+  --target kiro      Kiro CLI only
+  --target claude    Claude Code + OpenCode only
+  --target all       All targets (default)
+
+Groups:
+  global    General-purpose skills (installed globally)
+  react     React + TypeScript skills (installed locally)
+  db        Database skills (installed locally)
+  docs      Document generation skills (installed locally)
+  all       All local groups (react + db + docs)
+
+No group = global only.
+
+Examples:
+  skills                          # global, all targets
+  skills react                    # react local, all targets
+  skills --target kiro react      # react local, kiro only
+  skills --target claude react db # react+db local, claude+opencode only
+EOF
+}
+
+main() {
+    if ! command -v npx &>/dev/null; then
+        echo "⚠ npx not available"
+        return 1
+    fi
+
+    local groups=()
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --target)
+                shift
+                case "${1:-}" in
+                    kiro)   TARGETS+=(kiro) ;;
+                    claude) TARGETS+=(claude) ;;
+                    all)    TARGETS=(kiro claude) ;;
+                    *)      error "Unknown target: ${1:-}"; usage; return 1 ;;
+                esac
+                ;;
+            -h|--help) usage; return ;;
+            *) groups+=("$1") ;;
+        esac
+        shift
+    done
+
+    [[ ${#TARGETS[@]} -eq 0 ]] && TARGETS=(kiro claude)
+    [[ ${#groups[@]} -eq 0 ]] && groups=(global)
+
+    for group in "${groups[@]}"; do
+        case "$group" in
+            global) echo "🧠 Installing global skills...";      install_group GLOBAL_SKILLS global ;;
+            react)  echo "⚛️  Installing React skills (local)..."; install_group REACT_SKILLS local ;;
+            db)     echo "🗄️  Installing DB skills (local)...";    install_group DB_SKILLS local ;;
+            docs)   echo "📄 Installing Docs skills (local)...";  install_group DOCS_SKILLS local ;;
+            all)    main "${TARGETS[@]/#/--target }" react db docs; return ;;
+            *)      echo "Unknown group: $group"; usage; return 1 ;;
+        esac
+    done
+
+    echo "✓ Done"
+}
+
+main "$@"

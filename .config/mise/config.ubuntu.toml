@@ -1,6 +1,7 @@
 [tools]
 bat = "latest"
 delta = "latest"
+btop = "latest"
 fd = "latest"
 fzf = "latest"
 jq = "latest"

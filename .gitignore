@@ -8,3 +8,11 @@
 .config/git/config.local
 .config/tmux/plugins
 .zshrc.local
+
+# Override global gitignore — track .kiro/ in dotfiles
+!.kiro/
+
+# Kiro CLI runtime files (still ignore these)
+.kiro/.cli_bash_history
+.kiro/prompts
+.kiro/settings/lsp.json
