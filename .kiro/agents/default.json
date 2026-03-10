@@ -9,9 +9,9 @@
     "grep",
     "glob",
     "code",
-    "agent"
+    "subagent"
   ],
-  "allowedTools": ["fs_read", "grep", "glob", "code", "agent"],
+  "allowedTools": ["fs_read", "grep", "glob", "code", "subagent"],
   "toolsSettings": {
     "fs_read": {
       "deniedPaths": ["**/*.env", "**/*.env.*", "**/*.envrc", "**/secrets/**"]
@@ -81,8 +81,7 @@
       "deniedCommands": ["git push.*"],
       "autoAllowReadonly": true
     },
-    "agent": {
-      "availableAgents": ["research"],
+    "subagent": {
       "trustedAgents": ["research"]
     }
   }

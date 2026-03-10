@@ -10,6 +10,6 @@
   "chat.enableSubagent": true,
   "chat.enableCodeIntelligence": true,
   "chat.enableCheckpoint": false,
-  "chat.enableKnowledge": true
+  "chat.enableKnowledge": true,
+  "chat.defaultAgent": "default"
 }
-
