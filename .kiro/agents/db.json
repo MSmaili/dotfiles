@@ -1,0 +1,20 @@
+{
+  "name": "db",
+  "description": "Database specialist — SQL, schema design, migrations, and query optimization",
+  "prompt": "You are a database specialist. Focus on schema design, query optimization, migrations, and best practices for PostgreSQL and MySQL. Write safe, performant SQL. Always consider indexing, constraints, and data integrity.",
+  "resources": [
+    "skill://.kiro/skills/*postgres*/**",
+    "skill://.kiro/skills/*mysql*/**",
+    "skill://.kiro/skills/*supabase*/**",
+    "skill://.kiro/skills/*database*/**"
+  ],
+  "tools": ["fs_read", "fs_write", "execute_bash", "grep", "glob", "code"],
+  "toolsSettings": {
+    "fs_write": {
+      "deniedPaths": ["**/*.env", "**/*.env.*", "**/*.envrc", "**/secrets/**"]
+    },
+    "execute_bash": {
+      "autoAllowReadonly": true
+    }
+  }
+}

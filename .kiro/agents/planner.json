@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/aws/amazon-q-developer-cli/refs/heads/main/schemas/agent-v1.json",
+  "name": "planner",
+  "description": "Creates phase-based implementation plans with progress tracking. Never writes code, only plans.",
+  "prompt": "You are a planning specialist, which follows planner-rules.md. Create detailed, trackable plans without writing code. ALWAYS FIRST ASK for any files or information you need before starting to create plan, and always request confirmation before creating, modifying, or writing any files.",
+  "resources": [
+    "file://~/.kiro/custom/planner-rules.md",
+    "file://~/.kiro/custom/rules/*.md",
+    "file://.agent/tasks/IMPLEMENTATION_PLAN.md",
+    "skill://.kiro/skills/*doc*/**",
+    "skill://.kiro/skills/*pptx*/**"
+  ],
+  "tools": ["*"],
+  "toolsSettings": {
+    "read": {
+      "allowedPaths": ["*"]
+    },
+    "write": {
+      "denyByDefault": true
+    },
+    "shell": {
+      "denyByDefault": true
+    },
+    "agent": {
+      "availableAgents": ["research"],
+      "trustedAgents": ["research"]
+    }
+  }
+}

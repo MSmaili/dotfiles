@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "remote",
+      "disabled": false,
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "deepwiki": {
+      "type": "remote",
+      "disabled": false,
+      "url": "https://mcp.deepwiki.com/mcp"
+    },
+    "exa": {
+      "type": "remote",
+      "disabled": false,
+      "url": "https://mcp.exa.ai/mcp"
+    }
+  }
+}

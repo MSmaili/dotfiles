@@ -1,0 +1,38 @@
+{
+  "$schema": "https://raw.githubusercontent.com/aws/amazon-q-developer-cli/refs/heads/main/schemas/agent-v1.json",
+  "name": "react",
+  "description": "Specialized agent for React development with TypeScript, modern patterns, and best practices",
+  "prompt": "You are a React specialist focused on modern React development with TypeScript. Prioritize functional components, hooks, performance optimization, and accessibility. Use current best practices for state management, testing, and component architecture.",
+  "resources": [
+    "file://package.json",
+    "file://tsconfig.json",
+    "file://~/.kiro/custom/rules/*.md",
+    "file://.agent/tasks/IMPLEMENTATION_PLAN.md",
+    "skill://.kiro/skills/*react*/SKILL.md"
+  ],
+  "tools": ["*"],
+  "toolsSettings": {
+    "read": {
+      "allowedPaths": ["*"]
+    },
+    "write": {
+      "denyByDefault": true
+    },
+    "shell": {
+      "denyByDefault": true
+    },
+    "agent": {
+      "availableAgents": ["research"],
+      "trustedAgents": ["research"]
+    }
+  },
+  "hooks": {
+    "postToolUse": [
+      {
+        "matcher": "write",
+        "command": "format_changed_files --js",
+        "timeout_ms": 3000
+      }
+    ]
+  }
+}

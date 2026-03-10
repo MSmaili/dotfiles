@@ -1,0 +1,15 @@
+{
+  "app.beta": false,
+  "autocomplete.disable": false,
+  "chat.enableContextUsageIndicator": true,
+  "chat.enableTangentMode": true,
+  "chat.enableTodoList": true,
+  "mcp.loadedBefore": true,
+  "chat.enableThinking": true,
+  "chat.defaultModel": "claude-opus-4.6",
+  "chat.enableSubagent": true,
+  "chat.enableCodeIntelligence": true,
+  "chat.enableCheckpoint": false,
+  "chat.enableKnowledge": true
+}
+

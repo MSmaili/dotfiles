@@ -1,0 +1,89 @@
+{
+  "name": "default",
+  "description": "General development — lean, no MCP. Delegates to specialized agents when needed.",
+  "prompt": "You are a general development assistant.\n\nWhen you need latest library/framework docs or web search, delegate to the 'research' agent using the agent tool.\nDon't tell the user to switch agents — just delegate and bring back the answer.",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "code",
+    "agent"
+  ],
+  "allowedTools": ["fs_read", "grep", "glob", "code", "agent"],
+  "toolsSettings": {
+    "fs_read": {
+      "deniedPaths": ["**/*.env", "**/*.env.*", "**/*.envrc", "**/secrets/**"]
+    },
+    "fs_write": {
+      "deniedPaths": [
+        "**/*.env",
+        "**/*.env.*",
+        "**/*.envrc",
+        "**/secrets/**",
+        "~/.zshrc.local"
+      ]
+    },
+    "execute_bash": {
+      "allowedCommands": [
+        "ast-grep.*",
+        "awk.*",
+        "biome.*",
+        "bun.*",
+        "cargo.*",
+        "cat.*",
+        "cloc.*",
+        "cp.*",
+        "date.*",
+        "diff.*",
+        "fd.*",
+        "find.*",
+        "fnm.*",
+        "fzf.*",
+        "git(?! push).*",
+        "go .*",
+        "grep.*",
+        "rg.*",
+        "gsed.*",
+        "head.*",
+        "jq.*",
+        "ls.*",
+        "mkdir.*",
+        "npm.*",
+        "pnpm.*",
+        "prettier.*",
+        "pwd",
+        "sed.*",
+        "sg.*",
+        "shellcheck.*",
+        "sort.*",
+        "stow.*",
+        "stylua.*",
+        "tail.*",
+        "tar.*",
+        "touch.*",
+        "tr.*",
+        "tree.*",
+        "tsc.*",
+        "turbo.*",
+        "uniq.*",
+        "unzip.*",
+        "vite.*",
+        "vitest.*",
+        "wc.*",
+        "which.*",
+        "xargs.*",
+        "yarn.*",
+        "zip.*",
+        "zoxide.*"
+      ],
+      "deniedCommands": ["git push.*"],
+      "autoAllowReadonly": true
+    },
+    "agent": {
+      "availableAgents": ["research"],
+      "trustedAgents": ["research"]
+    }
+  }
+}
