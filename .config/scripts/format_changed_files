@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+log() { printf "\033[1;36m[format]\033[0m %s\n" "$1"; }
+has() { command -v "$1" &>/dev/null; }
+
+FORMAT_GO=false
+FORMAT_JS=false
+FORMAT_LUA=false
+
+if [[ $# -eq 0 ]]; then
+    FORMAT_GO=true; FORMAT_JS=true; FORMAT_LUA=true
+fi
+
+for arg in "$@"; do
+    case "$arg" in
+        --go) FORMAT_GO=true ;;
+        --js|--ts) FORMAT_JS=true ;;
+        --lua) FORMAT_LUA=true ;;
+        --all) FORMAT_GO=true; FORMAT_JS=true; FORMAT_LUA=true ;;
+    esac
+done
+
+has git || exit 0
+cd "$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+
+changed=$({ git diff --name-only --diff-filter=ACMR; git ls-files --others --exclude-standard; } | sort -u)
+[[ -z "$changed" ]] && exit 0
+
+fmt() {
+    local pattern="$1"; shift
+    local matched
+    matched=$(echo "$changed" | grep -E "$pattern" || true)
+    [[ -z "$matched" ]] && return
+    log "Formatting $(echo "$matched" | wc -l | tr -d ' ') files with $1"
+    echo "$matched" | xargs "$@"
+}
+
+if has npx; then
+    fmt '\.(json|ya?ml|md)$' npx prettier --write --cache
+    $FORMAT_JS && fmt '\.(js|jsx|ts|tsx|css|scss)$' npx prettier --write --cache
+fi
+
+$FORMAT_GO && has gofmt && fmt '\.go$' gofmt -w
+$FORMAT_LUA && has stylua && fmt '\.lua$' stylua
