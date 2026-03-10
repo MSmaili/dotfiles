@@ -38,6 +38,7 @@
       "git push": "ask",
       "go*": "allow",
       "grep*": "allow",
+      "ripgrep*": "allow",
       "gsed*": "allow",
       "head*": "allow",
       "jq*": "allow",
@@ -76,12 +77,7 @@
     "edit": "ask",
     "webfetch": "ask"
   },
-  "theme": "catppuccin-macchiato",
-  "plugin": ["opencode-anthropic-auth"],
-  "keybinds": {
-    "session_interrupt": "<leader>escape",
-    "agent_cycle": "shift+tab"
-  },
+  "plugin": [],
   "mcp": {
     "context7": {
       "type": "remote",
