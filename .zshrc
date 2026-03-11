@@ -1,3 +1,6 @@
+# Profiling: ZSH_PROFILE=1 zsh -ic exit
+[[ -n "$ZSH_PROFILE" ]] && zmodload zsh/zprof
+
 # PATH management
 typeset -U path  # Keep unique entries
 path=(
@@ -33,7 +36,7 @@ setopt correct             # Auto-correct minor typos
 setopt no_beep             # Disable beep
 setopt interactive_comments # Allow comments in interactive shell
 
-HISTSIZE=10000
+HISTSIZE=100000
 HISTFILE=~/.zsh_history
 SAVEHIST=$HISTSIZE
 HISTTIMEFORMAT="%F %T "
@@ -43,6 +46,7 @@ setopt hist_ignore_space   # ignore commands starting with space
 setopt hist_ignore_dups    # ignore all duplicates
 setopt hist_find_no_dups   # ignore duplicates during search
 setopt hist_reduce_blanks  # remove extra blanks
+setopt hist_save_no_dups   # remove older duplicates when saving
 
 # Remove slash, equals, and hyphen from WORDCHARS
 WORDCHARS="${WORDCHARS//[\/=\-]/}"
@@ -50,7 +54,6 @@ WORDCHARS="${WORDCHARS//[\/=\-]/}"
 # Basic environment
 export EDITOR=nvim
 export TERM=xterm-256color
-[[ -z "$DISPLAY" ]] && export DISPLAY=localhost:10.0
 
 export XDG_CONFIG_HOME="$HOME/.config"
 
@@ -83,7 +86,8 @@ zinit light Aloxaf/fzf-tab               # FZF tab completion
 zinit ice wait lucid
 zinit snippet OMZ::plugins/git/git.plugin.zsh
 
-# Load syntax highlighting
+# Load syntax highlighting (deferred, should load after compdef plugins)
+zinit ice wait lucid
 zinit light zsh-users/zsh-syntax-highlighting
 
 # Pure prompt
@@ -131,7 +135,6 @@ bindkey '^n' history-search-forward
 # ------------------------------------------------------------
 alias vi="nvim"
 alias vim="nvim"
-alias grep='rg'
 alias t="tmux attach || tmux"
 
 #open btop if exists
@@ -167,8 +170,9 @@ alias kpf='kubectl port-forward'
 
 # Hash directories for quick movement
 hash -d dotfiles="$HOME/dotfiles"
-hash -d nvim="$HOME/.config/nvim"
 
 # Conditional aliases
 command -v lazydocker >/dev/null 2>&1 && alias ld="lazydocker"
 command -v bat >/dev/null 2>&1 && alias cat='bat -pp'
+
+[[ -n "$ZSH_PROFILE" ]] && zprof
