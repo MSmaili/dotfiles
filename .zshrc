@@ -1,6 +1,3 @@
-# Profiling: ZSH_PROFILE=1 zsh -ic exit
-[[ -n "$ZSH_PROFILE" ]] && zmodload zsh/zprof
-
 # PATH management
 typeset -U path  # Keep unique entries
 path=(
@@ -32,7 +29,10 @@ fi
 # Zsh Options & Environment Variables
 # ------------------------------------------------------------
 setopt autocd              # Type directory name to cd
-setopt correct             # Auto-correct minor typos
+setopt auto_pushd          # cd pushes old dir to stack
+setopt pushd_ignore_dups   # No duplicates in dir stack
+setopt complete_in_word    # Complete from cursor position
+setopt glob_dots           # Include dotfiles in globs
 setopt no_beep             # Disable beep
 setopt interactive_comments # Allow comments in interactive shell
 
@@ -73,7 +73,10 @@ ZSH_AUTOSUGGEST_USE_ASYNC=true
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # --- Plugins ---
+zinit ice wait lucid
 zinit light agkozak/zsh-z                # Fast directory jump
+
+zinit ice wait lucid
 zinit light zsh-users/zsh-completions    # Completions
 
 # Load these with wait for faster startup
@@ -88,7 +91,7 @@ zinit snippet OMZ::plugins/git/git.plugin.zsh
 
 # Load syntax highlighting (deferred, should load after compdef plugins)
 zinit ice wait lucid
-zinit light zsh-users/zsh-syntax-highlighting
+zinit light zdharma-continuum/fast-syntax-highlighting
 
 # Pure prompt
 zinit ice compile'(pure|async).zsh' pick'async.zsh' src'pure.zsh'
@@ -97,7 +100,7 @@ zinit light sindresorhus/pure            # Prompt
 # Completion init (single compinit call)
 [[ ! -d "$HOME/.zsh/cache" ]] && mkdir -p "$HOME/.zsh/cache"
 autoload -Uz compinit
-compinit -C -d "$HOME/.zsh/cache/zcompdump-${ZSH_VERSION}"
+compinit -d "$HOME/.zsh/cache/zcompdump-${ZSH_VERSION}"
 zinit cdreplay -q
 
 # ------------------------------------------------------------
@@ -174,5 +177,3 @@ hash -d dotfiles="$HOME/dotfiles"
 # Conditional aliases
 command -v lazydocker >/dev/null 2>&1 && alias ld="lazydocker"
 command -v bat >/dev/null 2>&1 && alias cat='bat -pp'
-
-[[ -n "$ZSH_PROFILE" ]] && zprof
