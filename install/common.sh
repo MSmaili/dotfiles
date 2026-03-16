@@ -24,18 +24,7 @@ fi
 if has stow; then
     echo "🔗 Linking dotfiles..."
     cd "$DOTFILES_DIR"
-    # Backup real files (not symlinks) that would conflict
-    conflicts=$(stow -nRt "$HOME" . 2>&1 | grep "existing target" | awk '{print $NF}' || true)
-    if [[ -n "$conflicts" ]]; then
-        backup_dir="$HOME/.dotfiles-backup/$(date +%Y%m%d_%H%M%S)"
-        mkdir -p "$backup_dir"
-        echo "📦 Backing up conflicting files to $backup_dir"
-        echo "$conflicts" | while read -r f; do
-            mkdir -p "$backup_dir/$(dirname "$f")"
-            mv "$HOME/$f" "$backup_dir/$f"
-        done
-    fi
-    run_cmd stow -Rt "$HOME" .
+    run_cmd stow -vSt "$HOME" .
 else
     echo "⚠️ stow not installed, skipping linking."
 fi
