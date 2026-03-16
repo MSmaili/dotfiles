@@ -20,16 +20,40 @@
 	tool = codediff
 
 [diff]
+	algorithm = histogram
 	colorMoved = default
+	renames = true
 
 [alias]
 	diff-words = diff --color-words='[^[:space:]]|([[:alnum:]]|UTF_8_GUARD)+
 	count-lines = "! git log --author=\"$1\" --pretty=tformat: --numstat | awk '{ add += $1; subs += $2; loc += $1 - $2 } END { printf \"added lines: %s, removed lines: %s, total lines: %s\\n\", add, subs, loc }' #"
+
+[push]
+	autoSetupRemote = true
+
+[fetch]
+	prune = true
+	pruneTags = true
+
+[rebase]
+	autostash = true
+	updateRefs = true
+
+[help]
+	autocorrect = prompt
+
+[init]
+	defaultBranch = main
+
 [rerere]
 	enabled = true
+	autoupdate = true
+
 [branch]
 	sort = -committerdate
+
 [include]
   path = ./config.local
+
 [mergetool "codediff"]
 	cmd = nvim \"$MERGED\" -c \"CodeDiff merge \\\"$MERGED\\\"\"
