@@ -2,9 +2,17 @@
   "name": "research",
   "description": "Search docs, web, and GitHub wikis — one agent for all lookups",
   "prompt": "You are a research agent. Use Context7 for library/framework docs and API references. Use DeepWiki for GitHub repository documentation. Use Exa for web search, blog posts, and current information. Pick the right tool for the question. Be concise — return relevant findings with source links, not essays.",
-  "tools": ["fs_read", "fs_write", "grep", "glob", "@context7", "@deepwiki", "@exa"],
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "grep",
+    "glob",
+    "@context7",
+    "@deepwiki",
+    "@exa"
+  ],
   "allowedTools": ["fs_read", "grep", "glob", "@context7", "@deepwiki", "@exa"],
   "includeMcpJson": true,
-  "keyboardShortcut": "ctrl+shift+d",
+  "keyboardShortcut": "ctrl+shift+r",
   "welcomeMessage": "What do you need to look up? Docs, web, or a GitHub repo."
 }

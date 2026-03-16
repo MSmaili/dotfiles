@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/aws/amazon-q-developer-cli/refs/heads/main/schemas/agent-v1.json",
   "name": "default",
   "description": "General development — lean, no MCP. Delegates to specialized agents when needed.",
   "prompt": "You are a general development assistant.\n\nWhen you need latest library/framework docs or web search, delegate to the 'research' agent using the agent tool.\nDon't tell the user to switch agents — just delegate and bring back the answer.",
@@ -82,7 +83,15 @@
       "autoAllowReadonly": true
     },
     "subagent": {
-      "availableAgents": ["research", "reviewer", "planner", "go", "node"],
+      "availableAgents": [
+        "research",
+        "reviewer",
+        "planner",
+        "go",
+        "node",
+        "react",
+        "db"
+      ],
       "trustedAgents": ["research"]
     }
   },

@@ -11,6 +11,7 @@
 
 # Override global gitignore — track .kiro/ in dotfiles
 !.kiro/
+!.claude/
 
 # Kiro CLI runtime files (still ignore these)
 .kiro/.cli_bash_history

@@ -77,11 +77,64 @@
     "edit": "ask",
     "webfetch": "ask"
   },
+  "tools": {
+    "context7*": false,
+    "deepwiki*": false,
+    "exa*": false,
+    "fff*": true
+  },
+  "agent": {
+    "general": {
+      "mode": "primary",
+      "description": "General development orchestrator. Prefer FFF for local search and delegate external research.",
+      "prompt": "You are a general development assistant. For local repository searching, prefer fff_find_files, fff_grep, and fff_multi_grep over glob/grep. When the user needs documentation lookups, web search, or GitHub wiki/repo research, invoke the research subagent and return concise findings with source links.",
+      "permission": {
+        "task": {
+          "*": "deny",
+          "research": "allow"
+        }
+      }
+    },
+    "research": {
+      "mode": "subagent",
+      "description": "Search docs, web, and GitHub wikis using MCP tools.",
+      "model": "opencode/minimax-m2.5-free",
+      "prompt": "You are a research agent. For local repository discovery and code search, prefer fff_find_files, fff_grep, and fff_multi_grep. Use Context7 for library/framework docs and API references. Use DeepWiki for GitHub repository documentation. Use Exa for web search, blog posts, and current information. Pick the right tool for the question. Be concise and return relevant findings with source links.",
+      "tools": {
+        "read": true,
+        "glob": true,
+        "grep": true,
+        "webfetch": true,
+        "context7*": true,
+        "deepwiki*": true,
+        "exa*": true,
+        "fff*": true,
+        "write": false,
+        "edit": false,
+        "bash": false
+      }
+    }
+  },
   "plugin": [],
   "mcp": {
     "context7": {
       "type": "remote",
       "url": "https://mcp.context7.com/mcp",
+      "enabled": true
+    },
+    "deepwiki": {
+      "type": "remote",
+      "url": "https://mcp.deepwiki.com/mcp",
+      "enabled": true
+    },
+    "exa": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai/mcp",
+      "enabled": true
+    },
+    "fff": {
+      "type": "local",
+      "command": ["fff-mcp"],
       "enabled": true
     }
   }

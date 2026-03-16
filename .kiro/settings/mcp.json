@@ -8,6 +8,18 @@
     },
     "exa": {
       "url": "https://mcp.exa.ai/mcp"
+    },
+    "mcp-atlassian": {
+      "command": "uvx",
+      "args": ["mcp-atlassian"],
+      "env": {
+        "JIRA_URL": "https://your-company.atlassian.net",
+        "JIRA_USERNAME": "<your-email>",
+        "JIRA_API_TOKEN": "<your-api-token>",
+        "CONFLUENCE_URL": "https://your-company.atlassian.net/wiki",
+        "CONFLUENCE_USERNAME": "<your-email>",
+        "CONFLUENCE_API_TOKEN": "<your-api-token>"
+      }
     }
   }
 }

@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/aws/amazon-q-developer-cli/refs/heads/main/schemas/agent-v1.json",
   "name": "react",
   "description": "Specialized agent for React development with TypeScript, modern patterns, and best practices",
   "prompt": "You are a React specialist focused on modern React development with TypeScript. Prioritize functional components, hooks, performance optimization, and accessibility. Use current best practices for state management, testing, and component architecture.",
@@ -12,14 +11,67 @@
   ],
   "tools": ["*"],
   "toolsSettings": {
-    "read": {
-      "allowedPaths": ["*"]
+    "fs_read": {
+      "deniedPaths": ["**/*.env", "**/*.env.*", "**/*.envrc", "**/secrets/**"]
     },
-    "write": {
-      "denyByDefault": true
+    "fs_write": {
+      "deniedPaths": ["**/*.env", "**/*.env.*", "**/*.envrc", "**/secrets/**"]
     },
-    "shell": {
-      "denyByDefault": true
+    "execute_bash": {
+      "allowedCommands": [
+        "ast-grep.*",
+        "awk.*",
+        "biome.*",
+        "bun.*",
+        "cargo.*",
+        "cat.*",
+        "cloc.*",
+        "cp.*",
+        "date.*",
+        "diff.*",
+        "fd.*",
+        "find.*",
+        "fnm.*",
+        "fzf.*",
+        "git(?! push).*",
+        "go .*",
+        "grep.*",
+        "rg.*",
+        "gsed.*",
+        "head.*",
+        "jq.*",
+        "ls.*",
+        "mkdir.*",
+        "npm.*",
+        "pnpm.*",
+        "prettier.*",
+        "pwd",
+        "sed.*",
+        "sg.*",
+        "shellcheck.*",
+        "sort.*",
+        "stow.*",
+        "stylua.*",
+        "tail.*",
+        "tar.*",
+        "touch.*",
+        "tr.*",
+        "tree.*",
+        "tsc.*",
+        "turbo.*",
+        "uniq.*",
+        "unzip.*",
+        "vite.*",
+        "vitest.*",
+        "wc.*",
+        "which.*",
+        "xargs.*",
+        "yarn.*",
+        "zip.*",
+        "zoxide.*"
+      ],
+      "deniedCommands": ["git push.*"],
+      "autoAllowReadonly": true
     },
     "subagent": {
       "availableAgents": ["research"],

@@ -1,5 +1,6 @@
 {
   "app.beta": false,
+  "autocomplete.theme": "monokai-dark",
   "autocomplete.disable": false,
   "chat.enableContextUsageIndicator": true,
   "chat.enableTangentMode": true,
@@ -8,8 +9,11 @@
   "chat.enableThinking": true,
   "chat.defaultModel": "claude-opus-4.6",
   "chat.enableSubagent": true,
+  "chat.enableDelegate": true,
+  "chat.enableNotifications": true,
   "chat.enableCodeIntelligence": true,
   "chat.enableCheckpoint": false,
   "chat.enableKnowledge": true,
   "chat.defaultAgent": "default"
 }
+
