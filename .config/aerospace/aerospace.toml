@@ -217,6 +217,10 @@ if.app-id = "com.jinghaoshe.qspace.pro"
 run = "layout floating"
 
 [[on-window-detected]]
+if.app-id = "com.superultra.Homerow"
+run = "layout floating"
+
+[[on-window-detected]]
 if.app-id = "com.apple.iWork.Keynote"
 run = "move-node-to-workspace 8"
 
