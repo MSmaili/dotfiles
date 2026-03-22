@@ -1,0 +1,5 @@
+#!/bin/sh
+exec delta --no-gitconfig --line-numbers --dark --navigate \
+  --file-style omit \
+  --hunk-header-style syntax \
+  --hunk-header-decoration-style none "$@"

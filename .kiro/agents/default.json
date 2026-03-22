@@ -10,9 +10,9 @@
     "grep",
     "glob",
     "code",
-    "use_subagent"
+    "subagent"
   ],
-  "allowedTools": ["fs_read", "grep", "glob", "code", "use_subagent"],
+  "allowedTools": ["fs_read", "grep", "glob", "code", "subagent"],
   "toolsSettings": {
     "fs_read": {
       "deniedPaths": ["**/*.env", "**/*.env.*", "**/*.envrc", "**/secrets/**"]
@@ -93,6 +93,15 @@
         "db"
       ],
       "trustedAgents": ["research"]
+    },
+    "hooks": {
+      "postToolUse": [
+        {
+          "matcher": "write",
+          "command": "format_changed_files",
+          "timeout_ms": 3000
+        }
+      ]
     }
   },
   "welcomeMessage": "What are we building?"

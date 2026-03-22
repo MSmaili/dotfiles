@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DIR="$HOME/.kiro/saved-sessions"
+PROJECT=$(basename "$PWD")
+
+case "${1:-}" in
+    list)
+        pattern="${PROJECT}_*.json"
+        [[ "${2:-}" == "--all" ]] && pattern="*.json"
+
+        ls -t "$DIR"/$pattern 2>/dev/null | while IFS= read -r f; do
+            printf "%-45s  %s\n" "$(basename "$f" .json)" "$(du -h "$f" | cut -f1 | xargs)"
+        done || echo "No sessions found"
+        ;;
+
+    clean)
+        files=$(ls -t "$DIR"/${PROJECT}_*.json 2>/dev/null) || { echo "Nothing to clean"; exit 0; }
+        [[ "${2:-}" == "--keep" ]] && files=$(echo "$files" | tail -n +$(("${3:-0}" + 1)))
+        [[ -z "$files" ]] && { echo "Nothing to clean"; exit 0; }
+
+        count=$(echo "$files" | wc -l | xargs)
+        read -rp "Remove $count session(s)? [y/N] " confirm
+        [[ "$confirm" =~ ^[yY]$ ]] && echo "$files" | xargs rm && echo "Removed $count session(s)" >&2
+        ;;
+
+    *)
+        cat <<EOF
+Usage: ksnap <list [--all] | clean [--keep N]>
+
+In kiro-cli:
+  /chat save-via-script ksnap-save
+  /chat load-via-script ksnap-load
+EOF
+        ;;
+esac

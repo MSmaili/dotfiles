@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[ -t 0 ] && { echo "Run inside kiro-cli: /chat save-via-script ksnap-save" >&2; exit 1; }
+
+DIR="$HOME/.kiro/saved-sessions"
+mkdir -p "$DIR"
+
+FILE="$DIR/$(basename "$PWD")_$(date +%Y-%m-%d_%H-%M-%S).json"
+cat > "$FILE"
+echo "Saved → $FILE" >&2

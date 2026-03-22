@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[ -t 1 ] && { echo "Run inside kiro-cli: /chat load-via-script ksnap-load" >&2; exit 1; }
+
+DIR="$HOME/.kiro/saved-sessions"
+PROJECT=$(basename "$PWD")
+
+files=$(ls -t "$DIR"/${PROJECT}_*.json 2>/dev/null) || { echo "No sessions found" >&2; exit 1; }
+
+if command -v fzf &>/dev/null; then
+    pick=$(echo "$files" | sed "s|.*/||" | fzf --prompt="session: " \
+        --preview="bat --color=always --language=json $DIR/{} 2>/dev/null || cat $DIR/{}" 2>/dev/tty)
+    [[ -z "$pick" ]] && exit 1
+    cat "$DIR/$pick"
+else
+    cat "$(echo "$files" | head -1)"
+fi

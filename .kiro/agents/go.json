@@ -19,9 +19,9 @@
     "grep",
     "glob",
     "code",
-    "use_subagent"
+    "subagent"
   ],
-  "allowedTools": ["fs_read", "grep", "glob", "code", "use_subagent"],
+  "allowedTools": ["fs_read", "grep", "glob", "code", "subagent"],
   "toolsSettings": {
     "fs_write": {
       "deniedPaths": ["**/*.env", "**/*.env.*", "**/*.envrc", "**/secrets/**"]
@@ -46,7 +46,7 @@
     "postToolUse": [
       {
         "matcher": "write",
-        "command": "format_changed_files --go",
+        "command": "format_changed_files",
         "timeout_ms": 3000
       }
     ]

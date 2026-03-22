@@ -8,6 +8,7 @@ path=(
     "/sbin"
     "$HOME/.local/bin"
     "$HOME/bin"
+    "$HOME/.local/share/nvim/mason/bin"
     "$HOME/.config/scripts"
     $path
 )

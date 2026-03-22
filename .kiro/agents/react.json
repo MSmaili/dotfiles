@@ -82,7 +82,7 @@
     "postToolUse": [
       {
         "matcher": "write",
-        "command": "format_changed_files --js",
+        "command": "format_changed_files",
         "timeout_ms": 3000
       }
     ]

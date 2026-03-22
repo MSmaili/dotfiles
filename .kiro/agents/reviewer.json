@@ -7,8 +7,8 @@
     "file://.agent/tasks/IMPLEMENTATION_PLAN.md",
     "file://.agent/"
   ],
-  "tools": ["fs_read", "grep", "glob", "code", "use_subagent"],
-  "allowedTools": ["fs_read", "grep", "glob", "code", "use_subagent"],
+  "tools": ["fs_read", "grep", "glob", "code", "subagent"],
+  "allowedTools": ["fs_read", "grep", "glob", "code", "subagent"],
   "toolsSettings": {
     "subagent": {
       "availableAgents": ["research"],
