@@ -13,6 +13,7 @@ brew "stow"
 brew "btop"
 brew "gh"
 brew "mole"
+brew "ffmpeg"
 
 # GUI applications
 cask "ghostty"
