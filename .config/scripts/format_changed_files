@@ -1,47 +1,61 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-log() { printf "\033[1;36m[format]\033[0m %s\n" "$1"; }
 has() { command -v "$1" &>/dev/null; }
+
+run_fmt() {
+    local pattern="$1"; shift
+    local matched=()
+
+    while IFS= read -r file; do
+        [[ "$file" =~ $pattern ]] && matched+=("$file")
+    done < <(printf '%s\n' "${changed_files[@]}")
+
+    [[ ${#matched[@]} -eq 0 ]] && return
+
+    printf '%s\0' "${matched[@]}" | xargs -0 "$@"
+}
 
 FORMAT_GO=false
 FORMAT_JS=false
 FORMAT_LUA=false
+FORMAT_SH=false
 
 if [[ $# -eq 0 ]]; then
-    FORMAT_GO=true; FORMAT_JS=true; FORMAT_LUA=true
+    FORMAT_GO=true; FORMAT_JS=true; FORMAT_LUA=true; FORMAT_SH=true
 fi
 
 for arg in "$@"; do
     case "$arg" in
-        --go) FORMAT_GO=true ;;
+        --go)      FORMAT_GO=true ;;
         --js|--ts) FORMAT_JS=true ;;
-        --lua) FORMAT_LUA=true ;;
-        --all) FORMAT_GO=true; FORMAT_JS=true; FORMAT_LUA=true ;;
+        --lua)     FORMAT_LUA=true ;;
+        --sh)      FORMAT_SH=true ;;
+        --all)     FORMAT_GO=true; FORMAT_JS=true; FORMAT_LUA=true; FORMAT_SH=true ;;
+        --help|-h)
+            printf 'Usage: %s [--go] [--js|--ts] [--lua] [--sh] [--all]\n' "$(basename "$0")"
+            printf '  No args formats everything.\n'
+            exit 0 ;;
+        *) printf 'Unknown option: %s\n' "$arg" >&2; exit 1 ;;
     esac
 done
 
 has git || exit 0
 cd "$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
 
-changed=$({ git diff --name-only --diff-filter=ACMR; git ls-files --others --exclude-standard; } | sort -u)
-[[ -z "$changed" ]] && exit 0
+mapfile -t changed_files < <(
+    { git diff --name-only --diff-filter=ACMR
+      git ls-files --others --exclude-standard
+    } | sort -u
+)
 
-fmt() {
-    local pattern="$1"; shift
-    local matched
-    matched=$(echo "$changed" | grep -E "$pattern" || true)
-    [[ -z "$matched" ]] && return
-    log "Formatting $(echo "$matched" | wc -l | tr -d ' ') files with $1"
-    echo "$matched" | xargs "$@"
-}
+[[ ${#changed_files[@]} -eq 0 ]] && exit 0
 
 if has npx; then
-    if $FORMAT_JS; then
-        fmt '\.(json|ya?ml|md|js|jsx|ts|tsx|css|scss)$' npx prettier --write --cache
-    elif [[ $# -eq 0 ]] || [[ "$*" == *"--all"* ]]; then
-        fmt '\.(json|ya?ml|md)$' npx prettier --write --cache
-    fi
+    run_fmt '\.(json|ya?ml|md)$'            npx prettier --write --cache
+    $FORMAT_JS && run_fmt '\.(js|jsx|ts|tsx|css|scss)$' npx prettier --write --cache
 fi
 
-$FORMAT_GO && has gofmt && fmt '\.go$' gofmt -w
-$FORMAT_LUA && has stylua && fmt '\.lua$' stylua
+$FORMAT_GO  && has gofmt     && run_fmt '\.go$'         gofmt -w
+$FORMAT_LUA && has stylua    && run_fmt '\.lua$'        stylua
+$FORMAT_SH  && has beautysh  && run_fmt '\.(sh|bash)$'  beautysh
