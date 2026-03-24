@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/aws/amazon-q-developer-cli/refs/heads/main/schemas/agent-v1.json",
   "name": "default",
   "description": "General development — lean, no MCP. Delegates to specialized agents when needed.",
   "prompt": "You are a general development assistant.\n\nWhen you need latest library/framework docs or web search, delegate to the 'research' agent using the agent tool.\nDon't tell the user to switch agents — just delegate and bring back the answer.",
@@ -42,7 +41,7 @@
         "find.*",
         "fnm.*",
         "fzf.*",
-        "git(?! push).*",
+        "git.*",
         "go .*",
         "grep.*",
         "rg.*",
@@ -93,16 +92,16 @@
         "db"
       ],
       "trustedAgents": ["research"]
-    },
-    "hooks": {
-      "postToolUse": [
-        {
-          "matcher": "write",
-          "command": "format_changed_files",
-          "timeout_ms": 3000
-        }
-      ]
     }
+  },
+  "hooks": {
+    "postToolUse": [
+      {
+        "matcher": "write",
+        "command": "format_changed_files",
+        "timeout_ms": 3000
+      }
+    ]
   },
   "welcomeMessage": "What are we building?"
 }

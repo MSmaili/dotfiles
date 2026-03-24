@@ -33,7 +33,7 @@
         "find.*",
         "fnm.*",
         "fzf.*",
-        "git(?! push).*",
+        "git.*",
         "go .*",
         "grep.*",
         "rg.*",
