@@ -1,13 +1,9 @@
 # Place a copy of this config to ~/.aerospace.toml
 # After that, you can edit ~/.aerospace.toml to your liking
 
-# You can use it to add commands that run after login to macOS user session.
-# 'start-at-login' needs to be 'true' for 'after-login-command' to work
-# Available commands: https://nikitabobko.github.io/AeroSpace/commands
-after-login-command = []
+# Config version for compatibility and deprecations
+config-version = 2
 
-# You can use it to add commands that run after AeroSpace startup.
-# 'after-startup-command' is run after 'after-login-command'
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
 after-startup-command = []
 
@@ -37,17 +33,19 @@ default-root-container-layout = 'tiles'
 #               tall monitor (anything higher than wide) gets vertical orientation
 default-root-container-orientation = 'auto'
 
-# Possible values: (qwerty|dvorak)
-# See https://nikitabobko.github.io/AeroSpace/guide#key-mapping
-key-mapping.preset = 'qwerty'
-
 # Mouse follows focus when focused monitor changes
-# Drop it from your config, if you don't like this behavior
 # See https://nikitabobko.github.io/AeroSpace/guide#on-focus-changed-callbacks
 # See https://nikitabobko.github.io/AeroSpace/commands#move-mouse
-# Fallback value (if you omit the key): on-focused-monitor-changed = []
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 on-focus-changed = "move-mouse window-lazy-center"
+
+# Workspaces that persist even when empty
+persistent-workspaces = ['1', '2', '3', '4', '5']
+
+# Possible values: (qwerty|dvorak|colemak)
+# See https://nikitabobko.github.io/AeroSpace/guide#key-mapping
+[key-mapping]
+preset = 'qwerty'
 
 
 # Gaps between windows (inner-*) and between monitor edges (outer-*).
@@ -133,7 +131,7 @@ ctrl-alt-shift-cmd-n = 'workspace next'
 ctrl-alt-shift-cmd-p = 'workspace prev'
 
 alt-t = 'layout floating tiling' # Toggle between floating and tiling layout
-alt-f = 'fullscreen'
+alt-f = 'fullscreen --no-outer-gaps'
 # alt-p = 'pinning'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
@@ -168,7 +166,7 @@ l = "resize smart +50"
 r = ['flatten-workspace-tree', 'mode main'] # reset layout
 esc = ['reload-config', 'mode main']
 f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
-b= ['balance-sizes']
+b = ['balance-sizes', 'mode main']
 backspace = ['close-all-windows-but-current', 'mode main']
 
 alt-shift-h = ['join-with left', 'mode main']
@@ -210,11 +208,7 @@ run = "move-node-to-workspace 5"
 
 [[on-window-detected]]
 if.app-id = "com.jinghaoshe.qspace.pro"
-run = "move-node-to-workspace 3"
-
-[[on-window-detected]]
-if.app-id = "com.jinghaoshe.qspace.pro"
-run = "layout floating"
+run = ['move-node-to-workspace 3', 'layout floating']
 
 [[on-window-detected]]
 if.app-id = "com.superultra.Homerow"

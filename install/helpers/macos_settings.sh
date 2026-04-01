@@ -49,6 +49,16 @@ run_cmd defaults write com.apple.finder _FXSortFoldersFirst -bool true
 run_cmd defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
 
 ###############################################################################
+# Windows
+###############################################################################
+
+# Drag windows from anywhere with ctrl+cmd
+run_cmd defaults write -g NSWindowShouldDragOnGesture -bool true
+
+# Disable window open animations (smoother tiling)
+run_cmd defaults write -g NSAutomaticWindowAnimationsEnabled -bool false
+
+###############################################################################
 # Dock
 ###############################################################################
 
