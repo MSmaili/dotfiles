@@ -13,6 +13,5 @@
   ],
   "allowedTools": ["fs_read", "grep", "glob", "@context7", "@deepwiki", "@exa"],
   "includeMcpJson": true,
-  "keyboardShortcut": "ctrl+shift+r",
   "welcomeMessage": "What do you need to look up? Docs, web, or a GitHub repo."
 }

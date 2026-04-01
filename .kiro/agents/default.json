@@ -11,6 +11,7 @@
     "code",
     "subagent"
   ],
+  "resources": ["skill://.kiro/skills/**", "skill://~/.kiro/skills/**"],
   "allowedTools": ["fs_read", "grep", "glob", "code", "subagent"],
   "toolsSettings": {
     "fs_read": {

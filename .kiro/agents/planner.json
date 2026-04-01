@@ -20,6 +20,5 @@
       "trustedAgents": ["research"]
     }
   },
-  "keyboardShortcut": "ctrl+shift+p",
   "welcomeMessage": "What do you want to plan? I'll ask for context before creating anything."
 }

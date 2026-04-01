@@ -31,6 +31,11 @@ K8S_SKILLS=(
     "https://github.com/Jeffallan/claude-skills --skill kubernetes-specialist"
 )
 
+SLIDEV_SKILLS=(
+    "https://github.com/antfu/skills --skill slidev"
+    "yoanbernabeu/slidev-skills"
+)
+
 DOCS_SKILLS=(
     "https://github.com/anthropics/skills --skill docx"
     "https://github.com/anthropics/skills --skill pptx"
@@ -94,6 +99,7 @@ Groups:
   k8s       Kubernetes specialist skills (installed locally)
   db        Database skills (installed locally)
   docs      Document generation skills (installed locally)
+  slidev    Slidev presentation skills (installed locally)
   all       All groups
   clean     Remove all installed skills for target(s)
 
@@ -147,8 +153,9 @@ main() {
             k8s)     echo "☸️  Installing K8s skills (local)...";     install_group K8S_SKILLS local ;;
             db)      echo "🗄️  Installing DB skills (local)...";      install_group DB_SKILLS local ;;
             docs)    echo "📄 Installing Docs skills (local)...";    install_group DOCS_SKILLS local ;;
+            slidev)  echo "🎨 Installing Slidev skills (local)...";  install_group SLIDEV_SKILLS local ;;
             clean)   clean_skills; return ;;
-            all)     main "${TARGETS[@]/#/--target }" global react go node k8s db docs; return ;;
+            all)     main "${TARGETS[@]/#/--target }" global react go node k8s db docs slidev; return ;;
             *)      echo "Unknown group: $group"; usage; return 1 ;;
         esac
     done
