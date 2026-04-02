@@ -1,0 +1,44 @@
+metadata:
+  description: Project files
+  requires:
+    - fd
+
+source:
+  type: script
+  script: ./source.sh
+  delimiter: "\t"
+  ansi: true
+
+preview:
+  command: bat --color=always --style=plain --line-range :120 {2} 2>/dev/null || sed -n '1,120p' {2}
+
+ui:
+  header: files
+  prompt: "[files]> "
+
+navigation:
+  ctrl-r:
+    channel: git-log
+    label: git log
+
+actions:
+  enter:
+    mode: become
+    label: edit
+    command: ${EDITOR:-nvim} {2}
+  f2:
+    mode: execute-silent
+    label: copy path
+    command: printf %s {2} | pbcopy
+  f3:
+    mode: become
+    label: paste path
+    script: ./actions/paste-path.sh
+    args: "{2}"
+  ctrl-g:
+    mode: raw
+    label: grep scoped
+    command: select-all+become(fzp _scope-and-run grep {+2})
+
+fzf_options:
+  - --tabstop=1

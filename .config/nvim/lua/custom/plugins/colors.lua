@@ -8,6 +8,11 @@ return {
 		opts = {},
 	},
 	{
+		"Aejkatappaja/sora",
+		lazy = false,
+		opts = {},
+	},
+	{
 		"loctvl842/monokai-pro.nvim",
 		lazy = false,
 		opts = {},

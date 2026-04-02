@@ -3,9 +3,6 @@
   "autoupdate": true,
   "permission": {
     "external_directory": {
-      "*": "ask",
-      "~/.config/opencode/**": "allow",
-      "~/dotfiles/**": "allow",
       "~/.zshrc.local": "deny"
     },
     "read": {

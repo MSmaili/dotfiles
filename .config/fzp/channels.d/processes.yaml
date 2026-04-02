@@ -1,0 +1,18 @@
+metadata:
+  description: Running processes
+
+source:
+  command: ps -eo pid,user,%cpu,%mem,command | tail -n +2 | sort -k3 -rn
+  no_sort: true
+
+preview:
+  command: echo {}
+
+ui:
+  header: processes
+
+actions:
+  ctrl-k:
+    mode: execute-silent
+    label: kill process
+    command: kill {1}

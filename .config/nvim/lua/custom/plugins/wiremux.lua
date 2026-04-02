@@ -8,7 +8,15 @@ return {
 			definitions = {
 				opencode = { cmd = "opencode", kind = { "pane", "window" }, split = "horizontal", shell = false },
 				claudecode = { cmd = "claude", kind = { "pane", "window" }, split = "horizontal", shell = false },
-				kiro = { kind = { "pane", "window" }, split = "horizontal", cmd = "kiro-cli", shell = false },
+				kiro = {
+					kind = { "pane", "window" },
+					split = "horizontal",
+					cmd = "kiro-cli",
+					shell = false,
+					label = function(inst, index)
+						return string.format("%s: %s", inst.pane_index, inst.running_command or inst.target)
+					end,
+				},
 				shell = { kind = { "pane", "window" }, split = "horizontal" },
 				quick = { kind = { "pane", "window" }, split = "horizontal", shell = false },
 			},

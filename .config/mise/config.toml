@@ -3,9 +3,10 @@ go = "latest"
 bun = "latest"
 java = "21"
 node = "22"
-rust = "nightly"
+rust = "latest"
 
 # Tools
 "cargo:eza" = "latest"
+"cargo:devicon-lookup" = "latest"
 "cargo:tree-sitter-cli" = "latest"
 "go:github.com/MSmaili/hetki" = "latest"

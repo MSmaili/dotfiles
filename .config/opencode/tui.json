@@ -4,5 +4,7 @@
   "keybinds": {
     "session_interrupt": "<leader>escape",
     "agent_cycle": "shift+tab"
-  }
+  },
+  "diff_style": "stacked",
+  "pager": "udiff"
 }

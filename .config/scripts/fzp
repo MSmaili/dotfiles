@@ -1,0 +1,429 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CHANNELS_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/fzp/channels.d"
+FZP_HEIGHT="${FZP_HEIGHT:-100%}"
+FZP_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/fzp"
+FZP_PARSER_BIN="$FZP_CACHE_DIR/fzp-yaml-parser"
+FZP_PARSER_SRC="${XDG_CONFIG_HOME:-$HOME/.config}/scripts/fzp-parser"
+
+die() { printf 'error: %s\n' "$*" >&2; exit 1; }
+
+check_core_tools() {
+  local tool
+  for tool in fzf jq; do
+    command -v "$tool" >/dev/null 2>&1 || die "missing required tool: $tool"
+  done
+
+  if [[ -x "$FZP_PARSER_BIN" ]]; then
+    return
+  fi
+
+  [[ -f "$FZP_PARSER_SRC/main.go" ]] || die "missing parser source: $FZP_PARSER_SRC/main.go"
+
+  if command -v go >/dev/null 2>&1; then
+    return
+  fi
+
+  if command -v mise >/dev/null 2>&1; then
+    if mise x -- go version >/dev/null 2>&1; then
+      return
+    fi
+  fi
+
+  die "missing Go toolchain for YAML parser build (install go or configure mise go)"
+}
+
+ensure_yaml_parser() {
+  if [[ -x "$FZP_PARSER_BIN" ]]; then
+    return 0
+  fi
+
+  if command -v go >/dev/null 2>&1 && [[ -f "$FZP_PARSER_SRC/main.go" ]]; then
+    mkdir -p "$FZP_CACHE_DIR"
+    if (cd "$FZP_PARSER_SRC" && go build -o "$FZP_PARSER_BIN" .) >/dev/null 2>&1; then
+      return 0
+    fi
+  fi
+
+  if command -v mise >/dev/null 2>&1 && [[ -f "$FZP_PARSER_SRC/main.go" ]]; then
+    mkdir -p "$FZP_CACHE_DIR"
+    if (cd "$FZP_PARSER_SRC" && mise x -- go build -o "$FZP_PARSER_BIN" .) >/dev/null 2>&1; then
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
+usage() {
+  cat <<EOF
+Usage: fzp [channel] [--query QUERY] [--scope-file FILE]
+
+  fzp                 pick a channel interactively
+  fzp files           run files channel
+  fzp --list          list channels
+
+Environment:
+  FZP_HEIGHT=100%     default picker height
+
+Internal helpers:
+  fzp _confirm-run "prompt" "command"
+  fzp _scoped-rg "query"
+  fzp _scope-and-run <channel> <items...>
+
+Channels dir: $CHANNELS_DIR
+EOF
+}
+
+join_with_pipe() {
+  local out=""
+  local part
+  for part in "$@"; do
+    [[ -n "$part" ]] || continue
+    if [[ -z "$out" ]]; then
+      out="$part"
+    else
+      out="$out | $part"
+    fi
+  done
+  printf '%s' "$out"
+}
+
+channel_catalog_json() {
+  ensure_yaml_parser || die "failed to build YAML parser from $FZP_PARSER_SRC"
+  "$FZP_PARSER_BIN" catalog "$CHANNELS_DIR"
+}
+
+list_channels() {
+  channel_catalog_json | jq -r '.[].name'
+}
+
+load_channel_json() {
+  local channel="$1"
+
+  ensure_yaml_parser || die "failed to build YAML parser from $FZP_PARSER_SRC"
+  "$FZP_PARSER_BIN" load "$channel" "$CHANNELS_DIR" "$FZP_HEIGHT"
+}
+
+check_requirements() {
+  local ch="$1"
+  shift
+  local -a missing=()
+  local dep
+
+  for dep in "$@"; do
+    [[ -n "$dep" ]] || continue
+    command -v "$dep" >/dev/null 2>&1 || missing+=("$dep")
+  done
+
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    die "channel '$ch' missing dependencies: ${missing[*]}"
+  fi
+}
+
+pick_channel() {
+  local query="${1:-}"
+  local selected=""
+
+  selected="$(
+    channel_catalog_json | jq -r '.[] | [.name, .description, .path] | @tsv' | \
+      fzf \
+        --height "$FZP_HEIGHT" \
+        --prompt "channel> " \
+        --query "$query" \
+        --delimiter $'\t' \
+        --with-nth=1,2 \
+        --header "pick a channel" \
+        --preview 'bat --color=always --style=plain {3} 2>/dev/null || cat {3}'
+  )" || return 0
+
+  printf '%s\n' "${selected%%$'\t'*}"
+}
+
+run_source() {
+  local cfg_json="$1"
+  local cmd cwd
+  local -a env_args=()
+
+  cmd="$(jq -r '.source.command // ""' <<<"$cfg_json")"
+  cwd="$(jq -r '.source.cwd // ""' <<<"$cfg_json")"
+
+  [[ -n "$cmd" ]] || die "channel has no source command"
+
+  while IFS= read -r line; do
+    env_args+=("$line")
+  done < <(jq -r '.source.env // {} | to_entries[]? | "\(.key)=\(.value)"' <<<"$cfg_json")
+
+  if [[ -n "$cwd" ]]; then
+    if [[ ${#env_args[@]} -gt 0 ]]; then
+      (
+        cd "$cwd"
+        env "${env_args[@]}" bash -lc "$cmd"
+      )
+    else
+      (
+        cd "$cwd"
+        bash -lc "$cmd"
+      )
+    fi
+  else
+    if [[ ${#env_args[@]} -gt 0 ]]; then
+      env "${env_args[@]}" bash -lc "$cmd"
+    else
+      bash -lc "$cmd"
+    fi
+  fi
+}
+
+confirm_run() {
+  local prompt="$1"
+  local cmd="$2"
+  local answer=""
+
+  if [[ -t 1 && -e /dev/tty ]]; then
+    printf '%s [y/N] ' "$prompt" > /dev/tty
+    read -r answer < /dev/tty || return 1
+    [[ "$answer" =~ ^[Yy]$ ]] || return 1
+  fi
+
+  bash -lc "$cmd"
+}
+
+scoped_rg() {
+  local query="${1:-}"
+
+  if [[ -n "${FZP_SCOPE_FILE:-}" && -f "${FZP_SCOPE_FILE}" ]]; then
+    if [[ ! -s "$FZP_SCOPE_FILE" ]]; then
+      return 0
+    fi
+
+    while IFS= read -r path; do
+      [[ -n "$path" ]] || continue
+      printf '%s\0' "$path"
+    done < "$FZP_SCOPE_FILE" | xargs -0 rg --color=always --line-number --no-heading --smart-case "$query" 2>/dev/null || true
+    return
+  fi
+
+  rg --color=always --line-number --no-heading --smart-case "$query" . 2>/dev/null || true
+}
+
+scope_and_run() {
+  local target="$1"
+  shift
+
+  [[ -n "$target" ]] || die "_scope-and-run requires target channel"
+
+  if [[ $# -eq 0 ]]; then
+    fzp "$target"
+    return
+  fi
+
+  local scope_file
+  scope_file="$(mktemp "/tmp/fzp-scope.XXXXXX")"
+  printf '%s\n' "$@" > "$scope_file"
+
+  fzp --scope-file "$scope_file" "$target"
+}
+
+run_channel() {
+  local ch="$1"
+  local query="${2:-}"
+  local scope_file="${3:-}"
+  local cfg_json
+
+  cfg_json="$(load_channel_json "$ch")" || die "failed to load channel: $ch"
+
+  local -a requires=()
+  local dep opt
+  while IFS= read -r dep; do
+    requires+=("$dep")
+  done < <(jq -r '.requires[]?' <<<"$cfg_json")
+  if [[ ${#requires[@]} -gt 0 ]]; then
+    check_requirements "$ch" "${requires[@]}"
+  fi
+
+  local prompt preview preview_window delimiter header height
+  local multi ansi no_sort
+  prompt="$(jq -r '.prompt' <<<"$cfg_json")"
+  preview="$(jq -r '.preview.command' <<<"$cfg_json")"
+  preview_window="$(jq -r '.preview.window' <<<"$cfg_json")"
+  delimiter="$(jq -r '.source.delimiter // ""' <<<"$cfg_json")"
+  header="$(jq -r '.header // ""' <<<"$cfg_json")"
+  height="$(jq -r '.height // "100%"' <<<"$cfg_json")"
+  multi="$(jq -r '.multi' <<<"$cfg_json")"
+  ansi="$(jq -r '.source.ansi' <<<"$cfg_json")"
+  no_sort="$(jq -r '.source.no_sort' <<<"$cfg_json")"
+
+  local -a args=(
+    --height "$height"
+    --prompt "$prompt"
+    --query "$query"
+    --preview "$preview"
+    --preview-window "$preview_window"
+    --bind "ctrl-s:become(fzp)"
+  )
+
+  [[ "$multi" == "true" ]] && args+=(--multi)
+  [[ -n "$delimiter" ]] && args+=(--delimiter "$delimiter")
+  [[ "$ansi" == "true" ]] && args+=(--ansi)
+  [[ "$no_sort" == "true" ]] && args+=(--no-sort)
+
+  local -a help_items=("ctrl-s:channels")
+
+  local nav_json key target label bind
+  while IFS= read -r nav_json; do
+    key="$(jq -r '.key' <<<"$nav_json")"
+    target="$(jq -r '.target' <<<"$nav_json")"
+    label="$(jq -r '.label' <<<"$nav_json")"
+    [[ -n "$key" && -n "$target" ]] || continue
+
+    if [[ -n "$scope_file" ]]; then
+      bind="$key:become(fzp --scope-file '$scope_file' $target)"
+    else
+      bind="$key:become(fzp $target)"
+    fi
+
+    args+=(--bind "$bind")
+    help_items+=("$key:$label")
+  done < <(jq -c '.navigation[]?' <<<"$cfg_json")
+
+  local action_json mode cmd field
+  while IFS= read -r action_json; do
+    key="$(jq -r '.key' <<<"$action_json")"
+    mode="$(jq -r '.mode' <<<"$action_json")"
+    label="$(jq -r '.label' <<<"$action_json")"
+    cmd="$(jq -r '.command // ""' <<<"$action_json")"
+    target="$(jq -r '.target // ""' <<<"$action_json")"
+    field="$(jq -r '.field // ""' <<<"$action_json")"
+
+    [[ -n "$key" ]] || continue
+
+    case "$mode" in
+      execute|execute-silent|become|reload)
+        [[ -n "$cmd" ]] || die "action '$key' in '$ch' missing command"
+        bind="$key:$mode($cmd)"
+        ;;
+      silent)
+        [[ -n "$cmd" ]] || die "action '$key' in '$ch' missing command"
+        bind="$key:execute-silent($cmd)"
+        ;;
+      raw)
+        [[ -n "$cmd" ]] || die "action '$key' in '$ch' missing command"
+        bind="$key:$cmd"
+        ;;
+      scope-nav)
+        [[ -n "$target" ]] || die "action '$key' in '$ch' missing target"
+        if [[ -n "$field" ]]; then
+          bind="$key:become(fzp _scope-and-run $target {+$field})"
+        else
+          bind="$key:become(fzp _scope-and-run $target {+})"
+        fi
+        ;;
+      *)
+        die "invalid action mode '$mode' in channel '$ch'"
+        ;;
+    esac
+
+    args+=(--bind "$bind")
+    help_items+=("$key:$label")
+  done < <(jq -c '.actions[]?' <<<"$cfg_json")
+
+  local help_text
+  help_text="$(join_with_pipe "${help_items[@]}")"
+
+  if [[ -n "$header" && -n "$help_text" ]]; then
+    args+=(--header "$header | $help_text")
+  elif [[ -n "$header" ]]; then
+    args+=(--header "$header")
+  elif [[ -n "$help_text" ]]; then
+    args+=(--header "$help_text")
+  fi
+
+  local -a extra_opts=()
+  while IFS= read -r opt; do
+    extra_opts+=("$opt")
+  done < <(jq -r '.fzf_options[]?' <<<"$cfg_json")
+  if [[ ${#extra_opts[@]} -gt 0 ]]; then
+    args+=("${extra_opts[@]}")
+  fi
+
+  export FZP_SCOPE_FILE="$scope_file"
+
+  set +e
+  run_source "$cfg_json" | fzf "${args[@]}"
+  local status=$?
+  set -e
+
+  case "$status" in
+    0|1|130) return 0 ;;
+    *) return "$status" ;;
+  esac
+}
+
+if [[ "${1:-}" == "_confirm-run" ]]; then
+  shift
+  [[ $# -eq 2 ]] || die "_confirm-run expects exactly 2 args"
+  confirm_run "$1" "$2"
+  exit $?
+fi
+
+if [[ "${1:-}" == "_scoped-rg" ]]; then
+  shift
+  scoped_rg "${1:-}"
+  exit 0
+fi
+
+if [[ "${1:-}" == "_scope-and-run" ]]; then
+  shift
+  [[ $# -ge 1 ]] || die "_scope-and-run expects channel [items...]"
+  scope_and_run "$@"
+  exit $?
+fi
+
+check_core_tools
+
+channel=""
+query=""
+scope_file="${FZP_SCOPE_FILE:-}"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --list)
+      list_channels
+      exit 0
+      ;;
+    --query)
+      shift
+      [[ $# -gt 0 ]] || die "--query requires a value"
+      query="$1"
+      ;;
+    --scope-file)
+      shift
+      [[ $# -gt 0 ]] || die "--scope-file requires a value"
+      scope_file="$1"
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      if [[ -z "$channel" ]]; then
+        channel="$1"
+      else
+        die "unexpected argument: $1"
+      fi
+      ;;
+  esac
+  shift
+done
+
+[[ -d "$CHANNELS_DIR" ]] || die "channels dir not found: $CHANNELS_DIR"
+
+if [[ -z "$channel" ]]; then
+  channel="$(pick_channel "$query")"
+fi
+
+[[ -n "$channel" ]] || exit 0
+
+run_channel "$channel" "$query" "$scope_file"
