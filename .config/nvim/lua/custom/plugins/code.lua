@@ -11,13 +11,6 @@ return {
 			},
 		},
 	},
-	-- UndotreeToggle
-	{
-		"mbbill/undotree",
-		keys = {
-			{ "<leader>gu", "<cmd>UndotreeToggle<CR>", desc = "Toggle undotree" },
-		},
-	},
 
 	-- Generate documentation
 	{

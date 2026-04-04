@@ -118,8 +118,8 @@ M.keyMaps = {
 		-- Disable highlight
 		["<leader>h"] = ":nohl<CR>",
 
-		-- GIT UNDO TREE
-		["<leader>gu"] = { ":UndotreeToggle<CR>", desc = "Toggle undotree" },
+		-- UNDO-TREE
+		["<leader>gu"] = { ":Undotree<cr>", desc = "Toggle undotree" },
 
 		------------------------------
 		-- Plugin manager

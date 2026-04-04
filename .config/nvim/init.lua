@@ -43,3 +43,5 @@ require("lazy").setup({
 	},
 	debug = false,
 })
+
+vim.cmd.packadd("nvim.undotree")
