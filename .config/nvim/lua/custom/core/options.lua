@@ -99,6 +99,7 @@ local options = {
 }
 
 vim.opt.wildignore:append({ "*/node_modules/*" })
+vim.opt.messagesopt = "hit-enter,history:500,progress:"
 vim.g.clipboard = "osc52"
 vim.o.winborder = "rounded"
 

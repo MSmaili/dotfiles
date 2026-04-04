@@ -2,13 +2,33 @@ local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
 
 local smailiGroup = augroup("smaili", { clear = true })
+local lsp_progress_active = {}
+local can_send_progress = vim.env.TERM_PROGRAM == "ghostty" or vim.env.TMUX ~= nil
+
+local function wrap_tmux_passthrough(content)
+	return string.format("\27Ptmux;\27%s\27\\", content)
+end
+
+local function send_osc_progress(seq)
+	if not can_send_progress then
+		return
+	end
+
+	if vim.env.TMUX then
+		seq = wrap_tmux_passthrough(seq)
+	end
+
+	vim.schedule(function()
+		pcall(vim.api.nvim_ui_send, seq)
+	end)
+end
 
 -- Highlight on yank
 autocmd("TextYankPost", {
 	group = smailiGroup,
 	desc = "Highlight text on yank",
 	callback = function()
-		vim.highlight.on_yank()
+		vim.hl.on_yank()
 	end,
 })
 
@@ -36,6 +56,39 @@ autocmd("User", {
 		local ok, neocodeium = pcall(require, "neocodeium")
 		if ok then
 			neocodeium.clear()
+		end
+	end,
+})
+
+autocmd("LspProgress", {
+	group = smailiGroup,
+	desc = "Emit LSP progress for Ghostty",
+	callback = function(ev)
+		local value = ev.data and ev.data.params and ev.data.params.value or {}
+		if type(value) ~= "table" then
+			return
+		end
+
+		local client_id = tostring(ev.data and ev.data.client_id or "unknown")
+		local token = tostring(ev.data and ev.data.params and ev.data.params.token or "global")
+		local key = client_id .. ":" .. token
+
+		if value.kind == "end" then
+			lsp_progress_active[key] = nil
+			if next(lsp_progress_active) == nil then
+				send_osc_progress("\27]9;4;0\7")
+			else
+				send_osc_progress("\27]9;4;3;0\7")
+			end
+		else
+			lsp_progress_active[key] = true
+			local percent = tonumber(value.percentage)
+			if percent then
+				percent = math.max(0, math.min(100, math.floor(percent)))
+				send_osc_progress(string.format("\27]9;4;1;%d\7", percent))
+			else
+				send_osc_progress("\27]9;4;3;0\7")
+			end
 		end
 	end,
 })

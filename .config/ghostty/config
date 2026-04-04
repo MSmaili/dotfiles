@@ -3,6 +3,7 @@ background-opacity = 0.90
 background-blur = 30
 background-blur-radius = 30
 macos-titlebar-style = hidden
+progress-style = true
 macos-option-as-alt = true
 # show the border around
 macos-window-shadow = true

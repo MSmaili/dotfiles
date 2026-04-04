@@ -4,6 +4,21 @@ return {
 	config = function()
 		local extension_path = vim.fn.stdpath("data") .. "/mason/packages/sonarlint-language-server/extension"
 
+		-- Nvim 0.12 deprecates client.notify (dot-call style).
+		-- Patch plugin callback to use method style client:notify.
+		local ok_server, server = pcall(require, "sonarqube.lsp.server")
+		if ok_server then
+			server.did_change_configuration = function(client)
+				local sonarqube = client or vim.lsp.get_clients({ name = "sonarqube" })[1]
+				if not sonarqube then
+					return
+				end
+				sonarqube:notify("workspace/didChangeConfiguration", {
+					settings = server.settings,
+				})
+			end
+		end
+
 		require("sonarqube").setup({
 			lsp = {
 				cmd = {
