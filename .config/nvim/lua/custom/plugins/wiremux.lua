@@ -1,9 +1,10 @@
 return {
 	"MSmaili/wiremux.nvim",
 	lazy = false,
+	branch = "dev",
 	---@wiremux.config.UserOptions
 	opts = {
-		log_level = "debug",
+		-- log_level = "debug",
 		targets = {
 			definitions = {
 				opencode = { cmd = "opencode", kind = { "pane", "window" }, split = "horizontal", shell = false },
@@ -21,9 +22,9 @@ return {
 		{
 			"<leader>aa",
 			function()
-				require("wiremux").toggle()
+				require("wiremux").send()
 			end,
-			desc = "Toggle Zoom",
+			desc = "Send a message with compose",
 		},
 		{
 			"<leader>at",

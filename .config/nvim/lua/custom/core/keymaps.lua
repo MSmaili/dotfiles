@@ -156,7 +156,8 @@ M.keyMaps = {
 		-- Move text up/down
 		["<A-j>"] = ":m '>+1<CR>gv-gv",
 		["<A-k>"] = ":m '<-2<CR>gv-gv",
-		["p"] = [[p:if v:register == '"'<Bar>let @@=@0<Bar>endif<CR>]],
+		-- Paste over selection: deleted text shifts into "1-"9, yanked text stays in ""
+		["p"] = [[d"0p:if v:register == '"'<Bar>let @@=@0<Bar>endif<CR>]],
 	},
 
 	-------------------------------------
@@ -188,7 +189,8 @@ M.keyMaps = {
 ------------------------------
 Custom.set_keymappings(M.keyMaps)
 
--- Add j k movement to the jumplists
+-- j/k with count: save position to jumplist first (so Ctrl-O works), then move.
+-- j/k without count: use gj/gk to move by visual lines (better for wrapped lines).
 vim.keymap.set("n", "k", function()
 	return vim.v.count > 0 and "m'" .. vim.v.count .. "k" or "gk"
 end, { expr = true })
@@ -198,24 +200,3 @@ end, { expr = true })
 
 -- Yank to clipboard motion with gy
 vim.keymap.set({ "n", "v", "o" }, "gy", '"+y', { desc = "Copy to clipboard" })
-
--- Use lowercase for global marks and uppercase for local marks.
-local low = function(i)
-	return string.char(97 + i)
-end
-local upp = function(i)
-	return string.char(65 + i)
-end
-
-for i = 0, 25 do
-	vim.keymap.set("n", "m" .. low(i), "m" .. upp(i))
-end
-for i = 0, 25 do
-	vim.keymap.set("n", "m" .. upp(i), "m" .. low(i))
-end
-for i = 0, 25 do
-	vim.keymap.set("n", "'" .. low(i), "'" .. upp(i))
-end
-for i = 0, 25 do
-	vim.keymap.set("n", "'" .. upp(i), "'" .. low(i))
-end
