@@ -1,0 +1,31 @@
+metadata:
+  description: Tmux sessions
+  requires:
+    - tmux
+    - hetki
+
+source:
+  command: hetki list sessions --windows --format=flat --marker '❯'
+  ansi: true
+  no_sort: true
+
+preview:
+  command: $HOME/.config/tmux/cmd/switch-preview.sh {1}
+  window: right:70%:hidden
+
+ui:
+  header: tmux sessions
+
+actions:
+  enter:
+    mode: become
+    label: switch
+    command: echo {} | hetki switch
+  ctrl-x:
+    mode: raw
+    label: kill session
+    command: execute-silent(tmux kill-session -t {1})+reload(hetki list sessions --windows --format=flat --marker "❯")
+  ctrl-t:
+    mode: raw
+    label: new session
+    command: execute-silent(tmux new-session -d)+reload(hetki list sessions --windows --format=flat --marker "❯")

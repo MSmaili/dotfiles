@@ -1,0 +1,31 @@
+metadata:
+  description: Search text in project
+  requires:
+    - rg
+
+source:
+  command: printf ''
+  delimiter: ":"
+
+preview:
+  command: bat --color=always --style=plain --highlight-line {2} {1} 2>/dev/null || echo {}
+  window: right:50%:+{2}-5
+
+ui:
+  header: grep
+
+navigation:
+  ctrl-o:
+    channel: files
+    label: files
+
+actions:
+  enter:
+    mode: become
+    label: edit
+    command: ${EDITOR:-nvim} +{2} {1}
+
+fzf_options:
+  - --disabled
+  - --bind
+  - change:reload(fzp _scoped-rg {q})

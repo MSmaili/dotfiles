@@ -1,0 +1,25 @@
+metadata:
+  description: Git branches
+  requires:
+    - git
+
+source:
+  command: git branch --all --format='%(refname:short)' | sort -u
+  no_sort: true
+
+preview:
+  command: git log --oneline --color=always -20 {}
+
+ui:
+  header: branches
+
+navigation:
+  ctrl-r:
+    channel: git-log
+    label: git log
+
+actions:
+  enter:
+    mode: become
+    label: checkout
+    command: git checkout {}

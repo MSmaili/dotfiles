@@ -1,0 +1,34 @@
+metadata:
+  description: Running docker containers
+  requires:
+    - docker
+
+source:
+  command: docker ps --format '{{.Names}}\t{{.Image}}\t{{.Status}}'
+  delimiter: "\t"
+
+preview:
+  command: docker inspect {1}
+  window: right:50%
+
+ui:
+  header: docker containers
+
+navigation:
+  ctrl-i:
+    channel: docker-images
+    label: images
+
+actions:
+  ctrl-l:
+    mode: become
+    label: logs
+    command: docker logs --tail 100 -f {1}
+  ctrl-e:
+    mode: become
+    label: exec sh
+    command: docker exec -it {1} sh
+  ctrl-r:
+    mode: execute-silent
+    label: restart
+    command: docker restart {1}
