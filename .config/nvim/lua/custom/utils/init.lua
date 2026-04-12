@@ -10,6 +10,13 @@ Custom = {
 			virtual_line_enabled = false,
 		},
 	},
+	obsidian = {
+		workspaces = {
+			{ name = "work", path = "~/.vaults/work" },
+			{ name = "personal", path = "~/.vaults/personal" },
+		},
+		default_workspace = "work",
+	},
 	state = require("custom.state"),
 	theme = require("custom.utils.theme"),
 }
@@ -18,6 +25,12 @@ Custom = {
 local saved = Custom.state.load("theme", Custom.colorscheme)
 Custom.colorscheme.name = saved.name
 Custom.colorscheme.transparent = saved.transparent
+
+-- Load saved Obsidian settings
+local obsidian_saved = Custom.state.load("obsidian", {})
+if type(obsidian_saved.default_workspace) == "string" and obsidian_saved.default_workspace ~= "" then
+	Custom.obsidian.default_workspace = obsidian_saved.default_workspace
+end
 
 -- Set key-map by table
 function Custom.set_keymappings(keymaps)

@@ -10,3 +10,5 @@ lazydocker = "latest"
 lazygit = "latest"
 ripgrep = "latest"
 tmux = "latest"
+
+"go:github.com/FiloSottile/age" = "latest"

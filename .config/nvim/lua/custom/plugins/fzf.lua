@@ -50,18 +50,6 @@ return {
 			desc = "Git status with large preview",
 		},
 		{ "<leader>sw", "<cmd>FzfLua grep_visual<cr>", desc = "Grep", mode = "x" },
-		{
-			"<leader>of",
-			":lua require'fzf-lua'.files({ cwd='~/vaults/personal' })<CR>",
-			desc = "Find obsidian files",
-			mode = "n",
-		},
-		{
-			"<leader>ow",
-			":lua require'fzf-lua'.live_grep_glob({ cwd='~/vaults/personal' })<CR>",
-			desc = "Find obsidian words ",
-			mode = "n",
-		},
 		-- {
 		--   "<leader>sW",
 		--   ":lua require'fzf-lua'.grep_project({ multiprocess=true })<CR>",

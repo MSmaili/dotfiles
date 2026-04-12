@@ -17,6 +17,7 @@ brew "ffmpeg"
 brew "docker"
 brew "docker-compose"
 brew "colima"
+brew "age"
 
 # GUI applications
 cask "ghostty"
