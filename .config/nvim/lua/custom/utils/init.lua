@@ -22,15 +22,10 @@ Custom = {
 }
 
 -- Load saved theme settings
-local saved = Custom.state.load("theme", Custom.colorscheme)
-Custom.colorscheme.name = saved.name
-Custom.colorscheme.transparent = saved.transparent
+Custom.colorscheme = Custom.state.load("theme", Custom.colorscheme)
 
 -- Load saved Obsidian settings
-local obsidian_saved = Custom.state.load("obsidian", {})
-if type(obsidian_saved.default_workspace) == "string" and obsidian_saved.default_workspace ~= "" then
-	Custom.obsidian.default_workspace = obsidian_saved.default_workspace
-end
+Custom.obsidian = Custom.state.load("obsidian", Custom.obsidian)
 
 -- Set key-map by table
 function Custom.set_keymappings(keymaps)

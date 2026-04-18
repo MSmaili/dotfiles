@@ -8,6 +8,13 @@ return {
 		opts = {},
 	},
 	{
+		"ember-theme/nvim",
+		name = "ember",
+		opts = {
+			variant = "ember", -- "ember" | "ember-soft" | "ember-light"
+		},
+	},
+	{
 		"loctvl842/monokai-pro.nvim",
 		lazy = false,
 		opts = {},

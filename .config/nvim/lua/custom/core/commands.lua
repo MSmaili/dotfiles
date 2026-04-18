@@ -118,7 +118,7 @@ vim.api.nvim_create_user_command("ToggleTransparency", Custom.theme.toggle_trans
 })
 
 vim.api.nvim_create_user_command("ThemeStatus", function()
-	local settings_file = vim.fn.stdpath("data") .. "/custom_settings.json"
+	local settings_file = Custom.state.file()
 	local saved = Custom.state.load("theme", {})
 
 	local lines = {

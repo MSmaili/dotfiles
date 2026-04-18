@@ -1,10 +1,19 @@
 local M = {}
 
+local function theme_exists(name)
+	if type(name) ~= "string" or name == "" then
+		return false
+	end
+
+	local available = vim.fn.getcompletion("", "color")
+	return vim.tbl_contains(available, name)
+end
+
 function M.check()
 	vim.health.start("Custom Configuration")
 
 	-- Check settings file
-	local settings_file = vim.fn.stdpath("data") .. "/custom_settings.json"
+	local settings_file = Custom.state.file()
 	if vim.fn.filereadable(settings_file) == 1 then
 		vim.health.ok("Settings file exists: " .. settings_file)
 
@@ -23,8 +32,7 @@ function M.check()
 
 	-- Check current theme
 	local theme = Custom.colorscheme.name
-	local theme_loaded = pcall(vim.cmd.colorscheme, theme)
-	if theme_loaded then
+	if theme_exists(theme) then
 		vim.health.ok("Current theme '" .. theme .. "' is installed")
 	else
 		vim.health.error("Current theme '" .. theme .. "' is not installed")
