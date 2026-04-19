@@ -15,5 +15,6 @@
   "chat.enableCheckpoint": false,
   "chat.enableKnowledge": true,
   "chat.defaultAgent": "default",
-  "chat.diffTool": "udiff"
+  "chat.diffTool": "udiff",
+  "chat.uiMode": "compact"
 }
