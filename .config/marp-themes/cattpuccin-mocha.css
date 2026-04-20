@@ -1,0 +1,76 @@
+/* @theme catppuccin-mocha */
+
+section {
+  background-color: #1e1e2e;
+  color: #cdd6f4;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  padding: 40px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #cba6f7;
+}
+
+h1 {
+  color: #f5c2e7;
+}
+
+a {
+  color: #89b4fa;
+}
+a:hover {
+  color: #74c7ec;
+}
+
+strong {
+  color: #f9e2af;
+}
+em {
+  color: #f5c2e7;
+}
+
+code {
+  background-color: #313244;
+  color: #a6e3a1;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+pre {
+  background-color: #181825;
+  border: 1px solid #313244;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+pre code {
+  background-color: transparent;
+  color: #cdd6f4;
+}
+
+blockquote {
+  border-left: 4px solid #cba6f7;
+  color: #a6adc8;
+  padding-left: 16px;
+}
+
+table th {
+  background-color: #313244;
+  color: #cba6f7;
+}
+
+table td {
+  border-color: #45475a;
+}
+
+section::after {
+  color: #6c7086;
+}

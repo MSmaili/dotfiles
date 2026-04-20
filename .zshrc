@@ -174,6 +174,7 @@ alias kpf='kubectl port-forward'
 
 # Hash directories for quick movement
 hash -d dotfiles="$HOME/dotfiles"
+hash -d vaults="$HOME/.vaults"
 
 # Conditional aliases
 command -v lazydocker >/dev/null 2>&1 && alias ld="lazydocker"

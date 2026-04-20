@@ -207,6 +207,10 @@ if.app-id = "com.microsoft.Outlook"
 run = "move-node-to-workspace 5"
 
 [[on-window-detected]]
+if.app-id = "com.apple.finder"
+run = "move-node-to-workspace 3"
+
+[[on-window-detected]]
 if.app-id = "com.jinghaoshe.qspace.pro"
 run = ['move-node-to-workspace 3', 'layout floating']
 

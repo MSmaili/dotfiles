@@ -7,7 +7,7 @@
   "chat.enableTodoList": true,
   "mcp.loadedBefore": true,
   "chat.enableThinking": true,
-  "chat.defaultModel": "claude-opus-4.6",
+  "chat.defaultModel": "claude-opus-4.7",
   "chat.enableSubagent": true,
   "chat.enableDelegate": true,
   "chat.enableNotifications": true,

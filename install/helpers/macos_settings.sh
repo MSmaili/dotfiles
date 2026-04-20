@@ -33,7 +33,7 @@ run_cmd defaults write com.apple.finder ShowStatusBar -bool true
 # Show all file extensions
 run_cmd defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
-# Show full POSIX path in Finder title bar
+# Do not show full POSIX path in Finder title bar
 run_cmd defaults write com.apple.finder _FXShowPosixPathInTitle -bool false
 
 # Disable .DS_Store files on network & USB volumes
@@ -81,6 +81,9 @@ run_cmd defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
 # Disable "natural" (Lion-style) scrolling
 run_cmd defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
+
+# Setting default config path for hammerspoon
+run_cmd defaults write org.hammerspoon.Hammerspoon MJConfigFile "$HOME/.config/hammerspoon/init.lua"
 
 ###############################################################################
 # Apply changes

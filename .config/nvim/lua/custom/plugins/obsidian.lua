@@ -241,14 +241,20 @@ return {
 			{ "<leader>on", obsidian_cmd("new"), desc = "New note (active vault)" },
 			{ "<leader>os", obsidian_cmd("quick_switch"), desc = "Search notes (active vault)" },
 			{ "<leader>og", obsidian_cmd("search"), desc = "Grep notes (active vault)" },
-			{ "<leader>ot", obsidian_cmd("today"), desc = "Today note" },
 			{ "<leader>or", obsidian_weekly_review, desc = "Weekly review (active vault)" },
 			{ "<leader>ol", obsidian_cmd("follow_link"), desc = "Follow link" },
 			{ "<leader>ob", obsidian_cmd("backlinks"), desc = "Backlinks" },
 			{ "<leader>oo", obsidian_cmd("open"), desc = "Open in Obsidian app" },
 		},
 		opts = {
+			ui = { enable = false },
 			legacy_commands = false,
+			note_id_func = function(title)
+				if title then
+					return title:gsub(" ", "-"):gsub("[^A-Za-z0-9-]", ""):lower()
+				end
+				return tostring(os.time())
+			end,
 			workspaces = ordered_workspaces(),
 			notes_subdir = "inbox",
 			new_notes_location = "notes_subdir",
@@ -268,12 +274,13 @@ return {
 					["weekly-review.md"] = {
 						notes_subdir = "review/weekly",
 					},
+					["presentation.md"] = {
+						notes_subdir = "presentations",
+					},
 				},
 			},
 			daily_notes = {
-				enabled = true,
-				folder = "notes/daily",
-				date_format = "YYYY-MM-DD",
+				enabled = false,
 			},
 			completion = {
 				blink = true,

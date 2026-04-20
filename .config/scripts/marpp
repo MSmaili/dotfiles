@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+THEMES_DIR="${MARP_THEMES_DIR:-$HOME/dotfiles/.config/marp-themes}"
+PORT="${MARP_PORT:-5173}"
+KEEP=false
+
+[[ "${1:-}" == "--keep-output" ]] && KEEP=true
+
+FILE=$(find . -name '*.md' -type f 2>/dev/null | sort | fzf --prompt="Select .md file: ") || exit 1
+
+THEMES="default\ngaia\nuncover"
+if [[ -d "$THEMES_DIR" ]]; then
+  CUSTOM=$(find "$THEMES_DIR" -name '*.css' -exec basename {} .css \; 2>/dev/null)
+  [[ -n "$CUSTOM" ]] && THEMES="$THEMES\n$CUSTOM"
+fi
+THEME=$(printf "%b" "$THEMES" | fzf --prompt="Select theme: ") || exit 1
+
+OUTDIR="$(cd "$(dirname "$FILE")" && pwd)"
+OUTFILE="$(basename "${FILE%.md}.html")"
+OUT="${OUTDIR}/${OUTFILE}"
+
+MARP_ARGS=("$FILE" -o "$OUT" --theme "$THEME")
+[[ -f "$THEMES_DIR/${THEME}.css" ]] && MARP_ARGS+=(--theme-set "$THEMES_DIR/${THEME}.css")
+
+npx @marp-team/marp-cli@latest "${MARP_ARGS[@]}"
+
+cleanup() { $KEEP || rm -f "$OUT"; }
+trap cleanup EXIT
+
+echo "Serving at http://localhost:${PORT}/${OUTFILE}"
+npx http-server "$OUTDIR" -p "$PORT" -c-1 --cors -o "/${OUTFILE}"
