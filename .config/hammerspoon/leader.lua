@@ -1,5 +1,9 @@
 local M = {}
 
+local BIN = {
+	open = "/usr/bin/open",
+}
+
 -- Menu shape:
 --   { [key] = { label = "...", action = fn },   -- leaf
 --     [key] = { label = "...", group  = {...} } -- nested
@@ -21,7 +25,7 @@ end
 
 function M.create(mods, key, rootMenu, timeout)
 	local modal = hs.hotkey.modal.new(mods, key)
-	local timer, hud
+	local timer, hud, blocker
 	local currentMenu = rootMenu
 	timeout = timeout or 2
 
@@ -35,6 +39,12 @@ function M.create(mods, key, rootMenu, timeout)
 		if hud then
 			hs.alert.closeSpecific(hud)
 			hud = nil
+		end
+	end
+	local function stopBlocker()
+		if blocker then
+			blocker:stop()
+			blocker = nil
 		end
 	end
 	local function resetTimer()
@@ -51,10 +61,24 @@ function M.create(mods, key, rootMenu, timeout)
 	end
 
 	function modal:entered()
+		blocker = hs.eventtap
+			.new({ hs.eventtap.event.types.keyDown }, function(e)
+				local keyName = hs.keycodes.map[e:getKeyCode()]
+				if not keyName then
+					return true
+				end
+				if keyName == "escape" or currentMenu[keyName] then
+					return false
+				end
+				modal:exit()
+				return true
+			end)
+			:start()
 		enterMenu(rootMenu)
 	end
 	function modal:exited()
 		stopTimer()
+		stopBlocker()
 		closeHUD()
 		currentMenu = rootMenu
 	end
@@ -98,19 +122,31 @@ function M.create(mods, key, rootMenu, timeout)
 	return modal
 end
 
--- Run `open ...` or any shell command via hs.task (no shell fork).
-function M.cmd(str)
-	local args = {}
-	for w in str:gmatch("%S+") do
-		table.insert(args, w)
+local function copyArgs(args)
+	local out = {}
+	for i, arg in ipairs(args or {}) do
+		out[i] = tostring(arg)
 	end
-	local bin = table.remove(args, 1)
-	if not bin:find("/") then
-		bin = hs.execute("which " .. bin):gsub("%s+$", "")
-	end
+	return out
+end
+
+function M.task(bin, args)
+	local argv = copyArgs(args)
 	return function()
-		hs.task.new(bin, nil, args):start()
+		local task = hs.task.new(bin, nil, argv)
+		if not task then
+			hs.alert.show("Failed to start: " .. bin)
+			return
+		end
+		task:start()
 	end
+end
+
+function M.open(target, appName)
+	if appName then
+		return M.task(BIN.open, { "-a", appName, target })
+	end
+	return M.task(BIN.open, { target })
 end
 
 function M.app(name)

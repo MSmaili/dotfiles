@@ -22,7 +22,6 @@ brew "age"
 # GUI applications
 cask "ghostty"
 cask "nikitabobko/tap/aerospace"
-cask "leader-key"
 cask "1password-cli"
 cask "xykong/tap/flux-markdown"
 cask "hammerspoon"

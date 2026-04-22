@@ -207,7 +207,8 @@ function M.handleKey(key)
 		end
 	end
 
-	return false
+	M.stop()
+	return true
 end
 
 function M.start()
@@ -224,7 +225,7 @@ function M.start()
 				return false
 			end
 			local key = hs.keycodes.map[e:getKeyCode()]
-			return key and M.handleKey(key) or false
+			return key and M.handleKey(key) or true
 		end)
 		:start()
 end
