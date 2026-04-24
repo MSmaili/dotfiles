@@ -10,6 +10,9 @@ local Caffeine = require("caffeine")
 local KeyCaster = require("key-caster")
 local Mic = require("mic")
 local SSH = require("ssh")
+local Bing = require("bing")
+
+Bing.start()
 
 hs.hotkey.bind(meh, "g", GridMouse.start)
 
@@ -85,6 +88,15 @@ Leader.create(meh, "space", {
 			b = { label = "Color (bg)", action = Leader.open("pika://pick/background/hex") },
 			f = { label = "Color (fg)", action = Leader.open("pika://pick/foreground/hex") },
 			s = { label = "SSH host", action = SSH.pick },
+		},
+	},
+	b = {
+		label = "Bing",
+		group = {
+			i = { label = "Info (current)", action = Bing.info },
+			r = { label = "Refresh now", action = Bing.refresh },
+			p = { label = "Pick region", action = Bing.pickRegion },
+			o = { label = "Open folder", action = Leader.open(os.getenv("HOME") .. "/Pictures/BingWallpapers") },
 		},
 	},
 	w = {
