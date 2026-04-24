@@ -1,10 +1,37 @@
 local M = {}
 
-M.menu = hs.menubar.new()
-M.jiggleTimer = nil
+-- Caffeine module, prevent macos to go in sleep mode,
+-- extra capability to move mouse every n seconds to right/left
 
-local JIGGLE_DISTANCE = 10
+M.menu = hs.menubar.new()
+
+local JIGGLE_DISTANCE = 60
 local JIGGLE_INTERVAL = 60
+local IDLE_THRESHOLD = JIGGLE_INTERVAL - 5
+local jiggleTimer = nil
+local jiggleDir = 1
+
+local function jiggleOnce()
+	if hs.host.idleTime() < IDLE_THRESHOLD then
+		return
+	end
+	local p = hs.mouse.absolutePosition()
+	local newPos = { x = p.x + JIGGLE_DISTANCE * jiggleDir, y = p.y }
+	hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.mouseMoved, newPos):post()
+	jiggleDir = -jiggleDir
+end
+
+local function stopJiggle()
+	if jiggleTimer then
+		jiggleTimer:stop()
+		jiggleTimer = nil
+	end
+end
+
+local function startJiggle()
+	stopJiggle()
+	jiggleTimer = hs.timer.doEvery(JIGGLE_INTERVAL, jiggleOnce)
+end
 
 local function updateMenu(state)
 	M.menu:setTitle(state and "☕" or "☾")
@@ -16,16 +43,9 @@ function M.toggle()
 	hs.caffeinate.set("displayIdle", newState)
 
 	if newState then
-		M.jiggleTimer = hs.timer.doEvery(JIGGLE_INTERVAL, function()
-			local p = hs.mouse.absolutePosition()
-			hs.mouse.absolutePosition({ x = p.x + JIGGLE_DISTANCE, y = p.y })
-			hs.timer.doAfter(0.1, function()
-				hs.mouse.absolutePosition(p)
-			end)
-		end)
-	elseif M.jiggleTimer then
-		M.jiggleTimer:stop()
-		M.jiggleTimer = nil
+		startJiggle()
+	else
+		stopJiggle()
 	end
 
 	updateMenu(newState)
