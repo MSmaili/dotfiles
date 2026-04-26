@@ -1,27 +1,13 @@
 return {
 	{ "tpope/vim-repeat", keys = { { "." }, { ";" } } },
 	-- opposite and increment/decrement
-	{
-		"nat-418/boole.nvim",
-		keys = { { "<C-a>" }, { "<C-x>" } },
-		opts = {
-			mappings = {
-				increment = "<C-a>",
-				decrement = "<C-x>",
-			},
-		},
-	},
-
 	-- Generate documentation
 	{
-		"danymat/neogen",
-		config = true,
+		"jeangiraldoo/codedocs.nvim",
 		keys = {
 			{
 				"<leader>cn",
-				function()
-					require("neogen").generate({})
-				end,
+				":Codedocs<cr>",
 				desc = "Generate func|class|type documentation",
 			},
 		},

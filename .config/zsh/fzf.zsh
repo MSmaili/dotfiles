@@ -2,7 +2,14 @@
 # FZF Configuration
 # ------------------------------------------------------------
 if command -v fd >/dev/null 2>&1; then
-    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow \
+                                --exclude .git \
+                                --exclude node_modules \
+                                --exclude dist \
+                                --exclude build \
+                                --exclude target \
+                                --exclude .next \
+                                --exclude coverage'
 else
     export FZF_DEFAULT_COMMAND='find . -type f 2>/dev/null'
 fi

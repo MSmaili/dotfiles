@@ -125,16 +125,44 @@ scp_push() {
     echo
 
     local files
-    files=$(find . -type f -print0 | fzf -m --read0 --print0)
+    files=$(fd -t f -H --exclude .git --exclude node_modules | fzf -m)
 
-    [[ -z "$files" ]] && {
-        echo "No files selected."
-        return 0
-    }
+    [[ -z "$files" ]] && { echo "No files selected."; return 0; }
 
     echo
     echo "Sending selected file(s)..."
-    printf "%s" "$files" | xargs -0 -I {} scp {} "$host:$remote_path" || {
+    printf "%s\n" "$files" | xargs -I {} scp {} "$host:$remote_path" || {
+        echo "Error: scp failed"
+        return 1
+    }
+
+    echo "Done."
+}
+
+scp_pull() {
+    local host="${1:-dev_env}"
+    local remote_path="${2:-"~/inbox"}"
+    local local_dest="${3:-"."}"
+
+    echo "Listing files from $host:$remote_path"
+    echo "TAB to mark multiple • ENTER to confirm • CTRL-C to cancel"
+    echo
+
+    local files
+    files=$(ssh -o ConnectTimeout=5 -o BatchMode=yes "$host" \
+            "cd ${remote_path} && find . -type f" 2>/dev/null) || {
+        echo "Cannot reach $host (timeout or auth required)"
+        return 1
+    }
+
+    files=$(printf "%s\n" "$files" | fzf -m)
+    [[ -z "$files" ]] && { echo "No files selected."; return 0; }
+
+    echo
+    echo "Downloading selected file(s)..."
+    while IFS= read -r file; do
+        scp "$host:$remote_path/$file" "$local_dest"
+        done <<< "$files" || {
         echo "Error: scp failed"
         return 1
     }

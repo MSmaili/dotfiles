@@ -14,6 +14,13 @@ local Bing = require("bing")
 
 Bing.start()
 
+local function goto_ghostty(path)
+	return Leader.task(
+		"/usr/bin/open",
+		{ "-na", "Ghostty", "--args", "--working-directory=" .. os.getenv("HOME") .. "/" .. path }
+	)
+end
+
 hs.hotkey.bind(meh, "g", GridMouse.start)
 
 Leader.create(meh, "space", {
@@ -35,22 +42,16 @@ Leader.create(meh, "space", {
 			f = { label = "Finder", action = Leader.app("Finder") },
 			o = { label = "Obsidian", action = Leader.app("Obsidian") },
 			d = { label = "Discord", action = Leader.app("Discord") },
+			w = { label = "WhatsApp", action = Leader.app("WhatsApp") },
 		},
 	},
 	g = {
 		label = "Go to",
 		group = {
-			d = { label = "Downloads", action = Leader.open(os.getenv("HOME") .. "/Downloads") },
-			["."] = {
-				label = "dotfiles",
-				action = Leader.task(
-					"/usr/bin/open",
-					{ "-na", "Ghostty", "--args", "--working-directory=" .. os.getenv("HOME") .. "/dotfiles" }
-				),
-			},
-			v = { label = "Vault", action = Leader.open(os.getenv("HOME") .. "/.vaults") },
-			m = { label = "Data", action = Leader.open(os.getenv("HOME") .. "/data") },
-			h = { label = "Home", action = Leader.open(os.getenv("HOME")) },
+			d = { label = "Downloads", action = goto_ghostty("Downloads") },
+			["."] = { label = "dotfiles", action = goto_ghostty("dotfiles") },
+			v = { label = "Vault", action = goto_ghostty(".vaults") },
+			m = { label = "Data", action = goto_ghostty("data") },
 			c = { label = "ChatGPT", action = Leader.open("https://chatgpt.com", "Brave Browser") },
 		},
 	},
