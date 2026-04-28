@@ -1,14 +1,17 @@
 local M = {}
 
+local function input_device()
+	return hs.audiodevice.defaultInputDevice()
+end
+
 function M.toggle()
-	local dev = hs.audiodevice.defaultInputDevice()
-	if not dev then
+	local device = input_device()
+	if not device then
 		hs.alert.show("No input device")
 		return
 	end
-	local newState = not dev:inputMuted()
-	dev:setInputMuted(newState)
-	hs.alert.show(newState and "Mic MUTED 🔇" or "Mic LIVE 🎤")
+	device:setInputMuted(not device:inputMuted())
+	hs.alert.show(device:inputMuted() and "Mic MUTED 🔇" or "Mic LIVE 🎤")
 end
 
 return M

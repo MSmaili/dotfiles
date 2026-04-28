@@ -19,8 +19,13 @@ local REGIONS = {
 local THROTTLE_SECONDS = 6 * 3600
 local REFETCH_SECONDS = 12 * 3600
 local DIR = os.getenv("HOME") .. "/Pictures/BingWallpapers"
+local last_fetch_key = "bing.last_fetch"
+local timer = nil
 
-local current = hs.settings.get("bing.current") or { title = "", copyright = "", region = "US" }
+local current = hs.settings.get("bing.current") or {}
+current.title = current.title or ""
+current.copyright = current.copyright or ""
+current.region = REGIONS[current.region] and current.region or "US"
 
 local function set_current(data)
 	current = data
@@ -45,6 +50,27 @@ local function set_desktop(path)
 	local url = "file://" .. path
 	for _, screen in ipairs(hs.screen.allScreens()) do
 		screen:desktopImageURL(url)
+	end
+end
+
+local function mark_fetch_success()
+	hs.settings.set(last_fetch_key, os.time())
+end
+
+local function report_failure(message, manual)
+	print("bing: " .. message)
+	if manual then
+		hs.alert.show(message)
+	end
+end
+
+local function finish_fetch(current_data, manual, changed)
+	set_current(current_data)
+	mark_fetch_success()
+	if changed then
+		show_info()
+	elseif manual then
+		hs.alert.show("Bing wallpaper refreshed")
 	end
 end
 
@@ -80,58 +106,59 @@ end
 local function download(meta, notify)
 	hs.http.asyncGet(meta.url, nil, function(s, bytes)
 		if s ~= 200 or not save(meta.path, bytes) then
-			print("bing: download failed, status=" .. tostring(s))
+			report_failure("Bing download failed", notify.manual)
 			return
 		end
 		set_desktop(meta.path)
-		if notify then
-			show_info()
-		end
+		finish_fetch(notify.current_data, notify.manual, notify.changed)
 	end)
 end
 
 local function should_skip()
-	local last = hs.settings.get("bing.last_fetch") or 0
+	local last = hs.settings.get(last_fetch_key) or 0
 	return os.time() - last < THROTTLE_SECONDS
 end
 
 local function fetch(manual)
-	hs.settings.set("bing.last_fetch", os.time())
 	local mkt = REGIONS[current.region]
 	local api = "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=" .. mkt
 	hs.http.asyncGet(api, nil, function(status, body)
 		if status ~= 200 then
-			print("bing: api failed, status=" .. tostring(status))
+			report_failure("Bing API failed", manual)
 			return
 		end
 		local meta = parse_metadata(body, mkt)
 		if not meta then
-			print("bing: parse failed")
+			report_failure("Bing metadata parse failed", manual)
 			return
 		end
+		local next_current = { title = meta.title, copyright = meta.copyright, region = current.region }
 		local changed = meta.title ~= current.title
-		set_current({ title = meta.title, copyright = meta.copyright, region = current.region })
 		if hs.fs.attributes(meta.path) then
 			set_desktop(meta.path)
-			if changed then
-				show_info()
-			elseif manual then
-				hs.alert.show("Bing wallpaper refetched")
-			end
+			finish_fetch(next_current, manual, changed)
 		else
-			download(meta, changed)
+			download(meta, { current_data = next_current, manual = manual, changed = changed })
 		end
 	end)
 end
 
 function M.start()
-	if M.timer then
-		M.timer:stop()
+	if timer then
+		timer:stop()
 	end
 	if not should_skip() then
 		fetch()
 	end
-	M.timer = hs.timer.doEvery(REFETCH_SECONDS, fetch)
+	timer = hs.timer.doEvery(REFETCH_SECONDS, fetch)
+end
+
+function M.stop()
+	if not timer then
+		return
+	end
+	timer:stop()
+	timer = nil
 end
 
 function M.setRegion(code)

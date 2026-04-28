@@ -3,56 +3,64 @@ local M = {}
 -- Caffeine module, prevent macos to go in sleep mode,
 -- extra capability to move mouse every n seconds to right/left
 
-M.menu = hs.menubar.new()
+local menu = hs.menubar.new()
+M.menu = menu
 
 local JIGGLE_DISTANCE = 60
 local JIGGLE_INTERVAL = 60
 local IDLE_THRESHOLD = JIGGLE_INTERVAL - 5
-local jiggleTimer = nil
-local jiggleDir = 1
+local jiggle_timer = nil
+local jiggle_dir = 1
 
 local function jiggleOnce()
 	if hs.host.idleTime() < IDLE_THRESHOLD then
 		return
 	end
 	local p = hs.mouse.absolutePosition()
-	local newPos = { x = p.x + JIGGLE_DISTANCE * jiggleDir, y = p.y }
+	local newPos = { x = p.x + JIGGLE_DISTANCE * jiggle_dir, y = p.y }
 	hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.mouseMoved, newPos):post()
-	jiggleDir = -jiggleDir
+	jiggle_dir = -jiggle_dir
 end
 
 local function stopJiggle()
-	if jiggleTimer then
-		jiggleTimer:stop()
-		jiggleTimer = nil
+	if jiggle_timer then
+		jiggle_timer:stop()
+		jiggle_timer = nil
 	end
 end
 
 local function startJiggle()
 	stopJiggle()
-	jiggleTimer = hs.timer.doEvery(JIGGLE_INTERVAL, jiggleOnce)
+	jiggle_timer = hs.timer.doEvery(JIGGLE_INTERVAL, jiggleOnce)
 end
 
 local function updateMenu(state)
-	M.menu:setTitle(state and "☕" or "☾")
-	M.menu:setTooltip(state and "Caffeine: ACTIVE" or "Caffeine: INACTIVE")
+	if not menu then
+		return
+	end
+	menu:setTitle(state and "☕" or "☾")
+	menu:setTooltip(state and "Caffeine: ACTIVE" or "Caffeine: INACTIVE")
 end
 
-function M.toggle()
-	local newState = not hs.caffeinate.get("displayIdle")
-	hs.caffeinate.set("displayIdle", newState)
-
-	if newState then
+local function applyState(state)
+	hs.caffeinate.set("displayIdle", state)
+	if state then
 		startJiggle()
 	else
 		stopJiggle()
 	end
+	updateMenu(state)
+	return state
+end
 
-	updateMenu(newState)
+function M.toggle()
+	local newState = applyState(not hs.caffeinate.get("displayIdle"))
 	hs.alert.show(newState and "Caffeine ON ☕" or "Caffeine OFF ☾")
 end
 
-updateMenu(hs.caffeinate.get("displayIdle"))
-M.menu:setClickCallback(M.toggle)
+applyState(hs.caffeinate.get("displayIdle"))
+if menu then
+	menu:setClickCallback(M.toggle)
+end
 
 return M

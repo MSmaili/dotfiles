@@ -9,10 +9,12 @@ local Leader = require("leader")
 local Caffeine = require("caffeine")
 local KeyCaster = require("key-caster")
 local Mic = require("mic")
+local CapsMeh = require("capsmeh")
 local SSH = require("ssh")
 local Bing = require("bing")
 
 Bing.start()
+CapsMeh.start()
 
 local function goto_ghostty(path)
 	return Leader.task(
@@ -51,7 +53,7 @@ Leader.create(meh, "space", {
 			d = { label = "Downloads", action = goto_ghostty("Downloads") },
 			["."] = { label = "dotfiles", action = goto_ghostty("dotfiles") },
 			v = { label = "Vault", action = goto_ghostty(".vaults") },
-			m = { label = "Data", action = goto_ghostty("data") },
+			p = { label = "Projects", action = goto_ghostty("Projects") },
 			c = { label = "ChatGPT", action = Leader.open("https://chatgpt.com", "Brave Browser") },
 		},
 	},
