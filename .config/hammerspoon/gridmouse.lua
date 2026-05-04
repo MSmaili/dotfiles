@@ -44,7 +44,7 @@ local SUB_LABELS = {
 	{ "h", "j", "k", "l", ";" },
 }
 
-local NUDGE = 20
+local NUDGE = 10
 local CLICK_GAP_US = 20000 -- 20ms between mouseDown and mouseUp
 
 local NUDGE_KEYS = {

@@ -12,16 +12,11 @@ local Mic = require("mic")
 local CapsMeh = require("capsmeh")
 local SSH = require("ssh")
 local Bing = require("bing")
+local Ghostty = require("ghostty")
+local CleanMode = require("clean-mode")
 
 Bing.start()
 CapsMeh.start()
-
-local function goto_ghostty(path)
-	return Leader.task(
-		"/usr/bin/open",
-		{ "-na", "Ghostty", "--args", "--working-directory=" .. os.getenv("HOME") .. "/" .. path }
-	)
-end
 
 hs.hotkey.bind(meh, "g", GridMouse.start)
 
@@ -50,10 +45,10 @@ Leader.create(meh, "space", {
 	g = {
 		label = "Go to",
 		group = {
-			d = { label = "Downloads", action = goto_ghostty("Downloads") },
-			["."] = { label = "dotfiles", action = goto_ghostty("dotfiles") },
-			v = { label = "Vault", action = goto_ghostty(".vaults") },
-			p = { label = "Projects", action = goto_ghostty("Projects") },
+			d = { label = "Downloads", action = Ghostty.openHome("Downloads") },
+			["."] = { label = "dotfiles", action = Ghostty.openHome("dotfiles") },
+			v = { label = "Vault", action = Ghostty.openHome(".vaults") },
+			p = { label = "Projects", action = Ghostty.openHome("Projects") },
 			c = { label = "ChatGPT", action = Leader.open("https://chatgpt.com", "Brave Browser") },
 		},
 	},
@@ -117,6 +112,7 @@ Leader.create(meh, "space", {
 			m = { label = "Mic mute", action = Mic.toggle },
 			k = { label = "Key Caster", action = KeyCaster.toggle },
 			c = { label = "Caffeine", action = Caffeine.toggle },
+			n = { label = "Clean Mode", action = CleanMode.toggle },
 		},
 	},
 	q = {
