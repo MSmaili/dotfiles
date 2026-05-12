@@ -14,11 +14,13 @@ local SSH = require("ssh")
 local Bing = require("bing")
 local Ghostty = require("ghostty")
 local CleanMode = require("clean-mode")
+local AppDeck = require("appdeck")
 
 Bing.start()
 CapsMeh.start()
 
 hs.hotkey.bind(meh, "g", GridMouse.start)
+hs.hotkey.bind(meh, "tab", AppDeck.toggle)
 
 Leader.create(meh, "space", {
 	r = { label = "Reload", action = hs.reload },

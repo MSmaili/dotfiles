@@ -15,6 +15,7 @@ local function keymaps()
 			["]h"] = { gitsigns.next_hunk, desc = "Next hunk" },
 			["[h"] = { gitsigns.prev_hunk, desc = "Prev hunk" },
 			["<leader>ghr"] = { gitsigns.reset_hunk, desc = "Reset current hunk" },
+			["<leader>ghs"] = { gitsigns.stage_hunk, desc = "Stage current hunk" },
 			["<leader>gtd"] = { gitsigns.toggle_deleted, desc = "Git toggle deleted" },
 			["<leader>gts"] = { gitsigns.toggle_signs, desc = "Git toggle signs" },
 			["<leader>gtw"] = { gitsigns.toggle_word_diff, desc = "Git toggle word diff" },
