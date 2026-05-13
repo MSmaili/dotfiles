@@ -16,6 +16,20 @@ return {
 			end,
 			desc = "Toggle center mode",
 		},
+		{
+			"<leader>x",
+			function()
+				Snacks.scratch()
+			end,
+			desc = "Toggle Scratch Buffer",
+		},
+		{
+			"<leader>S",
+			function()
+				Snacks.scratch.select()
+			end,
+			desc = "Select Scratch Buffer",
+		},
 	},
 	---@type snacks.Config
 	opts = {

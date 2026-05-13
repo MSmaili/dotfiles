@@ -156,8 +156,6 @@ M.keyMaps = {
 		-- Move text up/down
 		["<A-j>"] = ":m '>+1<CR>gv-gv",
 		["<A-k>"] = ":m '<-2<CR>gv-gv",
-		-- Paste over selection: deleted text shifts into "1-"9, yanked text stays in ""
-		["p"] = [[d"0p:if v:register == '"'<Bar>let @@=@0<Bar>endif<CR>]],
 	},
 
 	-------------------------------------

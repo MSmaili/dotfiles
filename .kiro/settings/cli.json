@@ -16,5 +16,6 @@
   "chat.enableKnowledge": true,
   "chat.defaultAgent": "default",
   "chat.diffTool": "udiff",
-  "chat.uiMode": "compact"
+  "chat.uiMode": "compact",
+  "toolSearch.enabled": true
 }
