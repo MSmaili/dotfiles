@@ -40,61 +40,65 @@ local style = {
 
 local slots = {
 	{
-		key = "a",
-		hint = "A",
+		key = "g",
+		hint = "G",
 		label = "Ghostty",
 		launch_name = "Ghostty",
 		bundle_ids = { "com.mitchellh.ghostty" },
 	},
 	{
-		key = "s",
-		hint = "S",
+		key = "b",
+		hint = "B",
 		label = "Brave",
 		launch_name = "Brave Browser",
 		bundle_ids = { "com.brave.Browser" },
 	},
 	{
-		key = "d",
-		hint = "D",
+		key = "f",
+		hint = "F",
 		label = "Finder",
 		launch_name = "Finder",
 		bundle_ids = { "com.apple.finder" },
 	},
 	{
-		key = "f",
-		hint = "F",
+		key = "t",
+		hint = "T",
 		label = "Teams",
 		launch_name = "Microsoft Teams",
 		bundle_ids = { "com.microsoft.teams2" },
 	},
 	{
-		key = "j",
-		hint = "J",
+		key = "m",
+		hint = "M",
 		label = "Mail",
 		bundle_ids = { "com.microsoft.Outlook", "org.mozilla.thunderbird" },
-		action = function()
+		action = function(resolved)
+			if resolved.app then
+				resolved.app:activate(true)
+				return
+			end
 			hs.application.launchOrFocus(
 				hs.application.pathForBundleID("com.microsoft.Outlook") and "Microsoft Outlook" or "Thunderbird"
 			)
 		end,
 	},
 	{
-		key = "k",
-		hint = "K",
+		key = "o",
+		hint = "O",
 		label = "Obsidian",
 		launch_name = "Obsidian",
 		bundle_ids = { "md.obsidian" },
 	},
 	{
-		key = "l",
-		hint = "L",
+		key = "d",
+		hint = "D",
 		label = "Discord",
 		launch_name = "Discord",
 		bundle_ids = { "com.hnc.Discord" },
 	},
 	{
-		key = "semicolon",
-		hint = ";",
+		key = "w",
+		hint = "W",
 		label = "WhatsApp",
 		launch_name = "WhatsApp",
 		bundle_ids = { "net.whatsapp.WhatsApp" },
@@ -194,16 +198,16 @@ end
 
 local function activate_slot(slot, resolved)
 	hide()
-	if resolved.app then
-		resolved.app:activate(true)
-		return
-	end
 	if slot.action then
-		slot.action()
+		slot.action(resolved)
 		return
 	end
 	if slot.launch_name then
 		hs.application.launchOrFocus(slot.launch_name)
+		return
+	end
+	if resolved.app then
+		resolved.app:activate(true)
 	end
 end
 
@@ -268,7 +272,7 @@ local function build_elements(full)
 		},
 		{
 			type = "text",
-			text = build_text("Press letter or click a card", style.font, style.hint_size, style.hint),
+			text = build_text("Press app initial or click a card", style.font, style.hint_size, style.hint),
 			frame = {
 				x = panel_x + style.panel_pad,
 				y = panel_y + 18 + style.title_size,
