@@ -13,13 +13,6 @@ macos-window-shadow = true
 # Fonts
 font-family = "MonoLisa Variable"
 font-size = 17
-font-variation-bold = wght=400
-font-variation-bold = opsz=17
-font-variation-italic = wght=400
-font-variation-italic = opsz=17
-font-variation-bold-italic = wght=400
-font-variation-bold-italic = opsz=17
-freetype-load-flags = no-hinting
 font-feature = calt, liga, zero, dlig, ss01, ss02, ss05, ss06, ss07, ss10, ss11, ss13, ss15, ss16, ss17, ss18
 
 cursor-style = block

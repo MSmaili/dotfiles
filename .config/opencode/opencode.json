@@ -81,6 +81,14 @@
     "fff*": true
   },
   "agent": {
+    "build": {
+      "permission": {
+        "task": {
+          "*": "deny",
+          "research": "allow"
+        }
+      }
+    },
     "general": {
       "mode": "primary",
       "description": "General development orchestrator. Prefer FFF for local search and delegate external research.",
@@ -95,7 +103,7 @@
     "research": {
       "mode": "subagent",
       "description": "Search docs, web, and GitHub wikis using MCP tools.",
-      "model": "opencode/minimax-m2.5-free",
+      "model": "opencode/minimax-m2.7",
       "prompt": "You are a research agent. For local repository discovery and code search, prefer fff_find_files, fff_grep, and fff_multi_grep. Use Context7 for library/framework docs and API references. Use DeepWiki for GitHub repository documentation. Use Exa for web search, blog posts, and current information. Pick the right tool for the question. Be concise and return relevant findings with source links.",
       "tools": {
         "read": true,

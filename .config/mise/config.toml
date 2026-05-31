@@ -4,6 +4,7 @@ bun = "latest"
 java = "21"
 node = "22"
 rust = "latest"
+lua = "5.4"
 
 # Tools
 "cargo:eza" = "latest"

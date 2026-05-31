@@ -102,6 +102,7 @@ vim.opt.wildignore:append({ "*/node_modules/*" })
 vim.opt.messagesopt = "hit-enter,history:500,progress:"
 vim.g.clipboard = "osc52"
 vim.o.winborder = "rounded"
+vim.o.autoread = true
 
 for k, v in pairs(options) do
 	vim.opt[k] = v

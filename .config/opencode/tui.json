@@ -33,7 +33,6 @@
     "display_thinking": "<leader>d",
     "sidebar_toggle": "<leader>b",
     "status_view": "<leader>s",
-    "username_toggle": "<leader>u",
     "editor_open": "<leader>e",
     "theme_list": "<leader>t",
     "scrollbar_toggle": "none",
