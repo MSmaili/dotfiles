@@ -1,7 +1,6 @@
 return {
 	"MSmaili/wiremux.nvim",
 	lazy = false,
-	branch = "dev",
 	---@wiremux.config.UserOptions
 	opts = {
 		-- log_level = "debug",
