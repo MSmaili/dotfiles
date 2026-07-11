@@ -283,8 +283,6 @@ return {
 				enabled = false,
 			},
 			completion = {
-				blink = true,
-				nvim_cmp = false,
 				min_chars = 2,
 			},
 		},

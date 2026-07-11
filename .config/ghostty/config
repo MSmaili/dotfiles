@@ -11,9 +11,11 @@ macos-window-shadow = true
 #bold-is-bright = true
 
 # Fonts
-font-family = "MonoLisa Variable"
+font-family = "MonoLisaCode Variable"
 font-size = 17
-font-feature = calt, liga, zero, dlig, ss01, ss02, ss05, ss06, ss07, ss10, ss11, ss13, ss15, ss16, ss17, ss18
+font-variation = wght=430
+font-variation = GRAD=20
+font-feature = calt, liga, zero, dlig, cv01, cv02, cv04, cv07, cv08, ss01, ss11, ss14
 
 cursor-style = block
 cursor-style-blink = false

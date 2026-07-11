@@ -19,7 +19,7 @@ return {
 			},
 
 			keys = {
-				{ "<leader>uC", ":TSContextToggle<CR>", desc = "Toggle TSContext" },
+				{ "<leader>uC", ":TSContext toggle<CR>", desc = "Toggle TSContext" },
 				{
 					"[c",
 					":lua require('treesitter-context').go_to_context()<cr>",
