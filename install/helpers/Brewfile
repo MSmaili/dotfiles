@@ -19,9 +19,13 @@ brew "docker-compose"
 brew "colima"
 brew "age"
 
+# Window management
+brew "asmvik/formulae/yabai"
+cask "jackielii/tap/skhd-zig"
+
 # GUI applications
 cask "ghostty"
-cask "nikitabobko/tap/aerospace"
+# cask "nikitabobko/tap/aerospace"
 cask "1password-cli"
 # cask "xykong/tap/flux-markdown"
 cask "hammerspoon"

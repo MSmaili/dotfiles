@@ -1,38 +1,89 @@
-# default layout (can be bsp, stack or float)
-yabai -m config layout bsp
+#!/usr/bin/env sh
+# Keybindings live in ~/.config/skhd/skhdrc (yabai has no bindings of its own).
 
-# New window spawns to the right if vertical split, or bottom if horizontal split
-yabai -m config window_placement second_child
+# ---------------------------------------------------------------------------
+# Global layout & tiling
+# ---------------------------------------------------------------------------
 
-# padding
-yabai -m config top_padding 10
-yabai -m config bottom_padding 10
-yabai -m config left_padding 10
-yabai -m config right_padding 10
-yabai -m config window_gap 10
+# Default layout (bsp).
+yabai -m config layout                      bsp
 
+# New window spawns to the right (vertical split) or bottom (horizontal split).
+yabai -m config window_placement            second_child
 
-# center mouse on window with focus
-yabai -m config mouse_follows_focus on
+# Split behavior
+yabai -m config split_ratio                 0.50
+yabai -m config split_type                  auto
+yabai -m config auto_balance                off
 
-# modifier for clicking and dragging with mouse
-yabai -m config mouse_modifier alt
-# set modifier + left-click drag to move window
-yabai -m config mouse_action1 move
-# set modifier + right-click drag to resize window
-yabai -m config mouse_action2 resize
+# ---------------------------------------------------------------------------
+# Gaps & padding
+# ---------------------------------------------------------------------------
+yabai -m config top_padding                 10
+yabai -m config bottom_padding              10
+yabai -m config left_padding                10
+yabai -m config right_padding               10
+yabai -m config window_gap                  10
 
+# ---------------------------------------------------------------------------
+# Focus & mouse
+# ---------------------------------------------------------------------------
+yabai -m config focus_follows_mouse         off
+yabai -m config mouse_follows_focus         on
 
-# when window is dropped in center of another window, swap them (on edges it will split it)
-yabai -m mouse_drop_action swap
+# Alt + drag: left = move, right = resize. Drop on center = swap.
+yabai -m config mouse_modifier              alt
+yabai -m config mouse_action1               move
+yabai -m config mouse_action2               resize
+yabai -m mouse_drop_action                  swap
 
+# ---------------------------------------------------------------------------
+# Visual polish
+# ---------------------------------------------------------------------------
+yabai -m config window_shadow                     on
+yabai -m config window_opacity                    off
+yabai -m config window_animation_duration         0.0
+yabai -m config insert_feedback_color             0xffd75f5f
+yabai -m config skip_window_focus_animation       on
 
-yabai -m rule --add app="^System Settings$" manage=off
-yabai -m rule --add app="^Calculator$" manage=off
-yabai -m rule --add app="^Shottr$" manage=off
-yabai -m rule --add app="^BetterDisplay$" manage=off
-yabai -m rule --add app="^Daily Wallpaper$" manage=off
-yabai -m rule --add app="^PastePal$" manage=off
-yabai -m rule --add app="^Mac Mouse Fix$" manage=off
+# ---------------------------------------------------------------------------
+# Floating rules — apps that should never be tiled
+# ---------------------------------------------------------------------------
+yabai -m rule --add app="^System Settings$"            manage=off
+yabai -m rule --add app="^System Preferences$"         manage=off
+yabai -m rule --add app="^Calculator$"                 manage=off
+yabai -m rule --add app="^Shottr$"                     manage=off
+yabai -m rule --add app="^BetterDisplay$"              manage=off
+yabai -m rule --add app="^Daily Wallpaper$"            manage=off
 yabai -m rule --add app="^Daily Wallpaper - for Bing$" manage=off
-yabai -m rule --add app="^Homerow$" manage=off
+yabai -m rule --add app="^PastePal$"                   manage=off
+yabai -m rule --add app="^Mac Mouse Fix$"              manage=off
+yabai -m rule --add app="^Homerow$"                    manage=off
+yabai -m rule --add app="^Monarch$"                    manage=off
+yabai -m rule --add app="^Finder$" title="^(Copy|Move|Info|Preferences)"  manage=off
+yabai -m rule --add app="^Archive Utility$"            manage=off
+yabai -m rule --add app="^Raycast$"                    manage=off
+
+# ---------------------------------------------------------------------------
+# NOTE: yabai uses real macOS Spaces. The referenced space must already exist
+# in Mission Control, otherwise the rule silently no-ops. Create spaces 6–9
+# manually if you need them.
+# ---------------------------------------------------------------------------
+yabai -m rule --add app="^Ghostty$"       space=1
+yabai -m rule --add app="^WezTerm$"       space=1
+yabai -m rule --add app="^Brave Browser$" space=2
+yabai -m rule --add app="^Finder$"        space=3
+yabai -m rule --add app="^qSpace Pro$"    space=3 manage=off
+yabai -m rule --add app="^Microsoft Teams"      space=4
+yabai -m rule --add app="^Discord$"             space=4
+yabai -m rule --add app="^Microsoft Outlook$"   space=5
+yabai -m rule --add app="^Thunderbird$"         space=5
+yabai -m rule --add app="^Keynote$"             space=8
+
+# ---------------------------------------------------------------------------
+# Signals — reload rules when SIP-protected apps launch, etc.
+# ---------------------------------------------------------------------------
+yabai -m signal --add event=window_destroyed active=yes \
+    action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse &> /dev/null || true"
+
+echo "yabai configuration loaded.."

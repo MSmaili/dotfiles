@@ -245,3 +245,7 @@ run = "move-node-to-workspace 8"
 [[on-window-detected]]
 if.app-id = "org.mozilla.thunderbird"
 run = "move-node-to-workspace 5"
+
+[[on-window-detected]]
+if.app-id = "com.monarch.macos"
+run = "layout floating"
