@@ -19,6 +19,7 @@ local REGIONS = {
 local THROTTLE_SECONDS = 6 * 3600
 local REFETCH_SECONDS = 12 * 3600
 local DIR = os.getenv("HOME") .. "/Pictures/BingWallpapers"
+local CURRENT = DIR .. "/current.jpg"
 local last_fetch_key = "bing.last_fetch"
 local timer = nil
 
@@ -46,11 +47,42 @@ local function show_info()
 		:send()
 end
 
-local function set_desktop(path)
-	local url = "file://" .. path
+local function read_file(path)
+	local f = io.open(path, "rb")
+	if not f then
+		return nil
+	end
+	local bytes = f:read("*a")
+	f:close()
+	return bytes
+end
+
+local function save(path, bytes)
+	hs.fs.mkdir(DIR)
+	local f = io.open(path, "wb")
+	if not f then
+		return false
+	end
+	f:write(bytes)
+	f:close()
+	return true
+end
+
+local RELOAD_DELAY = 2
+local reload_timer = nil
+
+local function set_desktop(bytes)
+	if not bytes then
+		return
+	end
+	save(CURRENT, bytes)
+	local url = "file://" .. CURRENT
 	for _, screen in ipairs(hs.screen.allScreens()) do
 		screen:desktopImageURL(url)
 	end
+	reload_timer = hs.timer.doAfter(RELOAD_DELAY, function()
+		hs.execute("/usr/bin/killall WallpaperAgent")
+	end)
 end
 
 local function mark_fetch_success()
@@ -92,24 +124,13 @@ local function parse_metadata(body, mkt)
 	}
 end
 
-local function save(path, bytes)
-	hs.fs.mkdir(DIR)
-	local f = io.open(path, "wb")
-	if not f then
-		return false
-	end
-	f:write(bytes)
-	f:close()
-	return true
-end
-
 local function download(meta, notify)
 	hs.http.asyncGet(meta.url, nil, function(s, bytes)
 		if s ~= 200 or not save(meta.path, bytes) then
 			report_failure("Bing download failed", notify.manual)
 			return
 		end
-		set_desktop(meta.path)
+		set_desktop(bytes)
 		finish_fetch(notify.current_data, notify.manual, notify.changed)
 	end)
 end
@@ -132,10 +153,13 @@ local function fetch(manual)
 			report_failure("Bing metadata parse failed", manual)
 			return
 		end
-		local next_current = { title = meta.title, copyright = meta.copyright, region = current.region }
+		local next_current =
+			{ title = meta.title, copyright = meta.copyright, region = current.region, file = meta.path }
 		local changed = meta.title ~= current.title
-		if hs.fs.attributes(meta.path) then
-			set_desktop(meta.path)
+		if current.file == meta.path and hs.fs.attributes(CURRENT) then
+			finish_fetch(next_current, manual, changed)
+		elseif hs.fs.attributes(meta.path) then
+			set_desktop(read_file(meta.path))
 			finish_fetch(next_current, manual, changed)
 		else
 			download(meta, { current_data = next_current, manual = manual, changed = changed })
