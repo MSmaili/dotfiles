@@ -42,6 +42,7 @@ M.keyMaps = {
 		------------------------------
 		-- Toggle spellchker
 		["<leader>us"] = { ":setlocal spell!<CR>", desc = "Toggle spellchker" },
+		["<leader>ur"] = { ":ReferencerToggle<CR>", desc = "Toggle References" },
 
 		-- toggle transparentcy
 		["<leader>ut"] = { ":ToggleTransparency<CR>", desc = "Toggle transparent theme" },

@@ -7,5 +7,7 @@ vim.filetype.add({
 return {
 	"mistweaverco/kulala.nvim",
 	ft = { "http", "rest" },
-	opts = {},
+	opts = {
+		global_keymaps = true,
+	},
 }

@@ -1,5 +1,6 @@
 return {
 	{ "tpope/vim-repeat", keys = { { "." }, { ";" } } },
+	{ "romus204/referencer.nvim", lazy = false, opts = { enable = false } },
 	-- opposite and increment/decrement
 	-- Generate documentation
 	{
