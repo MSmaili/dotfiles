@@ -4,9 +4,6 @@ local meh = { "ctrl", "alt", "shift" }
 hs.alert.defaultStyle.radius = 6
 hs.alert.show("Config reloaded")
 
-local GridMouse = require("gridmouse")
-local Leader = require("leader")
-local Caffeine = require("caffeine")
 local KeyCaster = require("key-caster")
 local Mic = require("mic")
 local CapsMeh = require("capsmeh")
@@ -19,17 +16,24 @@ local AppDeck = require("appdeck")
 Bing.start()
 CapsMeh.start()
 
-hs.hotkey.bind(meh, "g", GridMouse.start)
+hs.loadSpoon("GridMouse")
+spoon.GridMouse:bindHotkeys({ start = { meh, "g" } })
+
+hs.loadSpoon("Awake")
+spoon.Awake:bindHotkeys({ toggle = { meh, "c" } })
+
+hs.loadSpoon("Leader")
+
 hs.hotkey.bind(meh, "tab", AppDeck.toggle)
 
-Leader.create(meh, "space", {
+spoon.Leader.create(meh, "space", {
 	r = { label = "Reload", action = hs.reload },
 	o = {
 		label = "Open",
 		group = {
-			g = { label = "Ghostty", action = Leader.app("Ghostty") },
-			b = { label = "Brave", action = Leader.app("Brave Browser") },
-			t = { label = "Teams", action = Leader.app("Microsoft Teams") },
+			g = { label = "Ghostty", action = spoon.Leader.app("Ghostty") },
+			b = { label = "Brave", action = spoon.Leader.app("Brave Browser") },
+			t = { label = "Teams", action = spoon.Leader.app("Microsoft Teams") },
 			m = {
 				label = "Mail",
 				action = function()
@@ -38,10 +42,10 @@ Leader.create(meh, "space", {
 					)
 				end,
 			},
-			f = { label = "Finder", action = Leader.app("Finder") },
-			o = { label = "Obsidian", action = Leader.app("Obsidian") },
-			d = { label = "Discord", action = Leader.app("Discord") },
-			w = { label = "WhatsApp", action = Leader.app("WhatsApp") },
+			f = { label = "Finder", action = spoon.Leader.app("Finder") },
+			o = { label = "Obsidian", action = spoon.Leader.app("Obsidian") },
+			d = { label = "Discord", action = spoon.Leader.app("Discord") },
+			w = { label = "WhatsApp", action = spoon.Leader.app("WhatsApp") },
 		},
 	},
 	g = {
@@ -51,17 +55,17 @@ Leader.create(meh, "space", {
 			["."] = { label = "dotfiles", action = Ghostty.openHome("dotfiles") },
 			v = { label = "Vault", action = Ghostty.openHome(".vaults") },
 			p = { label = "Projects", action = Ghostty.openHome("Projects") },
-			c = { label = "ChatGPT", action = Leader.open("https://chatgpt.com", "Brave Browser") },
+			c = { label = "ChatGPT", action = spoon.Leader.open("https://chatgpt.com", "Brave Browser") },
 		},
 	},
 	s = {
 		label = "Screenshot",
 		group = {
-			a = { label = "Area", action = Leader.open("shottr://grab/area") },
-			o = { label = "OCR", action = Leader.open("shottr://ocr") },
-			w = { label = "Window", action = Leader.open("shottr://grab/window") },
-			f = { label = "Fullscreen", action = Leader.open("shottr://grab/fullscreen") },
-			s = { label = "Scrolling", action = Leader.open("shottr://grab/scrolling") },
+			a = { label = "Area", action = spoon.Leader.open("shottr://grab/area") },
+			o = { label = "OCR", action = spoon.Leader.open("shottr://ocr") },
+			w = { label = "Window", action = spoon.Leader.open("shottr://grab/window") },
+			f = { label = "Fullscreen", action = spoon.Leader.open("shottr://grab/fullscreen") },
+			s = { label = "Scrolling", action = spoon.Leader.open("shottr://grab/scrolling") },
 			r = {
 				label = "Record (macOS)",
 				action = function()
@@ -85,8 +89,8 @@ Leader.create(meh, "space", {
 					hs.eventtap.keyStroke({ "shift", "cmd" }, "space", 0)
 				end,
 			},
-			b = { label = "Color (bg)", action = Leader.open("pika://pick/background/hex") },
-			f = { label = "Color (fg)", action = Leader.open("pika://pick/foreground/hex") },
+			b = { label = "Color (bg)", action = spoon.Leader.open("pika://pick/background/hex") },
+			f = { label = "Color (fg)", action = spoon.Leader.open("pika://pick/foreground/hex") },
 			s = { label = "SSH host", action = SSH.pick },
 		},
 	},
@@ -96,16 +100,25 @@ Leader.create(meh, "space", {
 			i = { label = "Info (current)", action = Bing.info },
 			r = { label = "Refresh now", action = Bing.refresh },
 			p = { label = "Pick region", action = Bing.pickRegion },
-			o = { label = "Open folder", action = Leader.open(os.getenv("HOME") .. "/Pictures/BingWallpapers") },
+			o = { label = "Open folder", action = spoon.Leader.open(os.getenv("HOME") .. "/Pictures/BingWallpapers") },
 		},
 	},
 	w = {
 		label = "Window (Aerospace)",
 		group = {
-			h = { label = "Join left", action = Leader.task("/opt/homebrew/bin/aerospace", { "join-with", "left" }) },
-			j = { label = "Join down", action = Leader.task("/opt/homebrew/bin/aerospace", { "join-with", "down" }) },
-			k = { label = "Join up", action = Leader.task("/opt/homebrew/bin/aerospace", { "join-with", "up" }) },
-			l = { label = "Join right", action = Leader.task("/opt/homebrew/bin/aerospace", { "join-with", "right" }) },
+			h = {
+				label = "Join left",
+				action = spoon.Leader.task("/opt/homebrew/bin/aerospace", { "join-with", "left" }),
+			},
+			j = {
+				label = "Join down",
+				action = spoon.Leader.task("/opt/homebrew/bin/aerospace", { "join-with", "down" }),
+			},
+			k = { label = "Join up", action = spoon.Leader.task("/opt/homebrew/bin/aerospace", { "join-with", "up" }) },
+			l = {
+				label = "Join right",
+				action = spoon.Leader.task("/opt/homebrew/bin/aerospace", { "join-with", "right" }),
+			},
 		},
 	},
 	t = {
@@ -113,7 +126,7 @@ Leader.create(meh, "space", {
 		group = {
 			m = { label = "Mic mute", action = Mic.toggle },
 			k = { label = "Key Caster", action = KeyCaster.toggle },
-			c = { label = "Caffeine", action = Caffeine.toggle },
+			c = { label = "Awake", action = spoon.Awake.toggle },
 			n = { label = "Clean Mode", action = CleanMode.toggle },
 		},
 	},

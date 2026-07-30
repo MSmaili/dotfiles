@@ -1,7 +1,35 @@
-local M = {}
+--- === Leader ===
+---
+--- A leader-key modal with a HUD, in the spirit of which-key. Define a menu
+--- tree, press the leader hotkey, then keys to navigate groups or trigger
+--- actions. Auto-exits on timeout or unknown key.
+---
+--- The menu tree is supplied by you via `:create()`. Each entry is either an
+--- action (`{ label = "...", action = fn }`) or a group
+--- (`{ label = "...", group = { ... } }`). Groups nest arbitrarily.
+---
+--- Example:
+--- ```lua
+--- hs.loadSpoon("Leader")
+--- spoon.Leader.create({ "ctrl", "alt", "shift" }, "space", {
+---   r = { label = "Reload", action = hs.reload },
+---   o = { label = "Open", group = {
+---     g = { label = "Ghostty", action = spoon.Leader.app("Ghostty") },
+---   } },
+--- }, 2.5)
+--- ```
+---
+--- Download: https://github.com/MSmaili/dotfiles
 
--- Leader-key modal with HUD. Create a menu tree, press leader, then keys to
--- navigate groups or trigger actions. Auto-exits on timeout or unknown key.
+local obj = {}
+obj.__index = obj
+
+-- Metadata
+obj.name = "Leader"
+obj.version = "1.0"
+obj.author = "MSmaili"
+obj.homepage = "https://github.com/MSmaili/dotfiles"
+obj.license = "MIT - https://opensource.org/licenses/MIT"
 
 -- Style ----------------------------------------------------------------------
 
@@ -23,6 +51,12 @@ local style = {
 	radius = 14,
 	min_w = 220,
 }
+
+--- Leader.style
+--- Variable
+--- Table of HUD style options (colors, fonts, sizing). Override fields after
+--- loading the Spoon to customize the appearance.
+obj.style = style
 
 -- HUD ------------------------------------------------------------------------
 
@@ -159,7 +193,19 @@ end
 
 -- Modal ----------------------------------------------------------------------
 
-function M.create(mods, key, root, timeout)
+--- Leader.create(mods, key, root, timeout)
+--- Function
+--- Creates the leader modal bound to `mods`+`key`, driving the menu tree `root`.
+---
+--- Parameters:
+---  * mods - A table of modifier keys (e.g. `{ "ctrl", "alt", "shift" }`)
+---  * key - The leader key (e.g. `"space"`)
+---  * root - The menu tree. Each value is `{ label, action }` or `{ label, group }`
+---  * timeout - Optional seconds of inactivity before auto-exit (default 2)
+---
+--- Returns:
+---  * The created `hs.hotkey.modal` object
+function obj.create(mods, key, root, timeout)
 	timeout = timeout or 2
 	local modal = hs.hotkey.modal.new(mods, key)
 	local timer, blocker
@@ -238,13 +284,19 @@ end
 
 -- Action factories -----------------------------------------------------------
 
-function M.app(name)
+--- Leader.app(name)
+--- Function
+--- Returns an action that launches or focuses the app named `name`.
+function obj.app(name)
 	return function()
 		hs.application.launchOrFocus(name)
 	end
 end
 
-function M.open(target, app)
+--- Leader.open(target, app)
+--- Function
+--- Returns an action that opens `target` (a URL/path), optionally with `app`.
+function obj.open(target, app)
 	local args = app and { "-a", app, target } or { target }
 	return function()
 		local t = hs.task.new("/usr/bin/open", nil, args)
@@ -256,7 +308,10 @@ function M.open(target, app)
 	end
 end
 
-function M.task(bin, args)
+--- Leader.task(bin, args)
+--- Function
+--- Returns an action that runs the executable `bin` with the list `args`.
+function obj.task(bin, args)
 	local argv = {}
 	for i, a in ipairs(args or {}) do
 		argv[i] = tostring(a)
@@ -271,4 +326,4 @@ function M.task(bin, args)
 	end
 end
 
-return M
+return obj

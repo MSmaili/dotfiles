@@ -1,9 +1,39 @@
-local M = {}
+--- === GridMouse ===
+---
+--- Keyboard-driven mouse. A two-stage grid lets you place the cursor anywhere
+--- without touching the trackpad, then nudge and click from the home row.
+---
+--- 10x10 main grid: two home-row keys pick a cell. Then a 2x5 sub-grid inside
+--- that cell: one home-row key picks a sub-cell. Then `ikjl` to nudge,
+--- space/enter to click (shift for right-click), `d` to double-click,
+--- esc/backspace to exit.
+---
+--- Download: https://github.com/MSmaili/dotfiles
 
--- Two-stage grid. 10x10 main grid: two home-row keys pick a cell. Then a
--- 2x5 sub-grid inside that cell: one home-row key picks a sub-cell. Then
--- ikjl to nudge, space/enter to click (shift for right-click), d to
--- double-click, esc/backspace to exit.
+local obj = {}
+obj.__index = obj
+
+-- Metadata
+obj.name = "GridMouse"
+obj.version = "1.0"
+obj.author = "MSmaili"
+obj.homepage = "https://github.com/MSmaili/dotfiles"
+obj.license = "MIT - https://opensource.org/licenses/MIT"
+
+--- GridMouse.freeMove
+--- Variable
+--- Controls what happens when you select a sub-cell. If `true` (the default),
+--- GridMouse enters a free-move stage. In this stage the overlay disappears,
+--- you move the cursor with the movement keys, and then you click. If `false`,
+--- GridMouse clicks at once and exits. Hold `shift` for a right click.
+obj.freeMove = true
+
+--- GridMouse.movementKeys
+--- Variable
+--- The keys that move the cursor in the free-move stage. This is a table with
+--- `up`, `down`, `left`, and `right` fields. The default is `i`/`k`/`j`/`l`.
+--- For vim-style keys, set `{ up = "k", down = "j", left = "h", right = "l" }`.
+obj.movementKeys = { up = "i", down = "k", left = "j", right = "l" }
 
 -- Types ----------------------------------------------------------------------
 
@@ -46,13 +76,6 @@ local SUB_LABELS = {
 
 local NUDGE = 10
 local CLICK_GAP_US = 20000 -- 20ms between mouseDown and mouseUp
-
-local NUDGE_KEYS = {
-	j = { -NUDGE, 0 },
-	l = { NUDGE, 0 },
-	i = { 0, -NUDGE },
-	k = { 0, NUDGE },
-}
 
 -- Click keys: each entry is { right = bool, double = bool }.
 -- For right click, hold shift with any single-click key.
@@ -273,12 +296,18 @@ local function jump_to_subcell(col, row)
 	assert(sub_cell, "jump_to_subcell called without a selected cell")
 	local cw = sub_cell.w / SUB_COLS
 	local ch = sub_cell.h / SUB_ROWS
-	hs.mouse.absolutePosition({
+	local p = {
 		x = sub_cell.x + col * cw + cw / 2,
 		y = sub_cell.y + row * ch + ch / 2,
-	})
-	state = "nudge"
-	canvas:hide()
+	}
+	hs.mouse.absolutePosition(p)
+	if obj.freeMove then
+		state = "nudge"
+		canvas:hide()
+	else
+		-- Skip the free-move stage: click at once. Shift gives a right click.
+		click_at(p, is_shift(), false)
+	end
 end
 
 -- Key handlers ---------------------------------------------------------------
@@ -311,13 +340,29 @@ local function handle_subgrid_key(key)
 end
 
 ---@param key string
+---@return { [1]: number, [2]: number }?  -- {dx, dy} in pixels, or nil
+local function movement_delta(key)
+	local mk = obj.movementKeys
+	if key == mk.up then
+		return { 0, -NUDGE }
+	elseif key == mk.down then
+		return { 0, NUDGE }
+	elseif key == mk.left then
+		return { -NUDGE, 0 }
+	elseif key == mk.right then
+		return { NUDGE, 0 }
+	end
+	return nil
+end
+
+---@param key string
 local function handle_nudge_key(key)
 	local click = CLICK_KEYS[key]
 	if click then
 		click_at(hs.mouse.absolutePosition(), click.right or is_shift(), click.double)
 		return
 	end
-	local delta = NUDGE_KEYS[key]
+	local delta = movement_delta(key)
 	if delta then
 		nudge(delta[1], delta[2])
 	end
@@ -344,7 +389,16 @@ end
 
 -- Public ---------------------------------------------------------------------
 
-function M.start()
+--- GridMouse:start()
+--- Method
+--- Show the grid overlay and begin keyboard mouse control.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * The GridMouse object
+function obj:start()
 	cleanup()
 	local scr = hs.mouse.getCurrentScreen() or hs.screen.mainScreen()
 	screen_frame = scr:fullFrame()
@@ -359,10 +413,40 @@ function M.start()
 			return handle_key(event)
 		end)
 		:start()
+	return self
 end
 
-function M.stop()
+--- GridMouse:stop()
+--- Method
+--- Tear down the overlay and stop keyboard mouse control.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * The GridMouse object
+function obj:stop()
 	cleanup()
+	return self
 end
 
-return M
+--- GridMouse:bindHotkeys(mapping)
+--- Method
+--- Binds hotkeys for GridMouse.
+---
+--- Parameters:
+---  * mapping - A table containing hotkey modifier/key details for the following items:
+---    * start - Show the grid overlay and begin keyboard mouse control
+---    * stop  - Tear down the overlay (optional)
+---
+--- Returns:
+---  * The GridMouse object
+function obj:bindHotkeys(mapping)
+	hs.spoons.bindHotkeysToSpec({
+		start = hs.fnutils.partial(self.start, self),
+		stop = hs.fnutils.partial(self.stop, self),
+	}, mapping)
+	return self
+end
+
+return obj
