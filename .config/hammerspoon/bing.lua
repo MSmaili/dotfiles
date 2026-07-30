@@ -16,8 +16,8 @@ local REGIONS = {
 	IN = "en-IN", -- India
 }
 
-local THROTTLE_SECONDS = 6 * 3600
-local REFETCH_SECONDS = 12 * 3600
+local THROTTLE_SECONDS = 12 * 3600 -- fetch at most twice per day
+local POLL_SECONDS = 60 * 60 -- check hourly; actual fetch is throttled
 local DIR = os.getenv("HOME") .. "/Pictures/BingWallpapers"
 local CURRENT = DIR .. "/current.jpg"
 local last_fetch_key = "bing.last_fetch"
@@ -167,14 +167,18 @@ local function fetch(manual)
 	end)
 end
 
+local function tick()
+	if not should_skip() then
+		fetch()
+	end
+end
+
 function M.start()
 	if timer then
 		timer:stop()
 	end
-	if not should_skip() then
-		fetch()
-	end
-	timer = hs.timer.doEvery(REFETCH_SECONDS, fetch)
+	tick()
+	timer = hs.timer.doEvery(POLL_SECONDS, tick)
 end
 
 function M.stop()
