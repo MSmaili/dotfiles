@@ -114,10 +114,12 @@ return {
 
 			require("mason-lspconfig").setup({
 				automatic_enable = {
-					exclude = { "tailwindcss", "vtsls" },
+					exclude = { "astro", "tailwindcss", "vtsls" },
 				},
 				ensure_installed = {},
 			})
+			vim.lsp.config("astro", dofile(lsp_servers_path .. "/astro.lua"))
+			vim.lsp.enable("astro")
 
 			require("mason-tool-installer").setup({
 				ensure_installed = ensure_installed,

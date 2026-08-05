@@ -127,6 +127,16 @@
       "url": "https://mcp.context7.com/mcp",
       "enabled": true
     },
+    "figma": {
+      "type": "remote",
+      "url": "http://127.0.0.1:3845/mcp",
+      "enabled": true
+    },
+    "figwright": {
+      "type": "local",
+      "command": ["npx", "-y", "@figwright/mcp@latest"],
+      "enabled": true
+    },
     "deepwiki": {
       "type": "remote",
       "url": "https://mcp.deepwiki.com/mcp",

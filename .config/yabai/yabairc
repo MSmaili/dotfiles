@@ -63,6 +63,7 @@ yabai -m rule --add app="^Monarch$"                    manage=off
 yabai -m rule --add app="^Finder$" title="^(Copy|Move|Info|Preferences)"  manage=off
 yabai -m rule --add app="^Archive Utility$"            manage=off
 yabai -m rule --add app="^Raycast$"                    manage=off
+yabai -m rule --add app="^Floaty$"                     manage=off
 
 # ---------------------------------------------------------------------------
 # NOTE: yabai uses real macOS Spaces. The referenced space must already exist

@@ -1,5 +1,5 @@
 return {
-	"MSmaili/wiremux.nvim",
+	dir = "~/Projects/wiremux.nvim",
 	lazy = false,
 	---@wiremux.config.UserOptions
 	opts = {
@@ -9,6 +9,7 @@ return {
 				opencode = { cmd = "opencode", kind = { "pane", "window" }, split = "horizontal", shell = false },
 				claudecode = { cmd = "claude", kind = { "pane", "window" }, split = "horizontal", shell = false },
 				kiro = { kind = { "pane", "window" }, split = "horizontal", cmd = "kiro-cli", shell = false },
+				pi = { kind = { "pane", "window" }, split = "horizontal", cmd = "pi", shell = false },
 				shell = { kind = { "pane", "window" }, split = "horizontal" },
 				quick = { kind = { "pane", "window" }, split = "horizontal", shell = false },
 			},
@@ -21,7 +22,12 @@ return {
 		{
 			"<leader>aa",
 			function()
-				require("wiremux").send()
+				require("wiremux").send("{this}", {
+					compose = {
+						close_behavior = "hide",
+						on_new_payload = "append",
+					},
+				})
 			end,
 			desc = "Send a message with compose",
 		},
