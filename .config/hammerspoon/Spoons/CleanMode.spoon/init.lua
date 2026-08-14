@@ -1,10 +1,26 @@
-local M = {}
+--- === CleanMode ===
+---
+--- Full-screen overlay that blocks keyboard and pointer input while you clean
+--- your keyboard and trackpad. Hold Escape to exit.
+
+local obj = {}
+obj.__index = obj
+
+-- Metadata
+obj.name = "CleanMode"
+obj.version = "1.0"
+obj.author = "MSmaili"
+obj.homepage = "https://github.com/MSmaili/dotfiles"
+obj.license = "MIT - https://opensource.org/licenses/MIT"
 
 -- Clean Mode: full-screen dark overlay that swallows keyboard input so you
 -- can wipe the keyboard/trackpad.
 --
 -- Exit by holding Escape for `hold_seconds`.
 --
+--- CleanMode.config
+--- Variable
+--- Appearance and behavior settings. Change fields before starting CleanMode.
 local config = {
 	hold_seconds = 3.0, -- how long to hold Escape to exit
 	bg_color = { red = 0.03, green = 0.03, blue = 0.05, alpha = 0.96 },
@@ -23,6 +39,7 @@ local config = {
 	title = "CLEANING MODE",
 	progress_fps = 30, -- redraw rate while holding Escape
 }
+obj.config = config
 
 -- Cached references (avoid repeated table lookups in hot paths). -------------
 
@@ -35,14 +52,6 @@ local escape_keycode = hs.keycodes.map.escape
 local IDX_PROGRESS_ARC = 6
 local IDX_ELAPSED = 8
 
--- Reusable styled-text attribute table for the elapsed counter. Text is
--- replaced per update; the rest is stable, so we avoid re-allocating it.
-local elapsed_style = {
-	font = config.timer_font,
-	color = config.timer_color,
-	paragraphStyle = { alignment = "center" },
-}
-
 -- State ----------------------------------------------------------------------
 
 local active = false
@@ -51,7 +60,8 @@ local key_tap = nil
 local screen_watcher = nil
 
 local hold_start_at = nil
-local tick_timer = nil
+local progress_timer = nil
+local elapsed_timer = nil
 local started_at = nil
 local last_elapsed_second = -1
 
@@ -60,6 +70,14 @@ local last_elapsed_second = -1
 local function format_elapsed(seconds)
 	seconds = math.max(0, math.floor(seconds))
 	return string.format("%02d:%02d", math.floor(seconds / 60), seconds % 60)
+end
+
+local function elapsed_style()
+	return {
+		font = config.timer_font,
+		color = config.timer_color,
+		paragraphStyle = { alignment = "center" },
+	}
 end
 
 -- Drawing --------------------------------------------------------------------
@@ -158,7 +176,7 @@ local function build_elements(frame)
 		-- [8] Elapsed counter (IDX_ELAPSED). Mutated ~once per second.
 		{
 			type = "text",
-			text = hs.styledtext.new("", elapsed_style),
+			text = hs.styledtext.new("", elapsed_style()),
 			frame = { x = 0, y = cy + r + 40, w = frame.w, h = 20 },
 		},
 	}
@@ -187,35 +205,49 @@ local function update_elapsed_text(force)
 		return
 	end
 	last_elapsed_second = whole
-	local styled = hs.styledtext.new("Cleaning for " .. format_elapsed(whole), elapsed_style)
+	local styled = hs.styledtext.new("Cleaning for " .. format_elapsed(whole), elapsed_style())
 	for i = 1, #canvases do
 		canvases[i]:elementAttribute(IDX_ELAPSED, "text", styled)
 	end
 end
 
--- Hold logic -----------------------------------------------------------------
+-- Timers and hold logic -------------------------------------------------------
 
-local function ensure_tick_timer()
-	if tick_timer then
-		return
+local function stop_progress_timer()
+	if progress_timer then
+		progress_timer:stop()
+		progress_timer = nil
 	end
-	tick_timer = hs.timer.doEvery(1 / config.progress_fps, function()
-		if not active then
+end
+
+local function start_progress_timer()
+	stop_progress_timer()
+	progress_timer = hs.timer.doEvery(1 / config.progress_fps, function()
+		if not active or not hold_start_at then
+			stop_progress_timer()
 			return
 		end
 		update_progress_arcs()
-		update_elapsed_text(false)
-		if hold_start_at and (now() - hold_start_at) >= config.hold_seconds then
-			M.stop()
+		if (now() - hold_start_at) >= config.hold_seconds then
+			obj.stop()
 		end
 	end)
 end
 
-local function stop_tick_timer()
-	if tick_timer then
-		tick_timer:stop()
-		tick_timer = nil
+local function stop_elapsed_timer()
+	if elapsed_timer then
+		elapsed_timer:stop()
+		elapsed_timer = nil
 	end
+end
+
+local function start_elapsed_timer()
+	stop_elapsed_timer()
+	elapsed_timer = hs.timer.doEvery(1, function()
+		if active then
+			update_elapsed_text(false)
+		end
+	end)
 end
 
 local function begin_hold()
@@ -223,6 +255,7 @@ local function begin_hold()
 		return
 	end
 	hold_start_at = now()
+	start_progress_timer()
 end
 
 local function cancel_hold()
@@ -230,6 +263,7 @@ local function cancel_hold()
 		return
 	end
 	hold_start_at = nil
+	stop_progress_timer()
 	update_progress_arcs() -- reset arc to 0 immediately
 end
 
@@ -290,7 +324,17 @@ end
 
 -- Public ---------------------------------------------------------------------
 
-function M.start()
+--- CleanMode:init()
+--- Method
+--- Initializes the Spoon. Called automatically by `hs.loadSpoon`.
+function obj:init()
+	return self
+end
+
+--- CleanMode.start()
+--- Method
+--- Enable cleaning mode. Safe to call as a bare function.
+function obj.start()
 	if active then
 		return
 	end
@@ -298,10 +342,40 @@ function M.start()
 		hs.alert.show("Clean Mode: Accessibility permission required")
 		return
 	end
+	if hs.eventtap.isSecureInputEnabled() then
+		hs.alert.show("Clean Mode: unavailable while Secure Input is active")
+		return
+	end
+	if type(config.hold_seconds) ~= "number" or config.hold_seconds <= 0 then
+		hs.alert.show("Clean Mode: hold_seconds must be greater than zero")
+		return
+	end
+	if type(config.progress_fps) ~= "number" or config.progress_fps <= 0 then
+		hs.alert.show("Clean Mode: progress_fps must be greater than zero")
+		return
+	end
 
 	active = true
 	started_at = now()
 	last_elapsed_second = -1
+
+	-- Start and verify the keyboard tap before displaying an overlay that
+	-- captures pointer input, so a failed tap cannot leave the user locked in.
+	key_tap = hs.eventtap.new({
+		event_types.keyDown,
+		event_types.keyUp,
+		event_types.flagsChanged,
+		event_types.systemDefined,
+	}, on_key_event)
+	key_tap:start()
+	if not key_tap:isEnabled() then
+		key_tap:stop()
+		key_tap = nil
+		active = false
+		started_at = nil
+		hs.alert.show("Clean Mode: could not start keyboard capture")
+		return
+	end
 
 	create_canvases()
 
@@ -313,20 +387,15 @@ function M.start()
 	end)
 	screen_watcher:start()
 
-	key_tap = hs.eventtap.new({
-		event_types.keyDown,
-		event_types.keyUp,
-		event_types.flagsChanged,
-		event_types.systemDefined,
-	}, on_key_event)
-	key_tap:start()
-
-	ensure_tick_timer()
+	start_elapsed_timer()
 
 	hs.alert.show("Cleaning mode ON — hold Esc to exit")
 end
 
-function M.stop()
+--- CleanMode.stop()
+--- Method
+--- Disable cleaning mode. Safe to call as a bare function.
+function obj.stop()
 	if not active then
 		return
 	end
@@ -334,7 +403,8 @@ function M.stop()
 	started_at = nil
 	hold_start_at = nil
 
-	stop_tick_timer()
+	stop_progress_timer()
+	stop_elapsed_timer()
 
 	if key_tap then
 		key_tap:stop()
@@ -350,12 +420,34 @@ function M.stop()
 	hs.alert.show("Cleaning mode OFF")
 end
 
-function M.toggle()
+--- CleanMode.toggle()
+--- Method
+--- Toggle cleaning mode. Safe to use as a bare function reference.
+function obj.toggle()
 	if active then
-		M.stop()
+		obj.stop()
 	else
-		M.start()
+		obj.start()
 	end
 end
 
-return M
+--- CleanMode:isActive()
+--- Method
+--- Return whether cleaning mode is currently enabled.
+function obj:isActive()
+	return active
+end
+
+--- CleanMode:bindHotkeys(mapping)
+--- Method
+--- Bind the `toggle`, `start`, and `stop` actions.
+function obj:bindHotkeys(mapping)
+	hs.spoons.bindHotkeysToSpec({
+		toggle = obj.toggle,
+		start = obj.start,
+		stop = obj.stop,
+	}, mapping)
+	return self
+end
+
+return obj

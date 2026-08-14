@@ -10,7 +10,6 @@ local CapsMeh = require("capsmeh")
 local SSH = require("ssh")
 local Bing = require("bing")
 local Ghostty = require("ghostty")
-local CleanMode = require("clean-mode")
 local AppDeck = require("appdeck")
 
 Bing.start()
@@ -20,8 +19,7 @@ hs.loadSpoon("GridMouse")
 spoon.GridMouse:bindHotkeys({ start = { meh, "g" } })
 
 hs.loadSpoon("Awake")
-spoon.Awake:bindHotkeys({ toggle = { meh, "c" } })
-
+hs.loadSpoon("CleanMode")
 hs.loadSpoon("Leader")
 
 hs.hotkey.bind(meh, "tab", AppDeck.toggle)
@@ -127,7 +125,7 @@ spoon.Leader.create(meh, "space", {
 			m = { label = "Mic mute", action = Mic.toggle },
 			k = { label = "Key Caster", action = KeyCaster.toggle },
 			c = { label = "Awake", action = spoon.Awake.toggle },
-			n = { label = "Clean Mode", action = CleanMode.toggle },
+			n = { label = "Clean Mode", action = spoon.CleanMode.toggle },
 		},
 	},
 	q = {

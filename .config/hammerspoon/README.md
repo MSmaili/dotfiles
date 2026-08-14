@@ -15,6 +15,7 @@ own.
 | **GridMouse** | Controls the mouse from the keyboard. A grid places the cursor, and the home row keys move it and click it.   | [README](Spoons/GridMouse.spoon/README.md) |
 | **Leader**    | Shows a leader-key menu in a heads-up display (HUD), similar to which-key. You define the groups and actions. | [README](Spoons/Leader.spoon/README.md)    |
 | **Awake**     | Keeps macOS awake, and moves the cursor a short distance when the computer is idle. Adds a menubar toggle.    | [README](Spoons/Awake.spoon/README.md)     |
+| **CleanMode** | Blocks keyboard and pointer input behind a full-screen overlay so you can safely clean your devices.          | [README](Spoons/CleanMode.spoon/README.md) |
 
 ## Install one Spoon
 
@@ -34,7 +35,7 @@ To install a Spoon:
 4. Reload your configuration. Open the Hammerspoon menubar, then select Reload
    Config.
 
-This example loads and binds all three Spoons:
+This example loads and binds the Spoons:
 
 ```lua
 hs.loadSpoon("GridMouse")
@@ -42,6 +43,9 @@ spoon.GridMouse:bindHotkeys({ start = { { "ctrl", "alt", "shift" }, "g" } })
 
 hs.loadSpoon("Awake")
 spoon.Awake:bindHotkeys({ toggle = { { "ctrl", "alt", "shift" }, "c" } })
+
+hs.loadSpoon("CleanMode")
+spoon.CleanMode:bindHotkeys({ toggle = { { "ctrl", "alt", "shift" }, "n" } })
 
 hs.loadSpoon("Leader")
 spoon.Leader.create({ "ctrl", "alt", "shift" }, "space", {
@@ -65,7 +69,6 @@ them:
 - `appdeck.lua` — an app launcher grid (Meh+Tab)
 - `bing.lua` — a daily Bing wallpaper, with a region picker
 - `capsmeh.lua` — Caps Lock acts as Meh when you hold it, and as Escape when you tap it
-- `clean-mode.lua` — a full-screen overlay that blocks input, so you can clean the keyboard
 - `ghostty.lua` — opens a Ghostty window in a directory
 - `key-caster.lua` — shows each keystroke on screen, which helps for screen recordings
 - `mic.lua` — mutes and unmutes the microphone
