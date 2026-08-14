@@ -2,6 +2,7 @@
 set -euo pipefail
 
 source "$HELPERS_DIR/utils.sh"
+source "$HELPERS_DIR/pi-agent.sh"
 
 run_cmd mkdir -p ~/.config/zsh ~/.config/tmux
 
@@ -23,8 +24,13 @@ fi
 
 if has stow; then
     echo "🔗 Linking dotfiles..."
-    cd "$DOTFILES_DIR"
-    run_cmd stow -vSt "$HOME" .
+    prepare_pi_agent
+    run_cmd stow \
+        --dir="$DOTFILES_DIR" \
+        --target="$HOME" \
+        --restow \
+        --verbose \
+        .
 else
     echo "⚠️ stow not installed, skipping linking."
 fi

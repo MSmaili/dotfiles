@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "context7": {
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "deepwiki": {
+      "url": "https://mcp.deepwiki.com/mcp"
+    },
+    "exa": {
+      "url": "https://mcp.exa.ai/mcp"
+    },
+    "figma": {
+      "url": "http://127.0.0.1:3845/mcp"
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@1.7.0",
+        "--executablePath",
+        "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
+      ]
+    }
+  }
+}

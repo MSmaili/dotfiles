@@ -1,0 +1,13 @@
+{
+  "tui.editor.cursorUp": ["up"],
+  "tui.editor.cursorDown": ["down"],
+  "tui.editor.cursorLineEnd": ["end"],
+  "tui.editor.yank": ["ctrl+shift+y"],
+  "app.model.cycleForward": [],
+  "app.model.cycleBackward": [],
+  "app.session.toggleNamedFilter": [],
+  "app.session.togglePath": [],
+  "app.editor.external": ["ctrl+e"],
+  "app.model.select": ["ctrl+shift+l"],
+  "app.message.copy": ["ctrl+y"]
+}

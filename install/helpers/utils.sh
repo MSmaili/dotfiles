@@ -110,7 +110,7 @@ install_tmux_plugins() {
 install_mise() {
     if ! has mise; then
         echo "📦 Installing mise..."
-        run_cmd curl -fsSL https://mise.run | sh
+        run_cmd bash -c 'curl -fsSL https://mise.run | sh'
         export PATH="$HOME/.local/bin:$PATH"
     fi
 
@@ -119,7 +119,11 @@ install_mise() {
 
     # Trust config if exists
     if [[ -f "$HOME/.config/mise/config.toml" ]]; then
-        mise trust "$HOME/.config/mise/config.toml" &>/dev/null || true
+        if ${DRY_RUN:-false}; then
+            run_cmd mise trust "$HOME/.config/mise/config.toml"
+        else
+            mise trust "$HOME/.config/mise/config.toml" &>/dev/null || true
+        fi
     fi
 
     echo "📦 Installing tools from mise config..."

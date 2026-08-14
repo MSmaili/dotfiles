@@ -23,6 +23,10 @@ _darcs
 ^/LICENSE.*
 ^/COPYING
 
+# Runtime state and local dependencies
+\.pi-subagents
+node_modules
+
 # Dotfiles installation files
 ^install\.sh$
 ^/install

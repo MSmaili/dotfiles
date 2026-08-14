@@ -10,6 +10,13 @@ GLOBAL_SKILLS=(
 REACT_SKILLS=(
     "softaworks/agent-toolkit@react-useeffect"
     "https://github.com/vercel-labs/agent-skills --skill vercel-react-best-practices"
+    "softaworks/agent-toolkit@react-dev"
+    "https://github.com/vercel-labs/agent-skills --skill react-view-transitions"
+    "softaworks/agent-toolkit@design-system-starter"
+    "softaworks/agent-toolkit@c4-architecture"
+    "softaworks/agent-toolkit@backend-to-frontend-handoff-docs"
+    "softaworks/agent-toolkit@frontend-to-backend-requirements"
+    "softaworks/agent-toolkit@openapi-to-typescript"
 )
 
 DB_SKILLS=(
@@ -50,6 +57,7 @@ clean_skills() {
             kiro)     echo "  → kiro";     npx skills remove --all --agent kiro-cli -y 2>/dev/null || true ;;
             claude)   echo "  → claude";   npx skills remove --all --agent claude-code -y 2>/dev/null || true ;;
             opencode) echo "  → opencode"; npx skills remove --all --agent opencode -y 2>/dev/null || true ;;
+            pi)       echo "  → pi";       npx skills remove --all --agent pi -y 2>/dev/null || true ;;
         esac
     done
     echo "✓ Clean"
@@ -62,12 +70,16 @@ install_skill() {
 }
 
 install_group() {
-    local -n skills_ref=$1
+    local skills_array_name="$1"
     local scope="$2"
+    local entries=()
+
+    # Copy from named array — bash 3.2 compatible (no nameref)
+    eval "entries=(\"\${${skills_array_name}[@]}\")"
 
     local g=""; [[ "$scope" == "global" ]] && g="-g"
 
-    for entry in "${skills_ref[@]}"; do
+    for entry in "${entries[@]}"; do
         local name="${entry##*--skill }"
         [[ "$name" == "$entry" ]] && name="${entry##*/}"
 
@@ -76,6 +88,7 @@ install_group() {
                 kiro)     install_skill "$name (kiro)" $entry $g -a kiro-cli --copy -y ;;
                 claude)   install_skill "$name (claude)" $entry $g -a claude-code --copy -y ;;
                 opencode) install_skill "$name (opencode)" $entry $g -a opencode --copy -y ;;
+                pi)       install_skill "$name (pi)" $entry $g -a pi --copy -y ;;
             esac
         done
     done
@@ -89,6 +102,7 @@ Targets:
   --target kiro      Kiro CLI only (.kiro/skills)
   --target claude    Claude Code only (.claude/skills)
   --target opencode  OpenCode only (~/.config/opencode/skills)
+  --target pi        Pi only (.pi/skills)
   --target all       All targets (default)
 
 Groups:
@@ -131,7 +145,8 @@ main() {
                     kiro)     TARGETS+=(kiro) ;;
                     claude)   TARGETS+=(claude) ;;
                     opencode) TARGETS+=(opencode) ;;
-                    all)      TARGETS=(kiro claude opencode) ;;
+                    pi)       TARGETS+=(pi) ;;
+                    all)      TARGETS=(kiro claude opencode pi) ;;
                     *)      error "Unknown target: ${1:-}"; usage; return 1 ;;
                 esac
                 ;;
@@ -141,7 +156,7 @@ main() {
         shift
     done
 
-    [[ ${#TARGETS[@]} -eq 0 ]] && TARGETS=(kiro claude opencode)
+    [[ ${#TARGETS[@]} -eq 0 ]] && TARGETS=(kiro claude opencode pi)
     [[ ${#groups[@]} -eq 0 ]] && { usage; return; }
 
     for group in "${groups[@]}"; do

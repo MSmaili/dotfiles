@@ -1,0 +1,13 @@
+{
+  "leader": "ctrl+x",
+  "timeoutMs": 1500,
+  "bindings": {
+    "m": "/model",
+    "shift+m": "/mcp",
+    "s": "/settings",
+    "r": "/resume",
+    "t": "/tree",
+    "n": "/new",
+    "f": "/fork"
+  }
+}

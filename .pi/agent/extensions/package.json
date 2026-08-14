@@ -1,0 +1,17 @@
+{
+  "name": "dotfiles-pi-extensions",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types --test resource-picker/test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run test && npm run typecheck"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.84.2",
+    "@earendil-works/pi-tui": "0.84.2",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3"
+  }
+}
