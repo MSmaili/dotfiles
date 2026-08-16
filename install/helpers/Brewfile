@@ -18,6 +18,7 @@ brew "docker"
 brew "docker-compose"
 brew "colima"
 brew "age"
+brew "pnpm"
 
 # Window management
 brew "asmvik/formulae/yabai"

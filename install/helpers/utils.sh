@@ -117,17 +117,28 @@ install_mise() {
     # Just ensure mise is on PATH (no need for full shell activation in scripts)
     export PATH="$HOME/.local/share/mise/shims:$PATH"
 
+    # During a fresh install the dotfiles have not been linked yet, so use the
+    # repository config until Stow creates ~/.config/mise/config.toml.
+    local mise_config="$HOME/.config/mise/config.toml"
+    if [[ ! -f "$mise_config" && -f "$DOTFILES_DIR/.config/mise/config.toml" ]]; then
+        mise_config="$DOTFILES_DIR/.config/mise/config.toml"
+    fi
+
     # Trust config if exists
-    if [[ -f "$HOME/.config/mise/config.toml" ]]; then
+    if [[ -f "$mise_config" ]]; then
         if ${DRY_RUN:-false}; then
-            run_cmd mise trust "$HOME/.config/mise/config.toml"
+            run_cmd mise trust "$mise_config"
         else
-            mise trust "$HOME/.config/mise/config.toml" &>/dev/null || true
+            mise trust "$mise_config" &>/dev/null || true
         fi
     fi
 
     echo "📦 Installing tools from mise config..."
-    run_cmd mise install
+    if [[ -f "$mise_config" ]]; then
+        run_cmd env MISE_CONFIG_FILE="$mise_config" mise install
+    else
+        run_cmd mise install
+    fi
 
     echo "✅ mise installation complete."
 }

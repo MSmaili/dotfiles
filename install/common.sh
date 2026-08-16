@@ -29,7 +29,6 @@ if has stow; then
         --dir="$DOTFILES_DIR" \
         --target="$HOME" \
         --restow \
-        --verbose \
         .
 else
     echo "⚠️ stow not installed, skipping linking."

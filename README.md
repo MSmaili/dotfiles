@@ -35,6 +35,7 @@ To preview what will be installed without making changes:
 - **Terminal**: Ghostty
 - **Window Manager**: Aerospace (macOS)
 - **Development**: Neovim, Lazygit, Lazydocker
+- **Coding Agent**: Pi, installed through mise and configured in `.pi/agent/`
 
 ### Shell Setup
 
