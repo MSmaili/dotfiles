@@ -34,4 +34,9 @@ else
     echo "⚠️ stow not installed, skipping linking."
 fi
 
+if has ya && [[ -f "$HOME/.config/yazi/package.toml" ]]; then
+    echo "📦 Installing Yazi packages..."
+    run_cmd ya pkg install
+fi
+
 echo "✅ Common setup complete!"

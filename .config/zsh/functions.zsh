@@ -48,6 +48,24 @@ mkcd() {
     mkdir -p "$1" && cd "$1"
 }
 
+# Yazi wrapper that changes the shell's directory on exit
+# Use Q instead of q to leave the current directory unchanged.
+y() {
+    local tmp cwd exit_status
+    tmp="$(mktemp -t "yazi-cwd.XXXXXX")" || return 1
+
+    command yazi "$@" --cwd-file="$tmp"
+    exit_status=$?
+
+    IFS= read -r -d '' cwd < "$tmp"
+    if [[ -n "$cwd" && "$cwd" != "$PWD" && -d "$cwd" ]]; then
+        builtin cd -- "$cwd"
+    fi
+
+    command rm -f -- "$tmp"
+    return "$exit_status"
+}
+
 # Extract various archive formats
 extract() {
     if [ -f "$1" ]; then

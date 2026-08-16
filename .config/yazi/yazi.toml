@@ -1,0 +1,7 @@
+# A TOML linter can use Yazi's schema to validate this file.
+#:schema https://yazi-rs.github.io/schemas/yazi.json
+
+[mgr]
+sort_by = "natural"
+linemode = "size"
+show_hidden = true

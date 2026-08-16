@@ -1,0 +1,5 @@
+# A TOML linter can use Yazi's schema to validate this file.
+#:schema https://yazi-rs.github.io/schemas/theme.json
+
+[flavor]
+dark = "catppuccin-mocha"

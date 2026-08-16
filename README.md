@@ -34,7 +34,7 @@ To preview what will be installed without making changes:
 
 - **Terminal**: Ghostty
 - **Window Manager**: Aerospace (macOS)
-- **Development**: Neovim, Lazygit, Lazydocker
+- **Development**: Neovim, Lazygit, Lazydocker, Yazi
 - **Coding Agent**: Pi, installed through mise and configured in `.pi/agent/`
 
 ### Shell Setup
@@ -49,6 +49,7 @@ To preview what will be installed without making changes:
 - `.zshrc` - Shell configuration
 - `.config/nvim/` - Neovim setup
 - `.config/tmux/` - Tmux configuration
+- `.config/yazi/` - Yazi file-manager configuration
 - `.config/*/` - Various app configs
 
 ## Manual Steps After Install
