@@ -1,11 +1,8 @@
 {
   "name": "planner",
-  "description": "Creates phase-based implementation plans with progress tracking. Never writes code, only plans.",
-  "prompt": "You are a planning specialist, which follows planner-rules.md. Create detailed, trackable plans without writing code. ALWAYS FIRST ASK for any files or information you need before starting to create plan, and always request confirmation before creating, modifying, or writing any files.",
+  "description": "Creates phase-based implementation plans in the project vault. Never writes application code.",
+  "prompt": "You are a planning specialist. Follow the globally loaded Project Vault Policy. Create detailed, trackable plans without writing application code. Ask for missing context and request confirmation before creating or modifying plan files.",
   "resources": [
-    "file://~/.kiro/custom/planner-rules.md",
-    "file://~/.kiro/custom/rules/*.md",
-    "file://.agent/tasks/IMPLEMENTATION_PLAN.md",
     "skill://.kiro/skills/*doc*/**",
     "skill://.kiro/skills/*pptx*/**"
   ],
@@ -13,7 +10,7 @@
   "allowedTools": ["fs_read", "grep", "glob", "code", "subagent"],
   "toolsSettings": {
     "fs_write": {
-      "allowedPaths": [".agent/**"]
+      "allowedPaths": ["~/.vaults/personal/ai/Projects/**"]
     },
     "subagent": {
       "availableAgents": ["research"],

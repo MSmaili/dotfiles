@@ -1,6 +1,15 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
+  "instructions": [
+    "~/.vaults/personal/ai/project-vault-policy.md"
+  ],
+  "references": {
+    "project-vault": {
+      "path": "~/.vaults/personal/ai/Projects",
+      "description": "Authoritative plans, project status, decisions, and technical research for every project."
+    }
+  },
   "permission": {
     "external_directory": {
       "~/.zshrc.local": "deny"
