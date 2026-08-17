@@ -27,6 +27,8 @@ _darcs
 \.pi-subagents
 node_modules
 
+^/\.ssh/1Password$
+
 # Dotfiles installation files
 ^install\.sh$
 ^/install
