@@ -26,6 +26,7 @@ cask "jackielii/tap/skhd-zig"
 
 # GUI applications
 cask "ghostty"
+cask "vicinae"
 # cask "nikitabobko/tap/aerospace"
 cask "1password-cli"
 # cask "xykong/tap/flux-markdown"

@@ -70,11 +70,12 @@ yabai -m rule --add app="^Floaty$"                     manage=off
 # in Mission Control, otherwise the rule silently no-ops. Create spaces 6–9
 # manually if you need them.
 # ---------------------------------------------------------------------------
-yabai -m rule --add app="^Ghostty$"       space=1
-yabai -m rule --add app="^WezTerm$"       space=1
-yabai -m rule --add app="^Brave Browser$" space=2
-yabai -m rule --add app="^Finder$"        space=3
-yabai -m rule --add app="^qSpace Pro$"    space=3 manage=off
+yabai -m rule --add app="^Ghostty$"             space=1
+yabai -m rule --add app="^WezTerm$"             space=1
+yabai -m rule --add app="^Brave Browser$"       space=2
+yabai -m rule --add app="^Finder$"              space=3
+yabai -m rule --add app="^Obsidian$"            space=3
+yabai -m rule --add app="^qSpace Pro$"          space=3 manage=off
 yabai -m rule --add app="^Microsoft Teams"      space=4
 yabai -m rule --add app="^Discord$"             space=4
 yabai -m rule --add app="^Microsoft Outlook$"   space=5
