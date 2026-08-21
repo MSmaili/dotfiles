@@ -114,7 +114,7 @@ return {
 
 			require("mason-lspconfig").setup({
 				automatic_enable = {
-					exclude = { "astro", "tailwindcss", "vtsls" },
+					exclude = { "astro", "tailwindcss" },
 				},
 				ensure_installed = {},
 			})

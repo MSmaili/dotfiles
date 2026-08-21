@@ -1,4 +1,5 @@
 require("custom.core.options")
 require("custom.core.keymaps")
 require("custom.core.commands")
+require("custom.core.comment").setup()
 require("custom.core.ui2").setup()

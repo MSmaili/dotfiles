@@ -2,6 +2,11 @@
 return {
 	settings = {
 		Lua = {
+			runtime = {
+				-- Neovim is LuaJIT; without this lua_ls assumes 5.4 and flags 5.1 builtins
+				version = "LuaJIT",
+				path = { "lua/?.lua", "lua/?/init.lua" },
+			},
 			workspace = {
 				checkThirdParty = false,
 				library = vim.api.nvim_get_runtime_file("", true),

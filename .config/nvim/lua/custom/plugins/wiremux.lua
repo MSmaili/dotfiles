@@ -1,5 +1,5 @@
 return {
-	dir = "~/Projects/wiremux.nvim",
+	"MSmaili/wiremux.nvim",
 	lazy = false,
 	---@wiremux.config.UserOptions
 	opts = {

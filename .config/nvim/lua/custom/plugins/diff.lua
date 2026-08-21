@@ -3,6 +3,14 @@ return {
 	dependencies = { "MunifTanjim/nui.nvim" },
 	cmd = "CodeDiff",
 	keys = {
-		{ "<leader>gs", "<cmd>CodeDiff<cr>", desc = "Git diff 3-way-split" },
+		{ "<leader>gD", "<cmd>CodeDiff<cr>", desc = "Git diff 3-way-split" },
+	},
+	opts = {
+		keymaps = {
+			view = {
+				next_hunk = "]h",
+				prev_hunk = "[h",
+			},
+		},
 	},
 }

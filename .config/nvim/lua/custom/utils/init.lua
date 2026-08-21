@@ -39,14 +39,15 @@ function Custom.set_keymappings(keymaps)
 
 		for keyMap, commandOrTable in pairs(keyMaps) do
 			local command = commandOrTable
+			local options = base_options
 
 			if type(commandOrTable) == "table" then
 				command = commandOrTable[1]
-				base_options = vim.tbl_extend("force", base_options, commandOrTable)
-				base_options[1] = nil
+				options = vim.tbl_extend("force", base_options, commandOrTable)
+				options[1] = nil
 			end
 
-			vim.keymap.set(vimMode, keyMap, command, base_options)
+			vim.keymap.set(vimMode, keyMap, command, options)
 		end
 	end
 end

@@ -46,7 +46,6 @@ M.keyMaps = {
 
 		-- toggle transparentcy
 		["<leader>ut"] = { ":ToggleTransparency<CR>", desc = "Toggle transparent theme" },
-
 		-- Toggle pastemode
 		["<leader>up"] = { ":setlocal paste!<CR>", desc = "Toggle paste mode" },
 		["<leader>uf"] = {
@@ -57,11 +56,6 @@ M.keyMaps = {
 					vim.log.levels.INFO
 				)
 			end,
-			desc = "Toggle format on save",
-		},
-
-		["<leader>ub"] = {
-			":Gitsigns toggle_current_line_blame<cr>",
 			desc = "Toggle format on save",
 		},
 
@@ -119,7 +113,7 @@ M.keyMaps = {
 		-- Disable highlight
 		["<leader>h"] = ":nohl<CR>",
 
-		-- UNDO-TREE
+		-- UNDO-TREE (bundled nvim.undotree, packadd'ed in init.lua)
 		["<leader>gu"] = { ":Undotree<cr>", desc = "Toggle undotree" },
 
 		------------------------------

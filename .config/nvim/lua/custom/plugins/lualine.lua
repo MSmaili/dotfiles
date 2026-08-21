@@ -3,13 +3,14 @@
 -- url  : https://github.com/nvim-lualine/lualine.nvim
 -------------------------------------------------
 local function arrow_all_buffers()
-	local arrow = require("arrow.statusline")
-	local filenames = vim.g.arrow_filenames or {}
-	local current_index = arrow.is_on_arrow_file()
-
-	if #filenames == 0 then
+	-- nil until arrow.nvim loads, so the statusline never force-loads it
+	local filenames = vim.g.arrow_filenames
+	if not filenames or #filenames == 0 then
 		return ""
 	end
+
+	local arrow = require("arrow.statusline")
+	local current_index = arrow.is_on_arrow_file()
 
 	local parts = {}
 	table.insert(parts, "󱡁 ")

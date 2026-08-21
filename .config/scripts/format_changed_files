@@ -52,7 +52,7 @@ mapfile -t changed_files < <(
 [[ ${#changed_files[@]} -eq 0 ]] && exit 0
 
 if has npx; then
-    run_fmt '\.(json|ya?ml|md)$'            npx prettier --write --cache
+    run_fmt '\.(json|md)$'            npx prettier --write --cache
     $FORMAT_JS && run_fmt '\.(js|jsx|ts|tsx|css|scss)$' npx prettier --write --cache
 fi
 

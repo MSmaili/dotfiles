@@ -30,6 +30,20 @@ return {
 			end,
 			desc = "Select Scratch Buffer",
 		},
+		{
+			"<leader>bd",
+			function()
+				Snacks.bufdelete()
+			end,
+			desc = "Delete Buffer",
+		},
+		{
+			"<leader>bD",
+			function()
+				Snacks.bufdelete({ force = true })
+			end,
+			desc = "Delete Buffer (Force)",
+		},
 	},
 	---@type snacks.Config
 	opts = {
