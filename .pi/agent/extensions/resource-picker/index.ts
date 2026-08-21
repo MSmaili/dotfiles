@@ -2,6 +2,7 @@ import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext, Skill } f
 import { filterRootSlashItems } from "./autocomplete.ts";
 import { filterSystemPrompt } from "./prompt.ts";
 import { showPromptPicker } from "./prompt-picker.ts";
+import { buildSkillInvocation, showSkillPicker } from "./skill-picker.ts";
 
 // Keep the default skill metadata small. Other discovered skills remain
 // available for explicit invocation through /skill:name.
@@ -16,6 +17,23 @@ export default function resourcePickerExtension(pi: ExtensionAPI): void {
 			"skill-context",
 			ctx.ui.theme.fg("muted", `skills ${activeSkills.length}/${skills.length} visible`),
 		);
+	}
+
+	async function openSkillPicker(args: string, ctx: ExtensionCommandContext): Promise<void> {
+		if (ctx.mode !== "tui") {
+			ctx.ui.notify("/skills requires interactive TUI mode", "error");
+			return;
+		}
+
+		const skills = ctx.getSystemPromptOptions().skills ?? [];
+		if (skills.length === 0) {
+			ctx.ui.notify("No skills are loaded in this session", "warning");
+			return;
+		}
+
+		const selected = await showSkillPicker(ctx, skills, args);
+		if (!selected) return;
+		ctx.ui.setEditorText(buildSkillInvocation(selected.name));
 	}
 
 	async function openPromptPicker(args: string, ctx: ExtensionCommandContext): Promise<void> {
@@ -34,6 +52,11 @@ export default function resourcePickerExtension(pi: ExtensionAPI): void {
 		if (!selected) return;
 		ctx.ui.setEditorText(`/${selected.name} `);
 	}
+
+	pi.registerCommand("skills", {
+		description: "Find, preview, and invoke a skill",
+		handler: openSkillPicker,
+	});
 
 	pi.registerCommand("prompts", {
 		description: "Pick a prompt template and insert it into the editor",

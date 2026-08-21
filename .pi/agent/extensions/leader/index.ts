@@ -19,7 +19,7 @@ const DEFAULT_CONFIG = {
 	bindings: {
 		m: "/model",
 		"shift+m": "/mcp",
-		s: "/settings",
+		s: "/skills",
 		r: "/resume",
 		t: "/tree",
 		n: "/new",

@@ -23,7 +23,13 @@ export function filterSystemPrompt(
 	skills: readonly PromptSkill[],
 	activeSkillNames: ReadonlySet<string>,
 ): string {
-	const openTag = systemPrompt.indexOf("<available_skills>");
+	// Pi appends its generated skills section after project context. Anchor on
+	// that final introduction instead of the first XML tag because AGENTS.md or
+	// a custom prompt may contain an <available_skills> example of its own.
+	const introStart = systemPrompt.lastIndexOf(`\n\n${SKILLS_INTRO}`);
+	if (introStart === -1) return systemPrompt;
+
+	const openTag = systemPrompt.indexOf("<available_skills>", introStart);
 	const closeTag = systemPrompt.indexOf("</available_skills>", openTag + 1);
 	if (openTag === -1 || closeTag === -1) return systemPrompt;
 
@@ -31,18 +37,13 @@ export function filterSystemPrompt(
 		(skill) => activeSkillNames.has(skill.name) && !skill.disableModelInvocation,
 	);
 	const sectionEnd = closeTag + "</available_skills>".length;
-	const introStart = systemPrompt.lastIndexOf(`\n\n${SKILLS_INTRO}`, openTag);
 
-	if (visibleSkills.length === 0 && introStart !== -1) {
+	if (visibleSkills.length === 0) {
 		return `${systemPrompt.slice(0, introStart)}${systemPrompt.slice(sectionEnd)}`;
 	}
 
 	const replacement = formatSkillsForPrompt(visibleSkills);
-	if (introStart !== -1) {
-		return `${systemPrompt.slice(0, introStart)}${replacement}${systemPrompt.slice(sectionEnd)}`;
-	}
-
-	return `${systemPrompt.slice(0, openTag)}${replacement.trimStart()}${systemPrompt.slice(sectionEnd)}`;
+	return `${systemPrompt.slice(0, introStart)}${replacement}${systemPrompt.slice(sectionEnd)}`;
 }
 
 export function formatSkillsForPrompt(skills: readonly PromptSkill[]): string {

@@ -49,3 +49,24 @@ test("removes the skills section when the session selects none", () => {
 	assert.doesNotMatch(filtered, /available_skills/);
 	assert.match(filtered, /Current working directory: \/tmp\/project/);
 });
+
+test("leaves project examples intact and filters Pi's final skills section", () => {
+	const projectExample = [
+		"Project documentation example:",
+		"<available_skills>",
+		"  <skill><name>project-example</name></skill>",
+		"</available_skills>",
+		"",
+	].join("\n");
+	const prompt = `${projectExample}${basePrompt}`;
+	const filtered = filterSystemPrompt(prompt, skills, new Set(["mcp-scripting"]));
+
+	assert.match(filtered, /<name>project-example<\/name>/);
+	assert.match(filtered, /<name>mcp-scripting<\/name>/);
+	assert.doesNotMatch(filtered, /<name>search-skills<\/name>/);
+});
+
+test("does not rewrite unrelated XML without Pi's skills introduction", () => {
+	const prompt = "Example:\n<available_skills>demo</available_skills>";
+	assert.equal(filterSystemPrompt(prompt, skills, new Set(["mcp-scripting"])), prompt);
+});
