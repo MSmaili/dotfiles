@@ -40,7 +40,7 @@
     "muted": "subtext0",
     "dim": "overlay0",
     "text": "text",
-    "thinkingText": "subtext1",
+    "thinkingText": "overlay1",
 
     "selectedBg": "surface0",
     "userMessageBg": "surface0",
