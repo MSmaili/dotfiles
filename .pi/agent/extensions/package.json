@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "test": "node --experimental-strip-types --test resource-picker/test/*.test.ts",
+    "test": "node --experimental-strip-types --test resource-picker/test/*.test.ts usage/test/*.test.ts",
     "typecheck": "tsc --noEmit",
     "check": "npm run test && npm run typecheck"
   },
@@ -12,6 +12,7 @@
     "@earendil-works/pi-coding-agent": "0.84.2",
     "@earendil-works/pi-tui": "0.84.2",
     "@types/node": "^22.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typebox": "1.3.7"
   }
 }

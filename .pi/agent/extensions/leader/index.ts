@@ -20,6 +20,7 @@ const DEFAULT_CONFIG = {
 		m: "/model",
 		"shift+m": "/mcp",
 		s: "/skills",
+		u: "/usage",
 		r: "/resume",
 		t: "/tree",
 		n: "/new",
