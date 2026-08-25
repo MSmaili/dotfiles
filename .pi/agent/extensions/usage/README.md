@@ -8,8 +8,9 @@ and a tool the model can call mid-task. A durable transcript card is optional.
 │  usage · provider usage & credits                      15:27:04 │
 ├─────────────────────────────────────────────────────────────────┤
 │ ● chatgpt · PLUS                                        ● ok    │
-│   weekly      ████████████████  40% left · in 5d 2h (Fri 20:28) │
-│   spend control: off · reset credits available: 1               │
+│   5-hour         ███████████████ 97% left · in 4h 58m           │
+│   weekly        ████████████████ 99% left · in 6d 23h           │
+│   spend control: off · reset credits available: 0               │
 ├─────────────────────────────────────────────────────────────────┤
 │ ● go                                                      ● ok  │
 │   5-hour rolling  ████████████████  89% left · in 3h 4m         │
@@ -25,7 +26,8 @@ and a tool the model can call mid-task. A durable transcript card is optional.
 ```
 
 Bars are colored green/amber/red by how much is left (≥40% green, ≥20% amber,
-else red).
+else red). ChatGPT's endpoint reports percentages for five-hour and weekly
+windows, not an absolute message or token cap.
 
 ## Usage
 

@@ -62,8 +62,8 @@ export function formatResetTime(window: UsageWindow): string {
 }
 /** Full label for a window. */
 export function formatWindowLabel(window: UsageWindow): string {
-	if (window.windowSeconds === 300) return "5-hour rolling";
-	if (window.windowSeconds === 604800) return "weekly";
+	if (window.windowSeconds === 18_000) return "5-hour";
+	if (window.windowSeconds === 604_800) return "weekly";
 	if (window.windowSeconds === 2_592_000) return "monthly";
 	return window.label;
 }

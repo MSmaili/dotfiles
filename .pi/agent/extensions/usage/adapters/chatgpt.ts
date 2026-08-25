@@ -93,18 +93,23 @@ export async function collectChatgpt(): Promise<ProviderSnapshot> {
 		);
 	}
 
-	// First attempt; on 401 with a refresh token, refresh once and retry.
-	for (let attempt = 0; attempt < 2; attempt++) {
-		const { status, json } = await fetchWham(ctx);
-		if (status === 401 && attempt === 0 && ctx.refresh) {
-			const refreshed = await refreshTokens(ctx);
-			if (!refreshed) break;
-			continue;
+	try {
+		// First attempt; on 401 with a refresh token, refresh once and retry.
+		for (let attempt = 0; attempt < 2; attempt++) {
+			const { status, json } = await fetchWham(ctx);
+			if (status === 401 && attempt === 0 && ctx.refresh) {
+				const refreshed = await refreshTokens(ctx);
+				if (!refreshed) break;
+				continue;
+			}
+			if (status !== 200) {
+				return errorSnapshot(httpErrorDescription(status, json, [ctx.access, ctx.refresh]));
+			}
+			return parseWham(json);
 		}
-		if (status !== 200) {
-			return errorSnapshot(httpErrorDescription(status, json, [ctx.access, ctx.refresh]));
-		}
-		return parseWham(json);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		return errorSnapshot(redact(message, [ctx.access, ctx.refresh]));
 	}
 
 	return errorSnapshot(
@@ -165,7 +170,7 @@ async function refreshTokens(ctx: WhamContext): Promise<boolean> {
 	}
 }
 
-function parseWham(raw: unknown): ProviderSnapshot {
+export function parseWham(raw: unknown): ProviderSnapshot {
 	const data = (raw ?? {}) as WhamRaw;
 	const rateLimit = data.rate_limit ?? data.rate_limits ?? {};
 	const windows: UsageWindow[] = [];
@@ -176,9 +181,9 @@ function parseWham(raw: unknown): ProviderSnapshot {
 		const parsed = parseWindow(primary, "primary");
 		if (parsed) {
 			parsed.label =
-				parsed.windowSeconds === 300
-					? "5-hour rolling"
-					: parsed.windowSeconds === 604800
+				parsed.windowSeconds === 18_000
+					? "5-hour"
+					: parsed.windowSeconds === 604_800
 						? "weekly"
 						: "primary";
 			windows.push(parsed);
@@ -190,10 +195,10 @@ function parseWham(raw: unknown): ProviderSnapshot {
 		const parsed = parseWindow(secondary, "secondary");
 		if (parsed) {
 			parsed.label =
-				parsed.windowSeconds === 604800
+				parsed.windowSeconds === 604_800
 					? "weekly"
-					: parsed.windowSeconds === 300
-						? "5-hour rolling"
+					: parsed.windowSeconds === 18_000
+						? "5-hour"
 						: "secondary";
 			windows.push(parsed);
 		}
@@ -222,8 +227,15 @@ function parseWham(raw: unknown): ProviderSnapshot {
 	}
 
 	const resetCredits = data.rate_limit_reset_credits;
-	if (resetCredits && typeof resetCredits.available_count === "number")
-		extra.push(`reset credits available: ${resetCredits.available_count}`);
+	const availableResetCredits = toNumber(resetCredits?.available_count);
+	const applicableResetCredits = toNumber(resetCredits?.applicable_available_count);
+	if (availableResetCredits != null) {
+		extra.push(
+			applicableResetCredits != null && applicableResetCredits !== availableResetCredits
+				? `reset credits: ${availableResetCredits} banked, ${applicableResetCredits} applicable now`
+				: `reset credits available: ${availableResetCredits}`,
+		);
+	}
 
 	return {
 		provider: "chatgpt",
