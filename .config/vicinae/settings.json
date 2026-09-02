@@ -9,97 +9,125 @@
 // Learn more about configuration at https://docs.vicinae.com/config
 
 {
-   "$schema": "https://vicinae.com/schemas/config.json",
-   "global_shortcuts": {
-      "toggle": "control+SPACE"
-   },
-   "font": {
-      "normal": {
-         "family": "MonoLisaText Variable",
-         "size": 17
+  "$schema": "https://vicinae.com/schemas/config.json",
+  "global_shortcuts": {
+    "toggle": "control+SPACE"
+  },
+  "font": {
+    "normal": {
+      "family": "MonoLisaText Variable",
+      "size": 12
+    }
+  },
+  "theme": {
+    "dark": {
+      "name": "vicinae-dark"
+    }
+  },
+  "telemetry": {
+    "system_info": false
+  },
+  "launcher_window": {
+    "rounding": 10,
+    "opacity": 0,
+    "compact_mode": {
+      "enabled": true
+    },
+    "material": "blur"
+  },
+  "providers": {
+    "@MSmaili/quick-note": {
+      "enabled": false
+    },
+    "@asubbotin/store.raycast.shell": {
+      "preferences": {
+        "arguments_terminal": false,
+        "arguments_terminal_type": "ghostty"
+      },
+      "entrypoints": {
+        "index": {
+          "alias": "!"
+        }
       }
-   },
-   "telemetry": {
-      "system_info": false
-   },
-   "launcher_window": {
-      "rounding": 10,
-      "opacity": 0,
-      "compact_mode": {
-         "enabled": true
+    },
+    "@leonkohli/store.vicinae.process-manager": {
+      "preferences": {
+        "clear-search-after-kill": false,
+        "close-window-after-kill": false,
+        "process-limit": "100",
+        "refresh-interval": "2000",
+        "search-in-paths": true,
+        "search-in-pid": true,
+        "show-path": false,
+        "show-pid": true,
+        "show-system-processes": false,
+        "sort-by-memory": true
       }
-   },
-   "providers": {
-      "@MSmaili/quick-note": {
-         "enabled": false
-      },
-      "@asubbotin/store.raycast.shell": {
-         "preferences": {
-            "arguments_terminal": false,
-            "arguments_terminal_type": "ghostty"
-         },
-         "entrypoints": {
-            "index": {
-               "alias": "!"
-            }
-         }
-      },
-      "@leonkohli/store.vicinae.process-manager": {
-         "preferences": {
-            "clear-search-after-kill": false,
-            "close-window-after-kill": false,
-            "process-limit": "100",
-            "refresh-interval": "2000",
-            "search-in-paths": true,
-            "search-in-pid": true,
-            "show-path": false,
-            "show-pid": true,
-            "show-system-processes": false,
-            "sort-by-memory": true
-         }
-      },
-      "@nikbpetrov/store.vicinae.it-tools": {
-         "enabled": false
-      },
-      "@sameoldlab/store.vicinae.fuzzy-files": {
-         "enabled": false,
-         "entrypoints": {
-            "find": {
-               "alias": "fzf"
-            }
-         }
-      },
-      "browser-extension": {
-         "enabled": false,
-         "entrypoints": {
-            "shortcut-active-tab": {
-               "enabled": true
-            }
-         }
-      },
-      "clipboard": {
-         "enabled": false
-      },
-      "core": {
-         "enabled": true
-      },
-      "developer": {
-         "enabled": false
-      },
-      "manage-shortcuts": {
-         "enabled": false
-      },
-      "raycast-compat": {
-         "enabled": true
-      },
-      "snippets": {
-         "enabled": false
-      },
-      "system": {
-         "enabled": false
-      },
-      "wm": {
-         "enabled": false
+    },
+    "@nikbpetrov/store.vicinae.it-tools": {
+      "enabled": false
+    },
+    "@sameoldlab/store.vicinae.fuzzy-files": {
+      "enabled": false,
+      "entrypoints": {
+        "find": {
+          "alias": "fzf"
+        }
       }
-   }
+    },
+    "browser-extension": {
+      "enabled": false,
+      "entrypoints": {
+        "shortcut-active-tab": {
+          "enabled": true
+        }
+      }
+    },
+    "clipboard": {
+      "enabled": false
+    },
+    "core": {
+      "enabled": true
+    },
+    "developer": {
+      "enabled": false
+    },
+    "files": {
+      "entrypoints": {
+        "search": {
+          "alias": "f"
+        }
+      }
+    },
+    "manage-shortcuts": {
+      "enabled": false
+    },
+    "raycast-compat": {
+      "enabled": true
+    },
+    "scripts": {
+      "preferences": {
+        "customDirs": ["/Users/esmamuh/dotfiles/.config/scripts/"]
+      }
+    },
+    "snippets": {
+      "enabled": false
+    },
+    "system": {
+      "enabled": true,
+      "entrypoints": {
+        "browse-apps": {
+          "enabled": true
+        },
+        "run": {
+          "preferences": {
+            "default-action": "run"
+          }
+        }
+      }
+    },
+    "wm": {
+      "enabled": false
+    }
+  }
 }

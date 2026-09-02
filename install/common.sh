@@ -39,4 +39,8 @@ if has ya && [[ -f "$HOME/.config/yazi/package.toml" ]]; then
     run_cmd ya pkg install
 fi
 
+# Register Vicinae script commands (idempotent; skips if Vicinae absent).
+source "$HELPERS_DIR/vicinae.sh"
+link_vicinae_scripts
+
 echo "✅ Common setup complete!"

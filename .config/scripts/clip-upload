@@ -1,0 +1,255 @@
+#!/usr/bin/env bash
+# @vicinae.schemaVersion 1
+# @vicinae.title Upload Clipboard Image
+# @vicinae.mode compact
+# @vicinae.icon assets/clip-upload.svg
+# @vicinae.description Upload the image on the clipboard to the remote host and copy the resulting URL/path back.
+# @vicinae.argument1 { "type": "text", "placeholder": "profile", "optional": true }
+#
+# clip-upload — send the image on the local clipboard to a remote host.
+#
+# Usage:
+#   clip-upload [profile]
+#
+# The remote file is written to  <DIR>/YYYY-MM-DD-HH-MM-SS.png  and a
+# stable symlink  <DIR>/latest.png  is updated to point at it, so an
+# agent on the server can always read the most-recent screenshot from
+# a well-known path.
+#
+# Profiles are configured via environment variables (typically defined
+# in ~/.zshrc.local):
+#
+#   export CLIP_UPLOAD_PROFILE=dev              # default profile
+#   export CLIP_UPLOAD_dev_HOST="dev_env"
+#   export CLIP_UPLOAD_dev_DIR="~/inbox/screenshots"
+#   export CLIP_UPLOAD_dev_URL=""               # optional public URL prefix
+
+set -euo pipefail
+
+# Minimum viable PATH so homebrew tools (pngpaste, scp, ssh) are reachable
+# when we're started from a bare environment (skhd, launchd, Vicinae).
+# This is only a floor: ~/.zshrc.local is sourced afterwards and is
+# deliberately allowed to override PATH — it is the master config.
+export PATH="$HOME/opt/homebrew/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${PATH:-}"
+
+# Source personal profile config when the caller didn't already export it
+# (e.g. skhd, cron, launchd).
+if [[ -z "${CLIP_UPLOAD_PROFILE:-}" && -f "$HOME/.zshrc.local" ]]; then
+    # shellcheck disable=SC1091
+    set +u
+    source "$HOME/.zshrc.local" >/dev/null 2>&1 || true
+    set -u
+fi
+
+OS="$(uname -s)"
+
+# ----------------------------------------------------------------------
+# Helpers
+# ----------------------------------------------------------------------
+die() { printf 'clip-upload: %s\n' "$*" >&2; exit 1; }
+warn() { printf 'clip-upload: warning: %s\n' "$*" >&2; }
+
+notify() {
+    # $1 = title, $2 = message. Values are passed as argv rather than
+    # interpolated into the AppleScript source, so quotes/backslashes in
+    # the message can't terminate the string or inject code.
+    if [[ "$OS" == "Darwin" ]]; then
+        osascript -e 'on run argv
+            display notification (item 2 of argv) with title (item 1 of argv)
+        end run' "$1" "$2" >/dev/null 2>&1 || true
+    elif command -v notify-send >/dev/null 2>&1; then
+        notify-send "$1" "$2" || true
+    fi
+}
+
+copy_to_local_clipboard() {
+    # Copy plain text (the remote path / URL) to the local clipboard.
+    if command -v pbcopy >/dev/null 2>&1; then
+        printf '%s' "$1" | pbcopy
+    elif command -v wl-copy >/dev/null 2>&1; then
+        printf '%s' "$1" | wl-copy
+    elif command -v xclip >/dev/null 2>&1; then
+        printf '%s' "$1" | xclip -selection clipboard
+    fi
+}
+
+# Grab whatever image is on the clipboard and write it to $1 (path).
+# Returns 0 if a non-empty PNG was written, non-zero otherwise.
+grab_clipboard_image() {
+    local out="$1"
+    case "$OS" in
+        Darwin)
+            command -v pngpaste >/dev/null 2>&1 \
+                || die "'pngpaste' not installed. Run: brew install pngpaste"
+            pngpaste "$out" 2>/dev/null
+            ;;
+        Linux)
+            if [[ -n "${WAYLAND_DISPLAY:-}" ]] && command -v wl-paste >/dev/null 2>&1; then
+                wl-paste --type image/png > "$out" 2>/dev/null
+            elif command -v xclip >/dev/null 2>&1; then
+                xclip -selection clipboard -t image/png -o > "$out" 2>/dev/null
+            else
+                die "Install wl-clipboard (Wayland) or xclip (X11)."
+            fi
+            ;;
+        *)
+            die "Unsupported OS: $OS"
+            ;;
+    esac
+    [[ -s "$out" ]]
+}
+
+# ----------------------------------------------------------------------
+# Cleanup — ONE handler for every temporary resource.
+#
+# Bash keeps a single handler per signal, so registering a second
+# `trap ... EXIT` silently discards the first. Everything that needs
+# removing goes through here.
+# ----------------------------------------------------------------------
+WORKDIR=""
+LOCKDIR=""
+LOCK_OWNED=false
+
+cleanup() {
+    # Plain `if` blocks, not `&&` chains: a false chain would be a failing
+    # command under `set -e` and would abort the rest of the handler.
+    if [[ -n "$WORKDIR" ]]; then
+        rm -rf "$WORKDIR"
+    fi
+    # Only ever remove the lock we created — never one held by another run.
+    if ${LOCK_OWNED} && [[ -n "$LOCKDIR" ]]; then
+        rm -rf "$LOCKDIR"
+    fi
+    return 0
+}
+trap cleanup EXIT
+
+# ----------------------------------------------------------------------
+# Resolve profile
+# ----------------------------------------------------------------------
+PROFILE="${1:-${CLIP_UPLOAD_PROFILE:-dev}}"
+
+# The profile name is used to build variable names for indirect expansion,
+# so restrict it to characters that are legal in a shell identifier. Without
+# this, a stray character produces a cryptic "invalid variable name" abort.
+[[ "$PROFILE" =~ ^[A-Za-z0-9_]+$ ]] \
+    || die "invalid profile name '$PROFILE' (letters, digits and underscore only)"
+
+host_var="CLIP_UPLOAD_${PROFILE}_HOST"
+dir_var="CLIP_UPLOAD_${PROFILE}_DIR"
+url_var="CLIP_UPLOAD_${PROFILE}_URL"
+
+HOST="${!host_var:-}"
+DIR="${!dir_var:-~/inbox/screenshots}"
+URL="${!url_var:-}"
+
+[[ -n "$HOST" ]] || die "Profile '$PROFILE' has no host. Set ${host_var} in ~/.zshrc.local."
+
+# DIR is interpolated into a command that the *remote* shell parses, so
+# reject anything that could be metacharacters there. Combined with the
+# quoting below this keeps the remote command injection-free.
+[[ "$DIR" =~ ^[A-Za-z0-9_~./-]+$ ]] \
+    || die "unsafe remote directory '$DIR' in ${dir_var} (allowed: letters, digits, _ ~ . / -)"
+
+# Rewrite a leading ~ into a remote $HOME reference so the path can be
+# double-quoted on the far side and still expand to the user's home.
+case "$DIR" in
+    "~")   REMOTE_DIR='$HOME' ;;
+    "~/"*) REMOTE_DIR='$HOME/'"${DIR#\~/}" ;;
+    *)     REMOTE_DIR="$DIR" ;;
+esac
+
+# ----------------------------------------------------------------------
+# Single-flight lock — prevents accidental double-uploads when the user
+# taps the hotkey again because they didn't get instant feedback.
+# ----------------------------------------------------------------------
+LOCKDIR="${TMPDIR:-/tmp}/clip-upload.$(id -u).lock"
+if mkdir "$LOCKDIR" 2>/dev/null; then
+    LOCK_OWNED=true
+else
+    # If the previous holder is dead, clear the stale lock and retry once.
+    stale_pid="$(cat "$LOCKDIR/pid" 2>/dev/null || true)"
+    if [[ -n "$stale_pid" ]] && ! kill -0 "$stale_pid" 2>/dev/null; then
+        rm -rf "$LOCKDIR"
+        mkdir "$LOCKDIR" 2>/dev/null \
+            || die "could not acquire lock $LOCKDIR"
+        LOCK_OWNED=true
+    else
+        notify "clip-upload" "Upload already in progress"
+        exit 0
+    fi
+fi
+echo "$$" > "$LOCKDIR/pid"
+
+# ----------------------------------------------------------------------
+# Grab image
+# ----------------------------------------------------------------------
+# mktemp -d gives us an atomically-created, 0700 directory; the .png inside
+# it inherits that protection. (Appending ".png" to a `mktemp` filename
+# would produce a path mktemp never created, losing the guarantee.)
+WORKDIR="$(mktemp -d "${TMPDIR:-/tmp}/clip-upload.XXXXXX")"
+IMG="$WORKDIR/clip.png"
+
+if ! grab_clipboard_image "$IMG"; then
+    notify "clip-upload" "No image on clipboard"
+    die "clipboard does not contain a PNG image"
+fi
+
+FILENAME="$(date +%Y-%m-%d-%H-%M-%S).png"
+
+# Immediate feedback: the upload can take a couple of seconds, and without
+# this users think nothing happened and press the hotkey again.
+# NOTE: braces around ${HOST} are required, not cosmetic — in a UTF-8 locale
+# bash absorbs the following "…" into the variable name, so "$HOST…" aborts
+# with `HOST…: unbound variable` under `set -u`.
+notify "Uploading to ${HOST}…" "$FILENAME"
+
+# ----------------------------------------------------------------------
+# Upload
+# ----------------------------------------------------------------------
+# BatchMode=yes is important: when launched from skhd/Vicinae there is no
+# TTY, so an ssh prompt (passphrase, unknown host key) would block forever
+# while holding the lock. Better to fail loudly.
+SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=10)
+
+# One connection instead of three (mkdir + scp + ln). The image arrives on
+# stdin; it is written to a dot-prefixed temp name and renamed, so a reader
+# following latest.png can never observe a half-written file.
+remote_script="set -e
+umask 022
+mkdir -p \"$REMOTE_DIR\"
+cat > \"$REMOTE_DIR/.$FILENAME.part\"
+mv \"$REMOTE_DIR/.$FILENAME.part\" \"$REMOTE_DIR/$FILENAME\"
+ln -sfn \"$REMOTE_DIR/$FILENAME\" \"$REMOTE_DIR/latest.png\" || exit 9"
+
+set +e
+ssh "${SSH_OPTS[@]}" "$HOST" "$remote_script" < "$IMG"
+ssh_status=$?
+set -e
+
+case "$ssh_status" in
+    0) ;;
+    9) warn "uploaded, but could not update latest.png symlink" ;;
+    255)
+        die "ssh could not connect to '$HOST'. If this host is new, run 'ssh $HOST true' once interactively to accept the key / unlock your passphrase."
+        ;;
+    *)
+        notify "Upload failed" "$HOST"
+        die "upload to $HOST:$DIR/$FILENAME failed (exit $ssh_status)"
+        ;;
+esac
+
+# ----------------------------------------------------------------------
+# Feedback
+# ----------------------------------------------------------------------
+REMOTE_PATH="$DIR/$FILENAME"
+if [[ -n "$URL" ]]; then
+    # Strip trailing slash from URL for consistent concatenation.
+    RESULT="${URL%/}/$FILENAME"
+else
+    RESULT="$HOST:$REMOTE_PATH"
+fi
+
+copy_to_local_clipboard "$RESULT"
+notify "Uploaded ✓" "$HOST:$REMOTE_PATH"
+printf '%s\n' "$RESULT"

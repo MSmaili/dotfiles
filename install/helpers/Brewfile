@@ -19,6 +19,7 @@ brew "docker-compose"
 brew "colima"
 brew "age"
 brew "pnpm"
+brew "pngpaste"        # read PNG from macOS clipboard (used by clip-upload)
 
 # Window management
 brew "asmvik/formulae/yabai"
