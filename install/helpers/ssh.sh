@@ -25,6 +25,11 @@ setup_ssh() {
     fi
 
     echo "Fetching SSH work config from 1Password..."
+    if ${DRY_RUN:-false}; then
+        echo "[DRY RUN] Would write the SSH_WORK_CONFIG document to ~/.ssh/config.work"
+        return 0
+    fi
+
     if op document get "SSH_WORK_CONFIG" > ~/.ssh/config.work 2>/dev/null; then
         chmod 600 ~/.ssh/config.work
         echo "✓ SSH work config imported from 1Password"

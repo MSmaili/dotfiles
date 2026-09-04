@@ -52,6 +52,10 @@ ensure_brew_installed() {
             skip_with_message "Skipping Homebrew installation."
             return 0
         fi
+        if ${DRY_RUN:-false}; then
+            echo "[DRY RUN] Would run the Homebrew installer from raw.githubusercontent.com"
+            return 0
+        fi
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         eval "$(/opt/homebrew/bin/brew shellenv)"
     fi

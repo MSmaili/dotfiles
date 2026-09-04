@@ -25,6 +25,16 @@ install_sonarlint() {
         return 0
     fi
 
+    # Each step needs the file that the step before it wrote, so the sequence
+    # cannot run command by command under run_cmd. Report the plan instead.
+    if ${DRY_RUN:-false}; then
+        echo "[DRY RUN] Would query the latest SonarLint release from GitHub"
+        echo "[DRY RUN] Would download the VSIX and verify its checksum"
+        echo "[DRY RUN] Would extract it to $HOME/.local/opt/sonarlint/current"
+        echo "[DRY RUN] Would write $HOME/.local/bin/sonarlint-language-server"
+        return 0
+    fi
+
     local base="$HOME/.local/opt/sonarlint"
     local bin="$HOME/.local/bin"
     local tmp
