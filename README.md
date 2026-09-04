@@ -60,7 +60,6 @@ The install script detects the platform. Then it runs the correct package manage
 | `.zshrc`            | Shell configuration             |
 | `.config/nvim/`     | Neovim setup                    |
 | `.config/tmux/`     | Tmux configuration              |
-| `.config/hetki/`    | Workspaces for tmux sessions    |
 | `.config/yazi/`     | Yazi file manager               |
 | `.config/git/`      | Git configuration and delta     |
 | `.config/gh/`       | GitHub CLI preferences          |
@@ -105,8 +104,9 @@ go install github.com/MSmaili/hetki@latest
 ```
 
 hetki starts and switches the tmux sessions. The `prefix + o` key binding opens
-it. The workspace files are in `.config/hetki/workspaces/`. Each file names the
-sessions, the windows, and the paths.
+it. The workspace files are in `~/.config/hetki/workspaces/`. Each file names
+the sessions, the windows, and the paths. This repository does not hold these
+files, because the sessions differ on each machine.
 
 To update the tool later, run:
 
