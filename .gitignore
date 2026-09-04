@@ -10,6 +10,8 @@
 .config/tmux/plugins
 .zshrc.local
 
+.config/gh/hosts.yml
+
 # Override global gitignore — track .kiro/ in dotfiles
 !.kiro/
 !.claude/
