@@ -54,7 +54,7 @@ WORDCHARS="${WORDCHARS//[\/=\-]/}"
 
 # Basic environment
 export EDITOR=nvim
-export TERM=xterm-256color
+# export TERM=xterm-256color
 
 export XDG_CONFIG_HOME="$HOME/.config"
 
@@ -175,6 +175,8 @@ alias kpf='kubectl port-forward'
 # Hash directories for quick movement
 hash -d dotfiles="$HOME/dotfiles"
 hash -d vaults="$HOME/.vaults"
+
+alias restow='stow --dir="$HOME/dotfiles" --target="$HOME" --restow .'
 
 # Conditional aliases
 command -v lazydocker >/dev/null 2>&1 && alias ld="lazydocker"
