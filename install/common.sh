@@ -3,6 +3,7 @@ set -euo pipefail
 
 source "$HELPERS_DIR/utils.sh"
 source "$HELPERS_DIR/pi-agent.sh"
+source "$HELPERS_DIR/kiro.sh"
 
 run_cmd mkdir -p ~/.config/zsh ~/.config/tmux
 
@@ -25,6 +26,7 @@ fi
 if has stow; then
     echo "🔗 Linking dotfiles..."
     prepare_pi_agent
+    prepare_kiro
     run_cmd stow \
         --dir="$DOTFILES_DIR" \
         --target="$HOME" \
