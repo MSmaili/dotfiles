@@ -55,6 +55,7 @@ usage/
     http.ts           JSON fetch with timeout
     chatgpt.ts        ChatGPT plan (WHAM usage endpoint + OAuth refresh)
     opencode.ts       OpenCode Go usage + OpenCode Zen (probe)
+    zai.ts            z.ai GLM Coding Plan (quota/limit monitor endpoint)
     index.ts          adapter registry + cache
   dashboard.ts        overlay panel components + line builders
   card.ts             transcript card renderer

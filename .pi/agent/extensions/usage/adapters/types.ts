@@ -6,7 +6,7 @@
  * provider means adding one adapter file, nothing else changes.
  */
 
-export type ProviderId = "chatgpt" | "opencode-go" | "opencode-zen";
+export type ProviderId = "chatgpt" | "opencode-go" | "opencode-zen" | "zai";
 
 /** A single usage window (e.g. rolling 5h, weekly, monthly). */
 export interface UsageWindow {

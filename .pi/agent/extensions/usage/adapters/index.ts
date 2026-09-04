@@ -7,12 +7,14 @@
 
 import { collectChatgpt } from "./chatgpt.ts";
 import { collectOpencodeGo, collectOpencodeZen } from "./opencode.ts";
+import { collectZai } from "./zai.ts";
 import type { Adapter, ProviderId, ProviderSnapshot, UsageSnapshot } from "./types.ts";
 
 const ADAPTERS: Adapter[] = [
 	{ id: "chatgpt", displayName: "chatgpt", collect: collectChatgpt },
 	{ id: "opencode-go", displayName: "go", collect: collectOpencodeGo },
 	{ id: "opencode-zen", displayName: "zen", collect: collectOpencodeZen },
+	{ id: "zai", displayName: "z.ai", collect: collectZai },
 ];
 
 const CACHE_TTL_MS = 60_000;

@@ -28,7 +28,7 @@ const SHOW_CARD_IN_TRANSCRIPT = process.env.PI_USAGE_SHOW_CARD === "1";
 
 export default function (pi: ExtensionAPI): void {
 	pi.registerCommand("usage", {
-		description: "Show remaining usage & credits for AI providers (chatgpt, go, zen)",
+		description: "Show remaining usage & credits for AI providers (chatgpt, go, zen, z.ai)",
 		handler: async (args, ctx) => {
 			const arg = args.trim().toLowerCase();
 			const force = arg.includes("refresh") || arg.includes("force");
@@ -66,7 +66,7 @@ export default function (pi: ExtensionAPI): void {
 		name: "usage_check",
 		label: "Usage Check",
 		description:
-			"Check remaining usage and credits for the connected AI providers (ChatGPT plan, OpenCode Go, OpenCode Zen). Returns percent remaining per usage window, reset times, credits and spend-control status. Use when the user asks about remaining quota, usage, or credits.",
+			"Check remaining usage and credits for the connected AI providers (ChatGPT plan, OpenCode Go, OpenCode Zen, z.ai). Returns percent remaining per usage window, reset times, credits and spend-control status. Use when the user asks about remaining quota, usage, or credits.",
 		promptSnippet: "Check remaining quota/credits for connected AI providers",
 		parameters: Type.Object({}),
 		async execute() {

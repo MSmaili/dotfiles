@@ -46,6 +46,11 @@ interface AuthFileShape {
 		key?: string;
 		[key: string]: unknown;
 	};
+	"zai-coding-cn"?: {
+		type?: string;
+		key?: string;
+		[key: string]: unknown;
+	};
 	[key: string]: unknown;
 }
 
@@ -72,11 +77,14 @@ export async function getChatgptCredentials(): Promise<ChatgptCredentials> {
 }
 
 export async function getApiKeyCredentials(
-	provider: "opencode" | "opencode-go",
+	provider: "opencode" | "opencode-go" | "zai",
 ): Promise<ApiKeyCredentials> {
 	const auth = await readAuthFile();
 	if (provider === "opencode") {
 		return { key: auth.opencode?.key ?? process.env.OPENCODE_ZEN_API_KEY };
+	}
+	if (provider === "zai") {
+		return { key: auth["zai-coding-cn"]?.key ?? process.env.ZHIPUAI_API_KEY };
 	}
 	return { key: auth["opencode-go"]?.key ?? process.env.OPENCODE_GO_API_KEY };
 }
