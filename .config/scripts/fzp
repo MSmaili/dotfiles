@@ -10,10 +10,7 @@ FZP_PARSER_SRC="${XDG_CONFIG_HOME:-$HOME/.config}/scripts/fzp-parser"
 die() { printf 'error: %s\n' "$*" >&2; exit 1; }
 
 check_core_tools() {
-  local tool
-  for tool in fzf jq; do
-    command -v "$tool" >/dev/null 2>&1 || die "missing required tool: $tool"
-  done
+  command -v fzf >/dev/null 2>&1 || die "missing required tool: fzf"
 
   if [[ -x "$FZP_PARSER_BIN" ]]; then
     return
@@ -35,8 +32,12 @@ check_core_tools() {
 }
 
 ensure_yaml_parser() {
+  # Rebuild when the binary is missing or older than any source file, otherwise
+  # an edit to main.go would never take effect.
   if [[ -x "$FZP_PARSER_BIN" ]]; then
-    return 0
+    local newer
+    newer="$(find "$FZP_PARSER_SRC" -name '*.go' -newer "$FZP_PARSER_BIN" -print -quit 2>/dev/null || true)"
+    [[ -z "$newer" ]] && return 0
   fi
 
   if command -v go >/dev/null 2>&1 && [[ -f "$FZP_PARSER_SRC/main.go" ]]; then
@@ -76,34 +77,13 @@ Channels dir: $CHANNELS_DIR
 EOF
 }
 
-join_with_pipe() {
-  local out=""
-  local part
-  for part in "$@"; do
-    [[ -n "$part" ]] || continue
-    if [[ -z "$out" ]]; then
-      out="$part"
-    else
-      out="$out | $part"
-    fi
-  done
-  printf '%s' "$out"
-}
-
-channel_catalog_json() {
+channel_catalog_tsv() {
   ensure_yaml_parser || die "failed to build YAML parser from $FZP_PARSER_SRC"
-  "$FZP_PARSER_BIN" catalog "$CHANNELS_DIR"
+  "$FZP_PARSER_BIN" catalog-tsv "$CHANNELS_DIR"
 }
 
 list_channels() {
-  channel_catalog_json | jq -r '.[].name'
-}
-
-load_channel_json() {
-  local channel="$1"
-
-  ensure_yaml_parser || die "failed to build YAML parser from $FZP_PARSER_SRC"
-  "$FZP_PARSER_BIN" load "$channel" "$CHANNELS_DIR" "$FZP_HEIGHT"
+  channel_catalog_tsv | cut -f1
 }
 
 check_requirements() {
@@ -127,7 +107,7 @@ pick_channel() {
   local selected=""
 
   selected="$(
-    channel_catalog_json | jq -r '.[] | [.name, .description, .path] | @tsv' | \
+    channel_catalog_tsv | \
       fzf \
         --height "$FZP_HEIGHT" \
         --prompt "channel> " \
@@ -141,38 +121,25 @@ pick_channel() {
   printf '%s\n' "${selected%%$'\t'*}"
 }
 
-run_source() {
-  local cfg_json="$1"
-  local cmd cwd
-  local -a env_args=()
-
-  cmd="$(jq -r '.source.command // ""' <<<"$cfg_json")"
-  cwd="$(jq -r '.source.cwd // ""' <<<"$cfg_json")"
-
-  [[ -n "$cmd" ]] || die "channel has no source command"
-
-  while IFS= read -r line; do
-    env_args+=("$line")
-  done < <(jq -r '.source.env // {} | to_entries[]? | "\(.key)=\(.value)"' <<<"$cfg_json")
-
-  if [[ -n "$cwd" ]]; then
+# Runs the channel source. Reads source_cmd, source_cwd and env_args from the
+# caller's scope.
+emit_source() {
+  if [[ -n "$source_cwd" ]]; then
     if [[ ${#env_args[@]} -gt 0 ]]; then
       (
-        cd "$cwd"
-        env "${env_args[@]}" bash -lc "$cmd"
+        cd "$source_cwd"
+        env "${env_args[@]}" bash -lc "$source_cmd"
       )
     else
       (
-        cd "$cwd"
-        bash -lc "$cmd"
+        cd "$source_cwd"
+        bash -lc "$source_cmd"
       )
     fi
+  elif [[ ${#env_args[@]} -gt 0 ]]; then
+    env "${env_args[@]}" bash -lc "$source_cmd"
   else
-    if [[ ${#env_args[@]} -gt 0 ]]; then
-      env "${env_args[@]}" bash -lc "$cmd"
-    else
-      bash -lc "$cmd"
-    fi
+    bash -lc "$source_cmd"
   fi
 }
 
@@ -230,128 +197,40 @@ run_channel() {
   local ch="$1"
   local query="${2:-}"
   local scope_file="${3:-}"
-  local cfg_json
+  local spec
+  spec="$(mktemp "${TMPDIR:-/tmp}/fzp-spec.XXXXXX")"
 
-  cfg_json="$(load_channel_json "$ch")" || die "failed to load channel: $ch"
+  ensure_yaml_parser || die "failed to build YAML parser from $FZP_PARSER_SRC"
 
-  local -a requires=()
-  local dep opt
-  while IFS= read -r dep; do
-    requires+=("$dep")
-  done < <(jq -r '.requires[]?' <<<"$cfg_json")
+  if ! "$FZP_PARSER_BIN" fzf-args "$ch" "$CHANNELS_DIR" "$FZP_HEIGHT" "$query" "$scope_file" > "$spec"; then
+    rm -f "$spec"
+    exit 1
+  fi
+
+  # One record is a tag and a value, each terminated by NUL. The parser has
+  # already assembled the fzf arguments, so no per-field subprocess is needed.
+  local -a args=() requires=() env_args=()
+  local source_cmd="" source_cwd=""
+  local tag val
+  while IFS= read -r -d '' tag && IFS= read -r -d '' val; do
+    case "$tag" in
+      arg) args+=("$val") ;;
+      req) requires+=("$val") ;;
+      src_cmd) source_cmd="$val" ;;
+      src_cwd) source_cwd="$val" ;;
+      env) env_args+=("$val") ;;
+    esac
+  done < "$spec"
+  rm -f "$spec"
+
   if [[ ${#requires[@]} -gt 0 ]]; then
     check_requirements "$ch" "${requires[@]}"
-  fi
-
-  local prompt preview preview_window delimiter header height
-  local multi ansi no_sort
-  prompt="$(jq -r '.prompt' <<<"$cfg_json")"
-  preview="$(jq -r '.preview.command' <<<"$cfg_json")"
-  preview_window="$(jq -r '.preview.window' <<<"$cfg_json")"
-  delimiter="$(jq -r '.source.delimiter // ""' <<<"$cfg_json")"
-  header="$(jq -r '.header // ""' <<<"$cfg_json")"
-  height="$(jq -r '.height // "100%"' <<<"$cfg_json")"
-  multi="$(jq -r '.multi' <<<"$cfg_json")"
-  ansi="$(jq -r '.source.ansi' <<<"$cfg_json")"
-  no_sort="$(jq -r '.source.no_sort' <<<"$cfg_json")"
-
-  local -a args=(
-    --height "$height"
-    --prompt "$prompt"
-    --query "$query"
-    --preview "$preview"
-    --preview-window "$preview_window"
-    --bind "ctrl-s:become(fzp)"
-  )
-
-  [[ "$multi" == "true" ]] && args+=(--multi)
-  [[ -n "$delimiter" ]] && args+=(--delimiter "$delimiter")
-  [[ "$ansi" == "true" ]] && args+=(--ansi)
-  [[ "$no_sort" == "true" ]] && args+=(--no-sort)
-
-  local -a help_items=("ctrl-s:channels")
-
-  local nav_json key target label bind
-  while IFS= read -r nav_json; do
-    key="$(jq -r '.key' <<<"$nav_json")"
-    target="$(jq -r '.target' <<<"$nav_json")"
-    label="$(jq -r '.label' <<<"$nav_json")"
-    [[ -n "$key" && -n "$target" ]] || continue
-
-    if [[ -n "$scope_file" ]]; then
-      bind="$key:become(fzp --scope-file '$scope_file' $target)"
-    else
-      bind="$key:become(fzp $target)"
-    fi
-
-    args+=(--bind "$bind")
-    help_items+=("$key:$label")
-  done < <(jq -c '.navigation[]?' <<<"$cfg_json")
-
-  local action_json mode cmd field
-  while IFS= read -r action_json; do
-    key="$(jq -r '.key' <<<"$action_json")"
-    mode="$(jq -r '.mode' <<<"$action_json")"
-    label="$(jq -r '.label' <<<"$action_json")"
-    cmd="$(jq -r '.command // ""' <<<"$action_json")"
-    target="$(jq -r '.target // ""' <<<"$action_json")"
-    field="$(jq -r '.field // ""' <<<"$action_json")"
-
-    [[ -n "$key" ]] || continue
-
-    case "$mode" in
-      execute|execute-silent|become|reload)
-        [[ -n "$cmd" ]] || die "action '$key' in '$ch' missing command"
-        bind="$key:$mode($cmd)"
-        ;;
-      silent)
-        [[ -n "$cmd" ]] || die "action '$key' in '$ch' missing command"
-        bind="$key:execute-silent($cmd)"
-        ;;
-      raw)
-        [[ -n "$cmd" ]] || die "action '$key' in '$ch' missing command"
-        bind="$key:$cmd"
-        ;;
-      scope-nav)
-        [[ -n "$target" ]] || die "action '$key' in '$ch' missing target"
-        if [[ -n "$field" ]]; then
-          bind="$key:become(fzp _scope-and-run $target {+$field})"
-        else
-          bind="$key:become(fzp _scope-and-run $target {+})"
-        fi
-        ;;
-      *)
-        die "invalid action mode '$mode' in channel '$ch'"
-        ;;
-    esac
-
-    args+=(--bind "$bind")
-    help_items+=("$key:$label")
-  done < <(jq -c '.actions[]?' <<<"$cfg_json")
-
-  local help_text
-  help_text="$(join_with_pipe "${help_items[@]}")"
-
-  if [[ -n "$header" && -n "$help_text" ]]; then
-    args+=(--header "$header | $help_text")
-  elif [[ -n "$header" ]]; then
-    args+=(--header "$header")
-  elif [[ -n "$help_text" ]]; then
-    args+=(--header "$help_text")
-  fi
-
-  local -a extra_opts=()
-  while IFS= read -r opt; do
-    extra_opts+=("$opt")
-  done < <(jq -r '.fzf_options[]?' <<<"$cfg_json")
-  if [[ ${#extra_opts[@]} -gt 0 ]]; then
-    args+=("${extra_opts[@]}")
   fi
 
   export FZP_SCOPE_FILE="$scope_file"
 
   set +e
-  run_source "$cfg_json" | fzf "${args[@]}"
+  emit_source | fzf "${args[@]}"
   local status=$?
   set -e
 

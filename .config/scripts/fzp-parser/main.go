@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -37,6 +38,30 @@ func main() {
 			fail(err.Error())
 		}
 		emitJSON(out)
+	case "catalog-tsv":
+		if len(os.Args) != 3 {
+			fail("usage: fzp-yaml-parser catalog-tsv <channels_dir>")
+		}
+		out, err := buildCatalog(os.Args[2])
+		if err != nil {
+			fail(err.Error())
+		}
+		w := bufio.NewWriter(os.Stdout)
+		for _, entry := range out {
+			fmt.Fprintf(w, "%s\t%s\t%s\n", entry["name"], entry["description"], entry["path"])
+		}
+		if err := w.Flush(); err != nil {
+			fail(err.Error())
+		}
+	case "fzf-args":
+		if len(os.Args) != 7 {
+			fail("usage: fzp-yaml-parser fzf-args <channel> <channels_dir> <default_height> <query> <scope_file>")
+		}
+		pairs, err := buildFzfArgs(os.Args[2], os.Args[3], os.Args[4], os.Args[5], os.Args[6])
+		if err != nil {
+			fail(err.Error())
+		}
+		emitPairs(pairs)
 	default:
 		fail("unknown command: " + os.Args[1])
 	}
@@ -240,6 +265,177 @@ func loadChannel(channel, dir, defaultHeight string) (map[string]any, error) {
 	}
 
 	return out, nil
+}
+
+// pair is one tagged record in the fzf-args output stream.
+type pair struct {
+	tag string
+	val string
+}
+
+// emitPairs writes tag/value records separated by NUL bytes. The shell reads
+// two fields at a time, so any character except NUL is safe in a value.
+func emitPairs(pairs []pair) {
+	w := bufio.NewWriter(os.Stdout)
+	for _, p := range pairs {
+		w.WriteString(p.tag)
+		w.WriteByte(0)
+		w.WriteString(p.val)
+		w.WriteByte(0)
+	}
+	if err := w.Flush(); err != nil {
+		fail(err.Error())
+	}
+}
+
+// buildFzfArgs turns a channel definition into the complete fzf argument list
+// plus everything the shell needs to run the source command. Doing the whole
+// assembly here keeps the wrapper to a single subprocess.
+func buildFzfArgs(channel, dir, defaultHeight, query, scopeFile string) ([]pair, error) {
+	cfg, err := loadChannel(channel, dir, defaultHeight)
+	if err != nil {
+		return nil, err
+	}
+
+	source := toMap(cfg["source"])
+	preview := toMap(cfg["preview"])
+
+	sourceCommand := toString(source["command"])
+	if sourceCommand == "" {
+		return nil, errors.New("channel has no source command")
+	}
+
+	out := []pair{}
+	add := func(tag, val string) { out = append(out, pair{tag, val}) }
+	addArg := func(vals ...string) {
+		for _, v := range vals {
+			add("arg", v)
+		}
+	}
+
+	// Dependencies the shell verifies with command -v before starting fzf.
+	for _, dep := range toStringSlice(cfg["requires"]) {
+		if dep != "" {
+			add("req", dep)
+		}
+	}
+
+	// How to produce the candidate list.
+	add("src_cmd", sourceCommand)
+	add("src_cwd", toString(source["cwd"]))
+	envKeys := sortedKeys(toMap(source["env"]))
+	for _, k := range envKeys {
+		add("env", k+"="+toString(toMap(source["env"])[k]))
+	}
+
+	addArg("--height", toString(cfg["height"]))
+	addArg("--prompt", toString(cfg["prompt"]))
+	addArg("--query", query)
+	addArg("--preview", toString(preview["command"]))
+	addArg("--preview-window", toString(preview["window"]))
+	addArg("--bind", "ctrl-s:become(fzp)")
+
+	if toBool(cfg["multi"]) {
+		addArg("--multi")
+	}
+	if delimiter := toString(source["delimiter"]); delimiter != "" {
+		addArg("--delimiter", delimiter)
+	}
+	if toBool(source["ansi"]) {
+		addArg("--ansi")
+	}
+	if toBool(source["no_sort"]) {
+		addArg("--no-sort")
+	}
+
+	helpItems := []string{"ctrl-s:channels"}
+
+	// Navigation keys jump to another channel, carrying the scope file when the
+	// current view is already restricted to a selection.
+	for _, nav := range cfg["navigation"].([]map[string]string) {
+		key, target, label := nav["key"], nav["target"], nav["label"]
+		if key == "" || target == "" {
+			continue
+		}
+		bind := key + ":become(fzp " + target + ")"
+		if scopeFile != "" {
+			bind = key + ":become(fzp --scope-file " + shellEscape(scopeFile) + " " + target + ")"
+		}
+		addArg("--bind", bind)
+		helpItems = append(helpItems, key+":"+label)
+	}
+
+	for _, action := range cfg["actions"].([]map[string]any) {
+		key := toString(action["key"])
+		if key == "" {
+			continue
+		}
+		mode := toString(action["mode"])
+		label := toString(action["label"])
+		command := toString(action["command"])
+		target := toString(action["target"])
+		field := toString(action["field"])
+
+		var bind string
+		switch mode {
+		case "execute", "execute-silent", "become", "reload":
+			if command == "" {
+				return nil, fmt.Errorf("action '%s' in '%s' missing command", key, channel)
+			}
+			bind = key + ":" + mode + "(" + command + ")"
+		case "silent":
+			if command == "" {
+				return nil, fmt.Errorf("action '%s' in '%s' missing command", key, channel)
+			}
+			bind = key + ":execute-silent(" + command + ")"
+		case "raw":
+			if command == "" {
+				return nil, fmt.Errorf("action '%s' in '%s' missing command", key, channel)
+			}
+			bind = key + ":" + command
+		case "scope-nav":
+			if target == "" {
+				return nil, fmt.Errorf("action '%s' in '%s' missing target", key, channel)
+			}
+			placeholder := "{+}"
+			if field != "" {
+				placeholder = "{+" + field + "}"
+			}
+			bind = key + ":become(fzp _scope-and-run " + target + " " + placeholder + ")"
+		default:
+			return nil, fmt.Errorf("invalid action mode '%s' in channel '%s'", mode, channel)
+		}
+
+		addArg("--bind", bind)
+		helpItems = append(helpItems, key+":"+label)
+	}
+
+	header := toString(cfg["header"])
+	helpText := joinWithPipe(helpItems)
+	switch {
+	case header != "" && helpText != "":
+		addArg("--header", header+" | "+helpText)
+	case header != "":
+		addArg("--header", header)
+	case helpText != "":
+		addArg("--header", helpText)
+	}
+
+	for _, opt := range toStringSlice(cfg["fzf_options"]) {
+		addArg(opt)
+	}
+
+	return out, nil
+}
+
+func joinWithPipe(parts []string) string {
+	kept := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p != "" {
+			kept = append(kept, p)
+		}
+	}
+	return strings.Join(kept, " | ")
 }
 
 func parseYAML(path string) (map[string]any, error) {
