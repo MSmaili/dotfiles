@@ -5,7 +5,7 @@ CHANNELS_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/fzp/channels.d"
 FZP_HEIGHT="${FZP_HEIGHT:-100%}"
 FZP_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/fzp"
 FZP_PARSER_BIN="$FZP_CACHE_DIR/fzp-yaml-parser"
-FZP_PARSER_SRC="${XDG_CONFIG_HOME:-$HOME/.config}/scripts/fzp-parser"
+FZP_PARSER_SRC="${XDG_CONFIG_HOME:-$HOME/.config}/fzp/parser"
 
 die() { printf 'error: %s\n' "$*" >&2; exit 1; }
 
