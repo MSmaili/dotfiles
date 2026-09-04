@@ -9,6 +9,19 @@ FZP_PARSER_SRC="${XDG_CONFIG_HOME:-$HOME/.config}/fzp/parser"
 
 die() { printf 'error: %s\n' "$*" >&2; exit 1; }
 
+# Temporary files are tracked at script level. A trap on a function-local
+# variable does not work, because the EXIT trap runs after the function returns
+# and the variable is then out of scope.
+FZP_TMP_SPEC=""
+FZP_TMP_SCOPE=""
+
+cleanup_tmp() {
+  [[ -n "$FZP_TMP_SPEC" ]] && rm -f "$FZP_TMP_SPEC"
+  [[ -n "$FZP_TMP_SCOPE" ]] && rm -f "$FZP_TMP_SCOPE"
+  return 0
+}
+trap cleanup_tmp EXIT INT TERM
+
 check_core_tools() {
   command -v fzf >/dev/null 2>&1 || die "missing required tool: fzf"
 
@@ -187,7 +200,8 @@ scope_and_run() {
   fi
 
   local scope_file
-  scope_file="$(mktemp "/tmp/fzp-scope.XXXXXX")"
+  FZP_TMP_SCOPE="$(mktemp "${TMPDIR:-/tmp}/fzp-scope.XXXXXX")"
+  scope_file="$FZP_TMP_SCOPE"
   printf '%s\n' "$@" > "$scope_file"
 
   fzp --scope-file "$scope_file" "$target"
@@ -198,7 +212,8 @@ run_channel() {
   local query="${2:-}"
   local scope_file="${3:-}"
   local spec
-  spec="$(mktemp "${TMPDIR:-/tmp}/fzp-spec.XXXXXX")"
+  FZP_TMP_SPEC="$(mktemp "${TMPDIR:-/tmp}/fzp-spec.XXXXXX")"
+  spec="$FZP_TMP_SPEC"
 
   ensure_yaml_parser || die "failed to build YAML parser from $FZP_PARSER_SRC"
 

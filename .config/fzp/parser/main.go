@@ -358,9 +358,9 @@ func buildFzfArgs(channel, dir, defaultHeight, query, scopeFile string) ([]pair,
 		if key == "" || target == "" {
 			continue
 		}
-		bind := key + ":become(fzp " + target + ")"
+		bind := key + ":become(fzp " + shellEscape(target) + ")"
 		if scopeFile != "" {
-			bind = key + ":become(fzp --scope-file " + shellEscape(scopeFile) + " " + target + ")"
+			bind = key + ":become(fzp --scope-file " + shellEscape(scopeFile) + " " + shellEscape(target) + ")"
 		}
 		addArg("--bind", bind)
 		helpItems = append(helpItems, key+":"+label)
@@ -403,7 +403,7 @@ func buildFzfArgs(channel, dir, defaultHeight, query, scopeFile string) ([]pair,
 			if field != "" {
 				placeholder = "{+" + field + "}"
 			}
-			bind = key + ":become(fzp _scope-and-run " + target + " " + placeholder + ")"
+			bind = key + ":become(fzp _scope-and-run " + shellEscape(target) + " " + placeholder + ")"
 		default:
 			return nil, fmt.Errorf("invalid action mode '%s' in channel '%s'", mode, channel)
 		}

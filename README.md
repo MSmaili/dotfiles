@@ -66,7 +66,7 @@ The install script detects the platform. Then it runs the correct package manage
 | `.config/fzp/`      | Channels for the `fzp` picker   |
 | `.config/scripts/`  | Personal scripts on the `PATH`  |
 | `.config/opencode/` | opencode configuration          |
-| `.kiro/`            | Kiro agents, settings, steering |
+| `.kiro/`            | Kiro agents and settings        |
 | `.pi/agent/`        | Pi agent configuration          |
 
 The repository also holds configurations for Aerospace and WezTerm. The install script does not install these two tools. The configurations stay in the repository for other machines.

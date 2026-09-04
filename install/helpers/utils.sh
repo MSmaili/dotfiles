@@ -82,7 +82,7 @@ install_zsh() {
     fi
 
     local zsh_path
-    zsh_path=$(which zsh)
+    zsh_path=$(command -v zsh)
 
     if [[ "$SHELL" == "$zsh_path" ]]; then
         echo "✓ Zsh is already your default shell."

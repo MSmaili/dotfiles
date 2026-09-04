@@ -61,27 +61,34 @@ install_sonarlint() {
         return 1
     fi
 
-    local asset="" download_url asset_name
+    local asset="" download_url asset_name expected_sha
     if [[ -n "$platform" ]]; then
-        asset=$(echo "$release_data" | jq -r ".assets[] | select(.name | contains(\"$platform\")) | {url: .browser_download_url, name: .name}")
+        asset=$(echo "$release_data" | jq -c --arg p "$platform" \
+            'first(.assets[] | select(.name | contains($p)) | {url: .browser_download_url, name: .name, digest: .digest})')
     fi
 
     # Fallback to universal
     if [[ -z "$asset" || "$asset" == "null" ]]; then
-        asset=$(echo "$release_data" | jq -r '.assets[] | select(.name | test("^sonarlint-vscode-[0-9].*\\.vsix$")) | {url: .browser_download_url, name: .name}')
+        asset=$(echo "$release_data" | jq -c \
+            'first(.assets[] | select(.name | test("^sonarlint-vscode-[0-9].*\\.vsix$")) | {url: .browser_download_url, name: .name, digest: .digest})')
     fi
 
-    download_url=$(echo "$asset" | jq -r '.url')
-    asset_name=$(echo "$asset" | jq -r '.name')
+    download_url=$(echo "$asset" | jq -r '.url // ""')
+    asset_name=$(echo "$asset" | jq -r '.name // ""')
 
     if [[ -z "$download_url" || "$download_url" == "null" ]]; then
         _sonarlint_fail "$tmp" "Failed to find SonarLint release"
         return 1
     fi
 
-    # Get SHA256 from release body
-    local expected_sha
-    expected_sha=$(echo "$release_data" | jq -r --arg name "$asset_name" '.body | split("\n") | .[] | select(contains($name)) | split("\n")[1] | gsub("sha256:"; "") | gsub(" "; "")')
+    # The release notes hold no checksum. Read the digest that the API reports
+    # for the asset itself.
+    expected_sha=$(echo "$asset" | jq -r '.digest // "" | sub("^sha256:"; "")')
+
+    if [[ -z "$expected_sha" ]]; then
+        _sonarlint_fail "$tmp" "The API reports no digest for $asset_name. Refusing to install without a checksum."
+        return 1
+    fi
 
     echo "📦 Downloading SonarLint ($asset_name)..."
     if ! curl -fsSL "$download_url" -o "$tmp/sonarlint.vsix"; then
@@ -89,17 +96,15 @@ install_sonarlint() {
         return 1
     fi
 
-    # Verify checksum if available
-    if [[ -n "$expected_sha" && "$expected_sha" != "null" ]]; then
-        echo "🔐 Verifying checksum..."
-        local actual_sha
-        actual_sha=$(shasum -a 256 "$tmp/sonarlint.vsix" | awk '{print $1}')
-        if [[ "$actual_sha" != "$expected_sha" ]]; then
-            _sonarlint_fail "$tmp" "Checksum mismatch!"
-            return 1
-        fi
-        echo "✓ Checksum verified"
+    # Verify the checksum
+    echo "🔐 Verifying checksum..."
+    local actual_sha
+    actual_sha=$(shasum -a 256 "$tmp/sonarlint.vsix" | awk '{print $1}')
+    if [[ "$actual_sha" != "$expected_sha" ]]; then
+        _sonarlint_fail "$tmp" "Checksum mismatch! expected $expected_sha, got $actual_sha"
+        return 1
     fi
+    echo "✓ Checksum verified"
 
     # Verify valid zip
     if ! unzip -t "$tmp/sonarlint.vsix" &>/dev/null; then
