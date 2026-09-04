@@ -1,14 +1,14 @@
 # Dotfiles
 
-My personal dotfiles for development setup.
+These are my personal dotfiles for a development setup.
 
-As name suggests, this is a personal configuration, maybe you do not like what I am doing, so you should adjust or pick things you like.
+This is a personal configuration. If you do not like a part of it, change that part or select only the parts that you want.
 
 <img width="2874" height="1620" alt="Neovim setup screenshot" src="https://github.com/user-attachments/assets/2c110a4b-cfba-4273-885f-c1ecaaf8d396" />
 
 ## Quick Setup
 
-Good advise is to read the script before running.
+Read the script before you run it.
 
 ```bash
 git clone https://github.com/MSmaili/dotfiles ~/dotfiles
@@ -16,111 +16,123 @@ cd ~/dotfiles
 ./install.sh
 ```
 
-To preview what will be installed without making changes:
+To see the planned actions before you make changes, use the dry-run mode:
 
 ```bash
 ./install.sh --dry-run
 ```
 
+The dry-run mode prints each command. It does not change the system.
+
 ## Supported Platforms
 
-- **macOS** - Homebrew + GUI apps
-- **Ubuntu** - APT packages
-- **Fedora** - DNF packages
+| Platform | Package manager |
+| -------- | --------------- |
+| macOS    | Homebrew        |
+| Ubuntu   | APT             |
+| Fedora   | DNF             |
 
-## What's Included
+The install script detects the platform. Then it runs the correct package manager.
+
+## What the Setup Includes
 
 ### Applications
 
 - **Terminal**: Ghostty
-- **Window Manager**: Aerospace (macOS)
-- **Development**: Neovim, Lazygit, Lazydocker, Yazi
-- **Coding Agent**: Pi, installed through mise and configured in `.pi/agent/`
+- **Window manager (macOS)**: yabai with skhd for the key bindings
+- **Launcher (macOS)**: Vicinae
+- **Tmux sessions**: hetki
+- **Development**: Neovim, Lazygit, Lazydocker, Yazi, btop, GitHub CLI
+- **Coding agents**: Kiro, Pi, opencode
 
-### Shell Setup
+### Shell
 
-- **Shell**: Zsh with Zinit
-- **Theme**: Pure
-- **Plugins**: autosuggestions, syntax-highlighting
-- **Tools**: fzf, fd, bat, tmux
+- **Shell**: Zsh
+- **Plugin manager**: Zinit
+- **Prompt**: Pure
+- **Plugins**: autosuggestions, fast-syntax-highlighting, completions, fzf-tab
+- **Tools**: fzf, fd, bat, ripgrep, delta, tmux
 
 ### Configurations
 
-- `.zshrc` - Shell configuration
-- `.config/nvim/` - Neovim setup
-- `.config/tmux/` - Tmux configuration
-- `.config/yazi/` - Yazi file-manager configuration
-- `.config/*/` - Various app configs
+| Path                | Purpose                         |
+| ------------------- | ------------------------------- |
+| `.zshrc`            | Shell configuration             |
+| `.config/nvim/`     | Neovim setup                    |
+| `.config/tmux/`     | Tmux configuration              |
+| `.config/hetki/`    | Workspaces for tmux sessions    |
+| `.config/yazi/`     | Yazi file manager               |
+| `.config/git/`      | Git configuration and delta     |
+| `.config/gh/`       | GitHub CLI preferences          |
+| `.config/fzp/`      | Channels for the `fzp` picker   |
+| `.config/scripts/`  | Personal scripts on the `PATH`  |
+| `.config/opencode/` | opencode configuration          |
+| `.kiro/`            | Kiro agents, settings, steering |
+| `.pi/agent/`        | Pi agent configuration          |
 
-## Manual Steps After Install
+The repository also holds configurations for Aerospace and WezTerm. The install script does not install these two tools. The configurations stay in the repository for other machines.
 
-1. **Install tmux plugins**
+## How the Linking Works
 
-Inside tmux, press:
+GNU Stow makes the symbolic links from the repository into `$HOME`. Stow does not copy the files. Each linked path points to one file in the repository. If you edit the file through either path, you edit the same file.
+
+Run this command after you add a file to the repository or remove a file from it:
+
+```bash
+restow
+```
+
+The `restow` alias comes from `.zshrc`. Existing links continue to work without this command. Only a new file or a removed file needs it.
+
+## Manual Steps After the Install
+
+### 1. Install the tmux plugins
+
+Start tmux. Then press:
 
 ```text
 prefix + I
 ```
 
-to install/update all plugins.
+The prefix is `Ctrl-a`.
 
----
+### 2. Install hetki
 
-2. **Recommended versions**
-
-For best compatibility with the custom scripts and commands used here, it’s recommended to have at least:
-
-- **tmux** version **3.2a**
-- **bash** version **5.x**
-
----
-
-3. **Custom tmux session script**
-
-You can define your own project/session layout in:
+The Brewfile and the mise configuration do not provide hetki. Install it with Go:
 
 ```bash
-~/.tmux-session.json
+go install github.com/MSmaili/hetki@latest
 ```
 
-Use the following format:
+hetki starts and switches the tmux sessions. The `prefix + o` key binding opens
+it. The workspace files are in `.config/hetki/workspaces/`. Each file names the
+sessions, the windows, and the paths.
 
-- Each **key** is a session name.
-- Each **value** is an array of window paths for that session.
-
-Example:
-
-```json
-{
-  "nvim": ["~/.config/nvim"],
-  "dotfiles": ["~/dotfiles"]
-}
-```
-
-Then run:
+To update the tool later, run:
 
 ```bash
-tmux_init
+hetki update
 ```
 
-This will automatically create tmux sessions based on the configuration in `~/.tmux-session.json`.
+### 3. Recommended versions
 
-You will also have a simple tmux-session switcher available.
+Use at least these versions for full compatibility with the scripts here:
 
----
+- tmux 3.2a or later
+- bash 5.x or later
 
 ## Local Configuration
 
-Some files are gitignored for personal settings:
+Git ignores the files below. Use them for personal settings.
 
-**`.zshrc.local`** - Personal shell config (sourced by `.zshrc`)
+`.zshrc.local` holds personal shell settings. `.zshrc` reads this file.
 
 ```bash
-# Example: Add personal paths, API keys, work-specific aliases
+# Example: personal paths, API keys, or work aliases
 export WORK_DIR="$HOME/work"
 ```
 
-**`.config/git/config.local`** - Personal git config (included by `.config/git/config`)
+`.config/git/config.local` holds the personal Git identity. `.config/git/config` includes this file.
 
 ```bash
 [user]
