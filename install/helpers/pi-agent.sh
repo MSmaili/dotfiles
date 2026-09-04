@@ -13,7 +13,14 @@ prepare_pi_agent() {
         "$agent_dir/themes"
 
     # Pi loads this file in every session. Keep the vault copy canonical while
-    # preserving any existing user-owned global context file.
+    # preserving any existing user-owned global context file. A link that points
+    # at a missing target is replaced, because an absolute path from another
+    # machine or user does not resolve here.
+    if [[ -L "$global_context" && ! -e "$global_context" ]]; then
+        echo "Replacing the broken Pi global context link."
+        run_cmd rm -f "$global_context"
+    fi
+
     if [[ ! -e "$global_context" && ! -L "$global_context" ]]; then
         run_cmd ln -s "$vault_policy" "$global_context"
     elif [[ ! -L "$global_context" ]]; then

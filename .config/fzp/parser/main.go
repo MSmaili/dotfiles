@@ -352,7 +352,8 @@ func buildFzfArgs(channel, dir, defaultHeight, query, scopeFile string) ([]pair,
 
 	// Navigation keys jump to another channel, carrying the scope file when the
 	// current view is already restricted to a selection.
-	for _, nav := range cfg["navigation"].([]map[string]string) {
+	navItems, _ := cfg["navigation"].([]map[string]string)
+	for _, nav := range navItems {
 		key, target, label := nav["key"], nav["target"], nav["label"]
 		if key == "" || target == "" {
 			continue
@@ -365,7 +366,8 @@ func buildFzfArgs(channel, dir, defaultHeight, query, scopeFile string) ([]pair,
 		helpItems = append(helpItems, key+":"+label)
 	}
 
-	for _, action := range cfg["actions"].([]map[string]any) {
+	actionItems, _ := cfg["actions"].([]map[string]any)
+	for _, action := range actionItems {
 		key := toString(action["key"])
 		if key == "" {
 			continue
