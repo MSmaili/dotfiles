@@ -30,9 +30,7 @@ node_modules
 ^/\.ssh/1Password$
 
 # Dotfiles installation files
-^install\.sh$
-^/install
-^/install\.sh
-install
-^/Brewfile
-^/\.stow-local-ignore
+^/install$
+^/install\.sh$
+^/Brewfile$
+^/\.stow-local-ignore$
