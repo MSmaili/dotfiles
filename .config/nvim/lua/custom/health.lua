@@ -9,6 +9,44 @@ local function theme_exists(name)
 	return vim.tbl_contains(available, name)
 end
 
+-- Check parsers have a reachable highlights query; dangling query symlinks
+-- break highlighting silently, since vim.treesitter.start() still succeeds.
+local function check_treesitter()
+	local ok, ts_config = pcall(require, "nvim-treesitter.config")
+	if not ok then
+		vim.health.warn("nvim-treesitter is not loaded; skipped query check")
+		return
+	end
+
+	local parsers = ts_config.get_installed("parsers")
+	if #parsers == 0 then
+		vim.health.warn("No treesitter parsers are installed")
+		return
+	end
+
+	local missing = {}
+	for _, lang in ipairs(parsers) do
+		if #vim.treesitter.query.get_files(lang, "highlights") == 0 then
+			table.insert(missing, lang)
+		end
+	end
+
+	if #missing == 0 then
+		vim.health.ok(("All %d treesitter parsers have a highlights query"):format(#parsers))
+		return
+	end
+
+	table.sort(missing)
+	vim.health.error(
+		("%d of %d parsers have no highlights query: %s"):format(#missing, #parsers, table.concat(missing, ", ")),
+		{
+			"These filetypes render with no highlighting at all.",
+			"Usually dangling symlinks after $HOME changed: ls -l " .. ts_config.get_install_dir("queries"),
+			"Fix with :TSInstall! " .. table.concat(missing, " "),
+		}
+	)
+end
+
 function M.check()
 	vim.health.start("Custom Configuration")
 
@@ -45,6 +83,9 @@ function M.check()
 	else
 		vim.health.warn("In-memory state differs from saved state (will sync on next save)")
 	end
+
+	vim.health.start("Custom Treesitter")
+	check_treesitter()
 end
 
 return M
