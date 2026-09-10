@@ -46,6 +46,8 @@ SLIDEV_SKILLS=(
 DOCS_SKILLS=(
     "https://github.com/anthropics/skills --skill docx"
     "https://github.com/anthropics/skills --skill pptx"
+    "https://github.com/anthropics/skills --skill pdf"
+    "https://github.com/anthropics/skills --skill xlsx"
 )
 
 TARGETS=()

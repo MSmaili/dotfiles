@@ -68,20 +68,30 @@ yabai -m rule --add app="^Cloudflare WARP$"            manage=off
 
 # ---------------------------------------------------------------------------
 # NOTE: yabai uses real macOS Spaces. The referenced space must already exist
-# in Mission Control, otherwise the rule silently no-ops. Create spaces 6–9
-# manually if you need them.
+# in Mission Control, otherwise the label/rule silently no-ops. Create spaces
+# 1–6 manually if you need them.
 # ---------------------------------------------------------------------------
-yabai -m rule --add app="^Ghostty$"             space=1
-yabai -m rule --add app="^WezTerm$"             space=1
-yabai -m rule --add app="^Brave Browser$"       space=2
-yabai -m rule --add app="^Finder$"              space=3
-yabai -m rule --add app="^Obsidian$"            space=3
-yabai -m rule --add app="^qSpace Pro$"          space=3 manage=off
-yabai -m rule --add app="^Microsoft Teams"      space=4
-yabai -m rule --add app="^Discord$"             space=4
-yabai -m rule --add app="^Microsoft Outlook$"   space=5
-yabai -m rule --add app="^Thunderbird$"         space=5
-yabai -m rule --add app="^Keynote$"             space=8
+yabai -m space 1 --label term
+yabai -m space 2 --label web
+yabai -m space 3 --label files
+yabai -m space 4 --label chat
+yabai -m space 5 --label mail
+yabai -m space 6 --label slides
+
+# ---------------------------------------------------------------------------
+# App → space rules (reference labels, not indices).
+# ---------------------------------------------------------------------------
+yabai -m rule --add app="^Ghostty$"             space=term
+yabai -m rule --add app="^WezTerm$"             space=term
+yabai -m rule --add app="^Brave Browser$"       space=web
+yabai -m rule --add app="^Finder$"              space=files
+yabai -m rule --add app="^Obsidian$"            space=files
+yabai -m rule --add app="^qSpace Pro$"          space=files manage=off
+yabai -m rule --add app="^Microsoft Teams"      space=chat
+yabai -m rule --add app="^Discord$"             space=chat
+yabai -m rule --add app="^Microsoft Outlook$"   space=mail
+yabai -m rule --add app="^Thunderbird$"         space=mail
+yabai -m rule --add app="^Keynote$"             space=slides
 
 # ---------------------------------------------------------------------------
 # Signals — reload rules when SIP-protected apps launch, etc.

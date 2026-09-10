@@ -19,7 +19,7 @@ font-feature = calt, liga, zero, dlig, cv01, cv02, cv04, cv07, cv08, ss01, ss11,
 
 cursor-style = block
 cursor-style-blink = false
-shell-integration-features = no-cursor
+shell-integration-features = no-cursor,ssh-env,ssh-terminfo
 copy-on-select = true
 cursor-invert-fg-bg = false
 cursor-color = "#a6adc8"

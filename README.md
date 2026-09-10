@@ -55,19 +55,19 @@ The install script detects the platform. Then it runs the correct package manage
 
 ### Configurations
 
-| Path                | Purpose                         |
-| ------------------- | ------------------------------- |
-| `.zshrc`            | Shell configuration             |
-| `.config/nvim/`     | Neovim setup                    |
-| `.config/tmux/`     | Tmux configuration              |
-| `.config/yazi/`     | Yazi file manager               |
-| `.config/git/`      | Git configuration and delta     |
-| `.config/gh/`       | GitHub CLI preferences          |
-| `.config/fzp/`      | Channels for the `fzp` picker   |
-| `.config/scripts/`  | Personal scripts on the `PATH`  |
-| `.config/opencode/` | opencode configuration          |
-| `.kiro/`            | Kiro agents and settings        |
-| `.pi/agent/`        | Pi agent configuration          |
+| Path                | Purpose                        |
+| ------------------- | ------------------------------ |
+| `.zshrc`            | Shell configuration            |
+| `.config/nvim/`     | Neovim setup                   |
+| `.config/tmux/`     | Tmux configuration             |
+| `.config/yazi/`     | Yazi file manager              |
+| `.config/git/`      | Git configuration and delta    |
+| `.config/gh/`       | GitHub CLI preferences         |
+| `.config/fzp/`      | Channels for the `fzp` picker  |
+| `.config/scripts/`  | Personal scripts on the `PATH` |
+| `.config/opencode/` | opencode configuration         |
+| `.kiro/`            | Kiro agents and settings       |
+| `.pi/agent/`        | Pi agent configuration         |
 
 The repository also holds configurations for Aerospace and WezTerm. The install script does not install these two tools. The configurations stay in the repository for other machines.
 
