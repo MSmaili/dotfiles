@@ -2,7 +2,7 @@
 go = "latest"
 bun = "latest"
 java = "21"
-node = "22"
+node = "24"
 rust = "latest"
 lua = "5.4"
 python = "3.13"
