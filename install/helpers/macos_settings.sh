@@ -48,6 +48,34 @@ run_cmd defaults write com.apple.finder _FXSortFoldersFirst -bool true
 # Search current folder by default
 run_cmd defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
 
+# Open new Finder windows in Downloads
+run_cmd defaults write com.apple.finder NewWindowTarget -string "PfLo"
+run_cmd defaults write com.apple.finder NewWindowTargetPath -string "file://$HOME/Downloads/"
+
+###############################################################################
+# Screenshots
+###############################################################################
+
+# Keep screenshots off the Desktop
+run_cmd mkdir -p "$HOME/Downloads/Screenshots"
+run_cmd defaults write com.apple.screencapture location -string "$HOME/Downloads/Screenshots"
+
+###############################################################################
+# Mission Control (yabai)
+###############################################################################
+
+# Keep Space indices stable for yabai rules and shortcuts
+run_cmd defaults write com.apple.dock mru-spaces -bool false
+
+# Enable "Displays have separate Spaces" (requires logout/login if changed)
+run_cmd defaults write com.apple.spaces spans-displays -bool false
+
+# Show desktop items so yabai can reliably focus displays and Spaces
+run_cmd defaults write com.apple.WindowManager StandardHideDesktopIcons -bool false
+
+# Click wallpaper to reveal Desktop only in Stage Manager
+run_cmd defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
+
 ###############################################################################
 # Windows
 ###############################################################################

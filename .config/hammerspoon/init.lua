@@ -59,7 +59,12 @@ spoon.Leader.create(meh, "space", {
 	s = {
 		label = "Screenshot",
 		group = {
-			a = { label = "Area", action = spoon.Leader.open("shottr://grab/area") },
+			a = {
+				label = "Area",
+				action = function()
+					hs.eventtap.keyStroke({ "ctrl", "cmd", "shift" }, "4", 0)
+				end,
+			},
 			o = { label = "OCR", action = spoon.Leader.open("shottr://ocr") },
 			w = { label = "Window", action = spoon.Leader.open("shottr://grab/window") },
 			f = { label = "Fullscreen", action = spoon.Leader.open("shottr://grab/fullscreen") },
