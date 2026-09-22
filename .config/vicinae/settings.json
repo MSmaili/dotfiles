@@ -10,6 +10,9 @@
 
 {
   "$schema": "https://vicinae.com/schemas/config.json",
+  "tray": {
+    "enabled": false
+  },
   "global_shortcuts": {
     "toggle": "control+SPACE"
   },

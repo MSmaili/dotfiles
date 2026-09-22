@@ -1,0 +1,33 @@
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "theme": {
+    "name": "catppuccin-macchiato"
+  },
+  "tabs": {
+    "mode": "off",
+    "layout": "horizontal",
+    "enabled": false
+  },
+  "keybinds": {
+    "theme.switch": "<leader>v",
+    "session.rename": "none",
+    "session.delete": "none",
+    "session.interrupt": "escape,escape",
+    "session.child.first": "<leader>down",
+    "agent.cycle": "<leader>tab",
+    "agent.cycle.reverse": "<leader>shift+tab",
+    "variant.cycle": "none",
+    "variant.list": "ctrl+t",
+    "session.page.up": "pageup",
+    "session.page.down": "pagedown",
+    "session.toggle.thinking": "<leader>d",
+    "prompt.skills": "<leader>s",
+    "opencode.status": "none",
+    "which-key.toggle": "<leader>k"
+  },
+  "session": {
+    "sidebar": "hide",
+    "thinking": "show",
+    "permissions": "autoaccept"
+  }
+}
