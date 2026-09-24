@@ -76,6 +76,11 @@ run_cmd defaults write com.apple.WindowManager StandardHideDesktopIcons -bool fa
 # Click wallpaper to reveal Desktop only in Stage Manager
 run_cmd defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
 
+# Do not follow app windows across Spaces on activation.
+# When off, invoking Ghostty from the global quick-terminal hotkey does not
+# yank you to whichever Space its regular windows live on.
+run_cmd defaults write NSGlobalDomain AppleSpacesSwitchOnActivate -bool false
+
 ###############################################################################
 # Windows
 ###############################################################################

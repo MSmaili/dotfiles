@@ -1,35 +1,97 @@
-theme = Catppuccin Mocha
-background-opacity = 0.90
-background-blur = 30
+# =============================================================================
+# Appearance
+# =============================================================================
+theme                  = light:Catppuccin Latte,dark:Catppuccin Mocha
+background-opacity     = 0.90
+background-blur        = 30
 background-blur-radius = 30
-macos-titlebar-style = hidden
-progress-style = true
-macos-option-as-alt = true
-# show the border around
-macos-window-shadow = true
-#minimum-contrast = 2
-#bold-is-bright = true
+alpha-blending         = linear-corrected
+progress-style         = true
 
+# Optional extras (uncomment to enable)
+#minimum-contrast = 2
+#bold-color       = bright
+
+# =============================================================================
 # Fonts
-font-family = "MonoLisaCode Variable"
-font-size = 17
+# =============================================================================
+font-family    = "MonoLisaCode Variable"
+font-size      = 18
 font-variation = wght=430
 font-variation = GRAD=20
-font-feature = calt, liga, zero, dlig, cv01, cv02, cv04, cv07, cv08, ss01, ss11, ss14
+font-feature   = calt, liga, zero, dlig, cv01, cv02, cv04, cv07, cv08, ss01, ss11, ss14
 
-cursor-style = block
-cursor-style-blink = false
-shell-integration-features = no-cursor,ssh-env,ssh-terminfo
-copy-on-select = true
+# =============================================================================
+# Cursor
+# =============================================================================
+cursor-style        = block
+cursor-style-blink  = false
 cursor-invert-fg-bg = false
-cursor-color = "#a6adc8"
-cursor-text = "#1e1e2e"
+cursor-color        = "#a6adc8"
+cursor-text         = "#1e1e2e"
 
-window-padding-x = 5
-window-padding-y = 5,1
+# =============================================================================
+# Window
+# =============================================================================
+macos-titlebar-style = hidden
+macos-window-shadow  = true
+macos-option-as-alt  = true
+window-padding-x     = 5
+window-padding-y     = 5,1
 
-#cilpboard
+# =============================================================================
+# Shell integration
+# =============================================================================
+# no-cursor  : keep our configured cursor-style at the prompt
+# ssh-env    : forward COLORTERM / TERM_PROGRAM over ssh
+# ssh-terminfo : install xterm-ghostty terminfo on remote hosts on first ssh
+# sudo       : preserve TERMINFO through sudo so root sessions render correctly
+shell-integration-features = no-cursor,ssh-env,ssh-terminfo,sudo
+
+# =============================================================================
+# Clipboard
+# =============================================================================
+copy-on-select  = true
 clipboard-write = allow
-clipboard-read = allow
+clipboard-read  = allow
 
+# =============================================================================
+# Bell & notifications
+# =============================================================================
+# attention : bounce the dock icon while unfocused
+# title     : show a bell icon in the tab title until refocused
+# border    : flash the surface border on the alerted pane
+# system    : play the macOS alert sound (whatever is picked in System Settings)
+bell-features = attention,title,border,system
+
+# Native notification when a slow command finishes while Ghostty is not focused.
+# Requires OSC 133 prompt marks (provided by shell-integration = detect).
+notify-on-command-finish       = unfocused
+notify-on-command-finish-after = 30s
+
+# =============================================================================
+# Undo history
+# =============================================================================
+# 60s window to reopen a closed split / tab / window with cmd+z.
+undo-timeout = 60s
+
+# =============================================================================
+# Quick terminal (Quake-style drop-down)
+# =============================================================================
+# Toggled globally with meh+t (ctrl+alt+shift+t) from any app.
+# Requires macOS Accessibility permission (System Settings > Privacy & Security).
+quick-terminal-position           = top
+quick-terminal-size               = 70%
+quick-terminal-screen             = main
+quick-terminal-animation-duration = 0.15
+quick-terminal-autohide           = true
+quick-terminal-space-behavior     = move
+
+# =============================================================================
+# Keybindings
+# =============================================================================
+# tmux prefix + o : switch to last tmux window (sends ctrl+a then o)
 keybind = cmd+p=text:\x01o
+
+# Toggle the quick terminal from anywhere on macOS
+keybind = global:ctrl+alt+shift+t=toggle_quick_terminal
