@@ -58,7 +58,7 @@ return {
 			menu = {
 				-- auto_show = true,
 				auto_show = function()
-					return vim.bo.filetype ~= "markdown"
+					return vim.b.wiremux_compose == true or vim.bo.filetype ~= "markdown"
 				end,
 				border = "rounded",
 				-- mini icons text
@@ -90,18 +90,29 @@ return {
 		},
 		signature = { enabled = true, window = { border = "rounded" } },
 		sources = {
-			default = { "lsp", "path", "snippets", "buffer" },
+			default = function()
+				local sources = { "lsp", "path", "snippets", "buffer" }
+				-- Select before importing the provider to keep the adapter lazy-loaded.
+				if vim.b.wiremux_compose == true then
+					sources[#sources + 1] = "wiremux"
+				end
+				return sources
+			end,
 			per_filetype = {
 				-- Dbee
 				sql = { "dbee", "buffer" }, -- Add any other source to include here
 			},
 			providers = {
 				dbee = { name = "cmp-dbee", module = "blink.compat.source" },
+				wiremux = {
+					name = "Wiremux",
+					module = "wiremux.completion.blink",
+					opts = { preview = true },
+				},
 			},
 		},
 		fuzzy = { implementation = "rust" },
 	},
-	opts_extend = { "sources.default" },
 	config = function(_, opts)
 		require("blink.cmp").setup(opts)
 
