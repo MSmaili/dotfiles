@@ -1,0 +1,178 @@
+# Native Spaces trial; do not run alongside Dinky, AeroSpace or yabai.
+# Background/login startup: mimi services install. Validate: mimi config validate
+# Default ~/.config/skhd/skhdrc loads the hotkeys beside this file.
+
+[settings]
+log_file = "~/.local/state/mimi/mimi.log"
+log_level = "info"
+# Include mise's Python shims in the service environment.
+service_path = "/Users/muhametsmaili/.local/share/mise/shims:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+
+[systray]
+enabled = true
+show_workspace_number = true
+
+[mouse]
+focus_follows_mouse = false
+
+[border]
+enabled = true
+width = 1
+placement = "outside"
+active_color = "#80ffffff" # white, about 50% opacity (AARRGGBB)
+inactive_color = "#00414141"
+
+[hooks]
+on_workspace_changed = [
+  { run = "/usr/bin/python3 -B ~/.config/mimi/space_history.py record" },
+]
+
+[tiling]
+enabled = true
+layout = "python3 -B ~/.config/mimi/layout.py"
+layout_mode = "resident"
+debounce_ms = 50
+timeout_secs = 5
+gap = 10
+# This layout implements keyboard resizing, not drag-to-swap/resize.
+relayout_on_drag = false
+
+[tiling.animation]
+enabled = false
+
+[tiling.stackbar]
+enabled = false
+
+# Space numbering follows native Mission Control order. All nine already exist.
+# Rules also apply to existing windows at startup/reload. Do not steal focus.
+# 1 terminal, 2 web, 3 files/notes, 4 chat, 5 mail, 6/7 spare, 8 slides, 9 spare.
+[[tiling.rules]]
+bundle_id = "com.mitchellh.ghostty"
+space = 1
+follow = false
+
+[[tiling.rules]]
+bundle_id = "com.github.wez.wezterm"
+space = 1
+follow = false
+
+[[tiling.rules]]
+bundle_id = "com.brave.Browser"
+space = 2
+follow = false
+
+[[tiling.rules]]
+bundle_id = "com.apple.finder"
+space = 3
+follow = false
+
+[[tiling.rules]]
+bundle_id = "md.obsidian"
+space = 3
+follow = false
+
+[[tiling.rules]]
+bundle_id = "com.jinghaoshe.qspace.pro"
+space = 3
+follow = false
+manage = false
+
+[[tiling.rules]]
+bundle_id = "com.microsoft.teams2"
+space = 4
+follow = false
+
+[[tiling.rules]]
+bundle_id = "com.hnc.Discord"
+space = 4
+follow = false
+
+[[tiling.rules]]
+bundle_id = "com.microsoft.Outlook"
+space = 5
+follow = false
+
+[[tiling.rules]]
+bundle_id = "org.mozilla.thunderbird"
+space = 5
+follow = false
+
+[[tiling.rules]]
+bundle_id = "com.apple.iWork.Keynote"
+space = 8
+follow = false
+
+# Global floating rules come last: mimi's last matching rule wins.
+[[tiling.rules]]
+app = "System Settings"
+manage = false
+
+[[tiling.rules]]
+app = "System Preferences"
+manage = false
+
+[[tiling.rules]]
+app = "Calculator"
+manage = false
+
+[[tiling.rules]]
+app = "Shottr"
+manage = false
+
+[[tiling.rules]]
+app = "BetterDisplay"
+manage = false
+
+[[tiling.rules]]
+app = "Daily Wallpaper*"
+manage = false
+
+[[tiling.rules]]
+app = "PastePal"
+manage = false
+
+[[tiling.rules]]
+app = "Mac Mouse Fix"
+manage = false
+
+[[tiling.rules]]
+app = "Homerow"
+manage = false
+
+[[tiling.rules]]
+app = "Monarch"
+manage = false
+
+[[tiling.rules]]
+app = "Archive Utility"
+manage = false
+
+[[tiling.rules]]
+app = "Raycast"
+manage = false
+
+[[tiling.rules]]
+app = "Floaty"
+manage = false
+
+[[tiling.rules]]
+app = "Cloudflare WARP"
+manage = false
+
+[[tiling.rules]]
+app = "Vicinae"
+manage = false
+
+[[tiling.rules]]
+bundle_id = "com.apple.finder"
+title = "^(Copy|Move|Info|Preferences)"
+manage = false
+
+[[tiling.rules]]
+title = "^(Settings|Preferences)$"
+manage = false
+
+[[tiling.rules]]
+narrower_than = 400
+shorter_than = 300
+manage = false

@@ -1,0 +1,52 @@
+# Mimi hotkeys, loaded by the default ~/.config/skhd/skhdrc.
+# Run one skhd instance only; do not run Dinky/AeroSpace/yabai alongside mimi.
+# Native Cmd+Tab and Ctrl+Left/Right are deliberately left intact.
+
+# Focus windows, like the previous yabai bindings.
+alt - h : /opt/homebrew/bin/mimi tiling cmd focus left
+alt - j : /opt/homebrew/bin/mimi tiling cmd focus down
+alt - k : /opt/homebrew/bin/mimi tiling cmd focus up
+alt - l : /opt/homebrew/bin/mimi tiling cmd focus right
+shift + alt - h : /opt/homebrew/bin/mimi tiling cmd swap left
+shift + alt - j : /opt/homebrew/bin/mimi tiling cmd swap down
+shift + alt - k : /opt/homebrew/bin/mimi tiling cmd swap up
+shift + alt - l : /opt/homebrew/bin/mimi tiling cmd swap right
+
+# Layout: BSP or fully overlapping stack, like yabai.
+alt - b : /opt/homebrew/bin/mimi tiling cmd layout bsp
+alt - s : /opt/homebrew/bin/mimi tiling cmd layout stack
+
+# Window toggles: no native fullscreen Space or transition animation.
+alt - t : /opt/homebrew/bin/mimi tiling cmd togglefloat
+alt - f : /opt/homebrew/bin/mimi tiling cmd togglemax
+
+# Last visited native Space (Cmd+Tab stays native app switching).
+alt - tab : /usr/bin/python3 -B ~/.config/mimi/space_history.py toggle
+
+# Available when another display is connected.
+shift + alt - p : /opt/homebrew/bin/mimi action move_window_to_display next
+shift + alt - o : /opt/homebrew/bin/mimi action move_window_to_display prev
+
+# Switch native Spaces.
+alt - 1 : /opt/homebrew/bin/mimi action space 1
+alt - 2 : /opt/homebrew/bin/mimi action space 2
+alt - 3 : /opt/homebrew/bin/mimi action space 3
+alt - 4 : /opt/homebrew/bin/mimi action space 4
+alt - 5 : /opt/homebrew/bin/mimi action space 5
+alt - 6 : /opt/homebrew/bin/mimi action space 6
+alt - 7 : /opt/homebrew/bin/mimi action space 7
+alt - 8 : /opt/homebrew/bin/mimi action space 8
+alt - 9 : /opt/homebrew/bin/mimi action space 9
+
+# Move the focused window to a Space and follow it.
+shift + alt - 1 : /opt/homebrew/bin/mimi action move_window_to_space 1 --follow
+shift + alt - 2 : /opt/homebrew/bin/mimi action move_window_to_space 2 --follow
+shift + alt - 3 : /opt/homebrew/bin/mimi action move_window_to_space 3 --follow
+shift + alt - 4 : /opt/homebrew/bin/mimi action move_window_to_space 4 --follow
+shift + alt - 5 : /opt/homebrew/bin/mimi action move_window_to_space 5 --follow
+shift + alt - 6 : /opt/homebrew/bin/mimi action move_window_to_space 6 --follow
+shift + alt - 7 : /opt/homebrew/bin/mimi action move_window_to_space 7 --follow
+shift + alt - 8 : /opt/homebrew/bin/mimi action move_window_to_space 8 --follow
+shift + alt - 9 : /opt/homebrew/bin/mimi action move_window_to_space 9 --follow
+shift + ctrl - left : /opt/homebrew/bin/mimi action move_window_to_space prev --follow
+shift + ctrl - right : /opt/homebrew/bin/mimi action move_window_to_space next --follow
