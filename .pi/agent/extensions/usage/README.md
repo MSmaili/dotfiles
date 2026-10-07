@@ -57,6 +57,7 @@ usage/
     opencode.ts       OpenCode Go usage + OpenCode Zen (probe)
     zai.ts            z.ai GLM Coding Plan (quota/limit monitor endpoint)
     index.ts          adapter registry + cache
+  parsers/            pure response parsing shared with the OpenCode plugin
   dashboard.ts        overlay panel components + line builders
   card.ts             transcript card renderer
   summary.ts          plain-text rendering (tool result / non-TUI)
@@ -65,6 +66,7 @@ usage/
 
 Adding a provider = one adapter file + one line in `adapters/index.ts`.
 The UI never changes; it only consumes `ProviderSnapshot`.
+Adapters own Pi credentials and network requests; parsers import neither.
 
 ### What each adapter queries
 
@@ -105,6 +107,6 @@ opencode keys come from the same auth store.
 - Responses are cached 60s in-memory; `/usage refresh` bypasses.
 - Transcript cards are disabled by default; set `PI_USAGE_SHOW_CARD=1` to enable them.
 - The WHAM endpoint and the go usage endpoint are unofficial; if parsing
-  breaks after an OpenAI/opencode update, check `adapters/chatgpt.ts` /
-  `adapters/opencode.ts` and the shape comments there.
+  breaks after an OpenAI/opencode update, check `parsers/chatgpt.ts` /
+  `parsers/opencode.ts` and the adapter shape comments.
 - Typecheck/tests: `npm run check` from `~/.pi/agent/extensions/`.

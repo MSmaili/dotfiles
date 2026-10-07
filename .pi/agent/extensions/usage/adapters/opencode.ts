@@ -13,19 +13,13 @@
 
 import { fetchJson } from "./http.ts";
 import { getApiKeyCredentials } from "./credentials.ts";
-import type { ProviderSnapshot, UsageWindow } from "./types.ts";
+import type { ProviderSnapshot } from "./types.ts";
+import { parseOpencodeUsage } from "../parsers/opencode.ts";
+
+export { parseOpencodeUsage } from "../parsers/opencode.ts";
 
 const GO_USAGE_URL = "https://opencode.ai/zen/go/v1/usage";
 const ZEN_USAGE_URL = "https://opencode.ai/zen/v1/usage";
-
-interface OpencodeWindowRaw {
-	status?: unknown;
-	percent?: unknown;
-	resetsAt?: unknown;
-	used_percent?: unknown;
-	reset_at?: unknown;
-	[key: string]: unknown;
-}
 
 export async function collectOpencodeGo(): Promise<ProviderSnapshot> {
 	const { key } = await getApiKeyCredentials("opencode-go");
@@ -40,45 +34,7 @@ export async function collectOpencodeGo(): Promise<ProviderSnapshot> {
 		if (status !== 200) {
 			return unavailable("opencode-go", `usage endpoint returned HTTP ${status}`);
 		}
-		const raw = (json ?? {}) as { usage?: Record<string, OpencodeWindowRaw> };
-		const usage = raw.usage ?? {};
-		const windows: UsageWindow[] = [];
-		const notes: string[] = [];
-
-		for (const [id, label] of [
-			["rolling", "5-hour rolling"],
-			["weekly", "weekly"],
-			["monthly", "monthly"],
-		] as const) {
-			const window = usage[id];
-			if (!window) continue;
-			if (window.status !== undefined && window.status !== "ok") {
-				notes.push(`${label}: status ${String(window.status)}`);
-				continue;
-			}
-			const percentUsed = toNumber(window.percent) ?? toNumber(window.used_percent);
-			if (percentUsed == null) continue;
-			windows.push({
-				id,
-				label,
-				percentUsed,
-				...(typeof window.resetsAt === "string" ? { resetsAt: window.resetsAt } : {}),
-				...(typeof window.reset_at === "string" ? { resetsAt: window.reset_at } : {}),
-			});
-		}
-
-		if (windows.length === 0) {
-			return unavailable("opencode-go", "usage response contained no window data");
-		}
-
-		return {
-			provider: "opencode-go",
-			displayName: "go",
-			status: "ok",
-			windows,
-			extra: notes,
-			fetchedAt: new Date().toISOString(),
-		};
+		return parseOpencodeUsage(json, "opencode-go");
 	} catch (error) {
 		return unavailable("opencode-go", errorMessage(error));
 	}
@@ -95,35 +51,7 @@ export async function collectOpencodeZen(): Promise<ProviderSnapshot> {
 			headers: { Authorization: `Bearer ${key}`, Accept: "application/json" },
 		});
 		if (status === 200) {
-			// opencode shipped an endpoint — parse it with the same logic as go.
-			const raw = (json ?? {}) as { usage?: Record<string, OpencodeWindowRaw> };
-			const usage = raw.usage ?? {};
-			const windows: UsageWindow[] = [];
-			for (const [id, label] of [
-				["rolling", "5-hour rolling"],
-				["weekly", "weekly"],
-				["monthly", "monthly"],
-			] as const) {
-				const window = usage[id];
-				if (!window) continue;
-				const percentUsed = toNumber(window.percent) ?? toNumber(window.used_percent);
-				if (percentUsed == null) continue;
-				windows.push({
-					id,
-					label,
-					percentUsed,
-					...(typeof window.resetsAt === "string" ? { resetsAt: window.resetsAt } : {}),
-					...(typeof window.reset_at === "string" ? { resetsAt: window.reset_at } : {}),
-				});
-			}
-			return {
-				provider: "opencode-zen",
-				displayName: "zen",
-				status: "ok",
-				windows,
-				extra: [],
-				fetchedAt: new Date().toISOString(),
-			};
+			return parseOpencodeUsage(json, "opencode-zen");
 		}
 
 		return unavailable(
@@ -133,15 +61,6 @@ export async function collectOpencodeZen(): Promise<ProviderSnapshot> {
 	} catch (error) {
 		return unavailable("opencode-zen", errorMessage(error));
 	}
-}
-
-function toNumber(value: unknown): number | null {
-	if (typeof value === "number" && Number.isFinite(value)) return value;
-	if (typeof value === "string" && value.trim() !== "") {
-		const numeric = Number(value);
-		if (Number.isFinite(numeric)) return numeric;
-	}
-	return null;
 }
 
 function unavailable(provider: "opencode-go" | "opencode-zen", message: string): ProviderSnapshot {

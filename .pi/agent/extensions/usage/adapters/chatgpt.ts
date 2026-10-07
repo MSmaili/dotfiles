@@ -26,53 +26,13 @@ import {
 	persistRefreshedChatgptTokens,
 	redact,
 } from "./credentials.ts";
-import type { ProviderSnapshot, UsageWindow } from "./types.ts";
+import type { ProviderSnapshot } from "./types.ts";
+import { parseWham } from "../parsers/chatgpt.ts";
+
+export { parseWham } from "../parsers/chatgpt.ts";
 
 const WHAM_URL = "https://chatgpt.com/backend-api/wham/usage";
 const TOKEN_URL = "https://auth.openai.com/oauth/token";
-
-interface WindowRaw {
-	used_percent?: unknown;
-	percent_left?: unknown;
-	limit_window_seconds?: unknown;
-	reset_after_seconds?: unknown;
-	reset_at?: unknown;
-	reset_time_ms?: unknown;
-	resetsAt?: unknown;
-}
-
-interface RateLimitRaw {
-	allowed?: unknown;
-	limit_reached?: unknown;
-	five_hour?: WindowRaw;
-	weekly?: WindowRaw;
-	primary_window?: WindowRaw | null;
-	secondary_window?: WindowRaw | null;
-	primary?: WindowRaw;
-	secondary?: WindowRaw;
-}
-
-interface WhamRaw {
-	plan_type?: unknown;
-	rate_limit?: RateLimitRaw | null;
-	rate_limits?: RateLimitRaw | null;
-	credits?: {
-		has_credits?: unknown;
-		unlimited?: unknown;
-		overage_limit_reached?: unknown;
-		balance?: unknown;
-		approx_local_messages?: unknown;
-		approx_cloud_messages?: unknown;
-	};
-	spend_control?: {
-		reached?: unknown;
-		individual_limit?: unknown;
-	};
-	rate_limit_reset_credits?: {
-		available_count?: unknown;
-		applicable_available_count?: unknown;
-	};
-}
 
 interface WhamContext {
 	access: string;
@@ -168,125 +128,6 @@ async function refreshTokens(ctx: WhamContext): Promise<boolean> {
 	} catch {
 		return false;
 	}
-}
-
-export function parseWham(raw: unknown): ProviderSnapshot {
-	const data = (raw ?? {}) as WhamRaw;
-	const rateLimit = data.rate_limit ?? data.rate_limits ?? {};
-	const windows: UsageWindow[] = [];
-
-	const primary =
-		rateLimit.primary_window ?? rateLimit.five_hour ?? rateLimit.primary;
-	if (primary) {
-		const parsed = parseWindow(primary, "primary");
-		if (parsed) {
-			parsed.label =
-				parsed.windowSeconds === 18_000
-					? "5-hour"
-					: parsed.windowSeconds === 604_800
-						? "weekly"
-						: "primary";
-			windows.push(parsed);
-		}
-	}
-
-	const secondary = rateLimit.secondary_window ?? rateLimit.weekly ?? rateLimit.secondary;
-	if (secondary) {
-		const parsed = parseWindow(secondary, "secondary");
-		if (parsed) {
-			parsed.label =
-				parsed.windowSeconds === 604_800
-					? "weekly"
-					: parsed.windowSeconds === 18_000
-						? "5-hour"
-						: "secondary";
-			windows.push(parsed);
-		}
-	}
-
-	const extra: string[] = [];
-	if (rateLimit.limit_reached === true || rateLimit.limit_reached === "true") {
-		extra.push("rate limit REACHED");
-	}
-
-	const credits = data.credits;
-	if (credits) {
-		if (credits.has_credits === true || credits.has_credits === "true") {
-			extra.push(`credits balance $${String(credits.balance ?? "?")}`);
-			if (credits.unlimited === true) extra.push("credits unlimited");
-		}
-		if (credits.overage_limit_reached === true) extra.push("overage limit reached");
-	}
-
-	const spend = data.spend_control;
-	if (spend) {
-		if (spend.reached === true) extra.push("spend control REACHED");
-		else if (spend.individual_limit != null)
-			extra.push(`spend control: $${String(spend.individual_limit)} limit`);
-		else extra.push("spend control: off");
-	}
-
-	const resetCredits = data.rate_limit_reset_credits;
-	const availableResetCredits = toNumber(resetCredits?.available_count);
-	const applicableResetCredits = toNumber(resetCredits?.applicable_available_count);
-	if (availableResetCredits != null) {
-		extra.push(
-			applicableResetCredits != null && applicableResetCredits !== availableResetCredits
-				? `reset credits: ${availableResetCredits} banked, ${applicableResetCredits} applicable now`
-				: `reset credits available: ${availableResetCredits}`,
-		);
-	}
-
-	return {
-		provider: "chatgpt",
-		displayName: "chatgpt",
-		plan: typeof data.plan_type === "string" ? data.plan_type.toUpperCase() : undefined,
-		status: "ok",
-		windows,
-		extra,
-		fetchedAt: new Date().toISOString(),
-	};
-}
-
-function parseWindow(raw: WindowRaw, id: string): UsageWindow | null {
-	const used = toNumber(raw.used_percent);
-	const left = toNumber(raw.percent_left);
-	if (used == null && left == null) return null;
-	const percentUsed = used != null ? used : left != null ? 100 - left : 0;
-
-	const resetsAt = pickReset(raw);
-	const windowSeconds = toNumber(raw.limit_window_seconds);
-	const resetsInSeconds = toNumber(raw.reset_after_seconds);
-
-	return {
-		id,
-		label: "window",
-		percentUsed,
-		...(resetsAt !== undefined ? { resetsAt } : {}),
-		...(windowSeconds != null ? { windowSeconds } : {}),
-		...(resetsInSeconds != null ? { resetsInSeconds } : {}),
-	};
-}
-
-function pickReset(raw: WindowRaw): number | string | undefined {
-	for (const candidate of [raw.reset_at, raw.reset_time_ms, raw.resetsAt]) {
-		if (candidate == null) continue;
-		if (typeof candidate === "number") return candidate;
-		if (typeof candidate === "string" && candidate.length > 0) {
-			const numeric = Number(candidate);
-			return Number.isFinite(numeric) ? numeric : candidate;
-		}
-	}
-	return undefined;
-}
-
-function toNumber(value: unknown): number | null {
-	if (typeof value === "number" && Number.isFinite(value)) return value;
-	if (typeof value === "string" && value.trim() !== "") {
-		const numeric = Number(value);
-		if (Number.isFinite(numeric)) return numeric;
-	}
-	return null;
 }
 
 function errorSnapshot(message: string): ProviderSnapshot {

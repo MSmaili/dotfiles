@@ -11,24 +11,26 @@ export function remainingPercent(window: UsageWindow): number {
 }
 
 /** Interpret resetsAt (epoch seconds, epoch ms, or ISO string). */
-export function resolveResetDate(window: UsageWindow): Date | undefined {
+export function resolveResetDate(window: UsageWindow, now = Date.now()): Date | undefined {
 	const raw = window.resetsAt;
+	let date: Date;
 	if (raw == null) {
-		if (typeof window.resetsInSeconds === "number") {
-			return new Date(Date.now() + window.resetsInSeconds * 1000);
-		}
-		return undefined;
+		if (typeof window.resetsInSeconds !== "number") return undefined;
+		date = new Date(now + window.resetsInSeconds * 1000);
+	} else if (typeof raw === "number") {
+		date = new Date(raw > 1e12 ? raw : raw * 1000);
+	} else {
+		date = new Date(raw);
 	}
-	if (typeof raw === "number") {
-		return new Date(raw > 1e12 ? raw : raw * 1000);
-	}
-	const date = new Date(raw);
-	return Number.isNaN(date.getTime()) ? undefined : date;
+	return Number.isFinite(date.getTime()) ? date : undefined;
 }
 
 /** "in 5d 2h", "in 12m", "in 20s", or "now". */
 export function formatResetsIn(window: UsageWindow): string {
-	if (typeof window.resetsInSeconds === "number") {
+	if (
+		typeof window.resetsInSeconds === "number" &&
+		resolveResetDate({ ...window, resetsAt: undefined })
+	) {
 		return formatDuration(window.resetsInSeconds);
 	}
 	const date = resolveResetDate(window);

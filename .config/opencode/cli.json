@@ -29,5 +29,9 @@
     "sidebar": "hide",
     "thinking": "show",
     "permissions": "autoaccept"
+  },
+  "attention": {
+    "notifications": true,
+    "sound": true
   }
 }

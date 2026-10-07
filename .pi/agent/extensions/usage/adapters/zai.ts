@@ -17,22 +17,12 @@
 
 import { getApiKeyCredentials } from "./credentials.ts";
 import { fetchJson } from "./http.ts";
-import type { ProviderSnapshot, UsageWindow } from "./types.ts";
+import type { ProviderSnapshot } from "./types.ts";
+import { parseQuotaLimit } from "../parsers/zai.ts";
+
+export { parseQuotaLimit } from "../parsers/zai.ts";
 
 const USAGE_URL = "https://open.bigmodel.cn/api/monitor/usage/quota/limit";
-
-/** Known unit codes; unknown ones fall back to "unit <n>". */
-const UNIT_LABELS: Record<number, string> = {
-	3: "5-hour rolling",
-	6: "monthly",
-};
-
-interface QuotaLimitRaw {
-	type?: unknown;
-	unit?: unknown;
-	percentage?: unknown;
-	nextResetTime?: unknown;
-}
 
 export async function collectZai(): Promise<ProviderSnapshot> {
 	const { key } = await getApiKeyCredentials("zai");
@@ -53,43 +43,6 @@ export async function collectZai(): Promise<ProviderSnapshot> {
 	} catch (error) {
 		return unavailable(error instanceof Error ? error.message : String(error));
 	}
-}
-
-/** Parse the quota/limit envelope. Returns undefined when no windows exist. */
-export function parseQuotaLimit(raw: unknown): Omit<ProviderSnapshot, "fetchedAt"> | undefined {
-	const data = (raw as { data?: { limits?: QuotaLimitRaw[]; level?: unknown } } | null)?.data;
-	const windows: UsageWindow[] = [];
-
-	for (const limit of data?.limits ?? []) {
-		const percentUsed = toNumber(limit.percentage);
-		if (percentUsed == null) continue;
-		const unit = toNumber(limit.unit) ?? 0;
-		windows.push({
-			id: `unit-${unit}`,
-			label: UNIT_LABELS[unit] ?? `unit ${unit}`,
-			percentUsed,
-			...(typeof limit.nextResetTime === "number" ? { resetsAt: limit.nextResetTime } : {}),
-		});
-	}
-
-	if (windows.length === 0) return undefined;
-	return {
-		provider: "zai",
-		displayName: "z.ai",
-		...(typeof data?.level === "string" ? { plan: data.level.toUpperCase() } : {}),
-		status: "ok",
-		windows,
-		extra: [],
-	};
-}
-
-function toNumber(value: unknown): number | null {
-	if (typeof value === "number" && Number.isFinite(value)) return value;
-	if (typeof value === "string" && value.trim() !== "") {
-		const numeric = Number(value);
-		if (Number.isFinite(numeric)) return numeric;
-	}
-	return null;
 }
 
 function unavailable(message: string): ProviderSnapshot {
