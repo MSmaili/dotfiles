@@ -11,34 +11,40 @@ install_zsh
 install_tmux_plugins
 
 if ask_yes_no "Install/update mise?"; then
-    install_mise
+	install_mise
 else
-    skip_with_message "Skipping Mise installation."
+	skip_with_message "Skipping Mise installation."
+fi
+
+if ask_yes_no "Install/update Pi?"; then
+	install_pi_agent
+else
+	skip_with_message "Skipping Pi installation."
 fi
 
 if ask_yes_no "Install/update SonarLint?"; then
-    source "$HELPERS_DIR/sonarlint.sh"
-    install_sonarlint
+	source "$HELPERS_DIR/sonarlint.sh"
+	install_sonarlint
 else
-    skip_with_message "Skipping SonarLint installation."
+	skip_with_message "Skipping SonarLint installation."
 fi
 
 if has stow; then
-    echo "🔗 Linking dotfiles..."
-    prepare_pi_agent
-    prepare_kiro
-    run_cmd stow \
-        --dir="$DOTFILES_DIR" \
-        --target="$HOME" \
-        --restow \
-        .
+	echo "🔗 Linking dotfiles..."
+	prepare_pi_agent
+	prepare_kiro
+	run_cmd stow \
+		--dir="$DOTFILES_DIR" \
+		--target="$HOME" \
+		--restow \
+		.
 else
-    echo "⚠️ stow not installed, skipping linking."
+	echo "⚠️ stow not installed, skipping linking."
 fi
 
 if has ya && [[ -f "$HOME/.config/yazi/package.toml" ]]; then
-    echo "📦 Installing Yazi packages..."
-    run_cmd ya pkg install
+	echo "📦 Installing Yazi packages..."
+	run_cmd ya pkg install
 fi
 
 # Register Vicinae script commands (idempotent; skips if Vicinae absent).

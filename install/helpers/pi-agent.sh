@@ -10,3 +10,8 @@ prepare_pi_agent() {
         "$agent_dir/prompts" \
         "$agent_dir/themes"
 }
+
+install_pi_agent() {
+    echo "📦 Installing Pi..."
+    run_cmd npm install -g --prefix "$HOME/.local" @earendil-works/pi-coding-agent@latest
+}

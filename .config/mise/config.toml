@@ -1,18 +1,23 @@
 [tools]
-go = "latest"
-bun = "latest"
-java = "21"
-node = "24"
-rust = "latest"
-lua = "5.4"
-python = "3.13"
-yazi = "latest"
 
-# Tools
-"cargo:eza" = "latest"
+# Prebuilt CLI tools
+yazi = "latest"
+"github:nklmilojevic/sofka" = "latest"
+
+# Rust CLI tools
 "cargo:devicon-lookup" = "latest"
+"cargo:eza" = "latest"
 "cargo:tree-sitter-cli" = "latest"
-# "go:github.com/MSmaili/hetki" = "latest"
-"go:github.com/go-task/task/v3/cmd/task"  = "latest"
-"npm:@earendil-works/pi-coding-agent" = "0.84.2"
-"aqua:nklmilojevic/sofka" = "latest"
+
+# Go CLI tools
+"go:github.com/MSmaili/hetki" = "main"
+"go:github.com/go-task/task/v3/cmd/task" = "latest"
+
+# Runtimes (alphabetical)
+bun = "latest"
+go = "latest"
+java = "21"
+lua = "5.4"
+node = "24"
+python = "3.13"
+rust = "latest"

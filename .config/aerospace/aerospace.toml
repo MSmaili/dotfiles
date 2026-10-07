@@ -7,8 +7,8 @@ config-version = 2
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
 after-startup-command = []
 
-# Start AeroSpace at login
-start-at-login = true
+# Disabled during the mimi trial; do not start two window managers at login.
+start-at-login = false
 
 # Automatically reload the config when the config file is saved
 # After setting this to true, reload once manually to start the auto-reloading
@@ -105,8 +105,8 @@ outer.right =      10
 # '''
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
-alt-e = 'layout tiles horizontal vertical'
-alt-a = 'layout accordion horizontal vertical'
+alt-b = 'layout tiles horizontal vertical'
+alt-s = 'layout accordion horizontal vertical'
 alt-comma = 'layout accordion horizontal vertical'
 cmd-h = [] # Disable "hide application"
 cmd-alt-h = [] # Disable "hide others"
@@ -142,7 +142,7 @@ ctrl-alt-shift-cmd-n = 'workspace next'
 ctrl-alt-shift-cmd-p = 'workspace prev'
 
 alt-t = 'layout floating tiling' # Toggle between floating and tiling layout
-alt-f = 'fullscreen --no-outer-gaps'
+alt-f = 'fullscreen'
 # alt-p = 'pinning'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace

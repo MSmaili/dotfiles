@@ -1,7 +1,9 @@
 [tools]
+# Additional CLI tools for Ubuntu (provided by Homebrew on macOS)
+ast-grep = "latest"
 bat = "latest"
-delta = "latest"
 btop = "latest"
+delta = "latest"
 fd = "latest"
 fzf = "latest"
 jq = "latest"
@@ -12,4 +14,3 @@ ripgrep = "latest"
 tmux = "latest"
 
 "go:github.com/FiloSottile/age" = "latest"
-ast-grep = "latest"

@@ -21,9 +21,10 @@ brew "age"
 brew "pnpm"
 brew "pngpaste"        # read PNG from macOS clipboard (used by clip-upload)
 brew "pandoc"
+brew "anomalyco/tap/opencode-v2"
 
 # Window management
-brew "asmvik/formulae/yabai"
+# brew "asmvik/formulae/yabai"
 cask "jackielii/tap/skhd-zig"
 
 # GUI applications

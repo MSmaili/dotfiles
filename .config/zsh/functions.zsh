@@ -122,8 +122,8 @@ fkill() {
         --preview-window=down:40% | awk '{print $2}')
 
     if [ -n "$pid" ]; then
-        echo "$pid" | xargs kill -"${1:-9}"
-        echo "Killed process(es): $pid"
+        echo "$pid" | xargs kill -"${1:-TERM}" || return $?
+        echo "Sent ${1:-TERM} to process(es): $pid"
     fi
 }
 

@@ -1,12 +1,12 @@
 # PATH management
 typeset -U path  # Keep unique entries
 path=(
+    "$HOME/.local/bin"
     "/usr/local/bin"
     "/usr/bin"
     "/bin"
     "/usr/sbin"
     "/sbin"
-    "$HOME/.local/bin"
     "$HOME/bin"
     "$HOME/.local/share/nvim/mason/bin"
     "$HOME/.config/scripts"
