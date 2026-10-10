@@ -35,24 +35,22 @@ skhd --start-service
 /usr/bin/python3 -B ~/.config/mimi/space_history.py sync
 ```
 
-This configuration was tested with Mimi **v0.20.3**. In that version, do not
-press “Request Permission” after granting access: it resets the existing grant.
-
 ## Shortcuts
 
-| Shortcut                 | Action                                                 |
-| ------------------------ | ------------------------------------------------------ |
-| Option+H/J/K/L           | Focus left/down/up/right; cycle windows in a stack     |
-| Option+Shift+H/J/K/L     | Swap windows / reorder stack                           |
-| Option+1–9               | Switch Space                                           |
-| Option+Shift+1–9         | Move window and follow                                 |
-| Option+Tab               | Toggle between the last two visited Spaces             |
-| Control+Shift+Left/Right | Move window to previous/next Space and follow          |
-| Option+B                 | BSP tiling                                             |
-| Option+S                 | Stack: windows fill the same area, overlapping exactly |
-| Option+T                 | Float and center at half-size; repeat to tile          |
-| Option+F                 | Fill current Space; repeat to restore tiling           |
-| Option+Shift+P/O         | Move window to next/previous display                   |
+| Shortcut                 | Action                                                    |
+| ------------------------ | --------------------------------------------------------- |
+| Option+H/J/K/L           | Focus left/down/up/right; cycle windows in a stack        |
+| Option+Shift+H/J/K/L     | Swap windows / reorder stack                              |
+| Option+1–9               | Switch Space                                              |
+| Option+Shift+1–9         | Move window and follow                                    |
+| Option+Tab               | Toggle between the last two visited Spaces                |
+| Control+Shift+Left/Right | Move window to previous/next Space and follow             |
+| Option+B                 | BSP tiling                                                |
+| Option+S                 | Stack: windows fill the same area, overlapping exactly    |
+| Option+E                 | Toggle split of the focused window: vertical ↔ horizontal |
+| Option+T                 | Float and center at half-size; repeat to tile             |
+| Option+F                 | Fill current Space; repeat to restore tiling              |
+| Option+Shift+P/O         | Move window to next/previous display                      |
 
 Cmd+Tab, Cmd+H, and Ctrl+Left/Right remain native. There are no shortcut modes.
 Option+F is zoom within the current Space, not macOS fullscreen; it applies to

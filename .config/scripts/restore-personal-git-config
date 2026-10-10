@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Manual personal identity restore; do not use on a work-only machine.
+config="${XDG_CONFIG_HOME:-$HOME/.config}/git/config.local"
+
+if [[ -e "$config" || -L "$config" ]]; then
+    echo "Keeping existing $config"
+    exit 0
+fi
+
+contents="$(op document get personal_github_config_file --vault Private)"
+umask 077
+mkdir -p "$(dirname "$config")"
+set -o noclobber
+printf '%s\n' "$contents" > "$config"
+echo "Restored personal Git config to $config"
